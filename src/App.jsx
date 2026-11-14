@@ -8,9 +8,17 @@ import BodyMap from './components/BodyMap.jsx';
 import Chart from './components/Chart.jsx';
 import CheckInModal from './components/CheckInModal.jsx';
 import InstructionDrawer from './components/InstructionDrawer.jsx';
-import hazard3 from './data/hazard3.json';
+import GuidancePanel from './components/GuidancePanel.jsx';
 import AutonomyChip from './components/AutonomyChip.jsx';
 import PvtTest from './components/PvtTest.jsx';
+import hazard1 from './data/hazard1.json';
+import hazard2 from './data/hazard2.json';
+import hazard3 from './data/hazard3.json';
+import hazard4 from './data/hazard4.json';
+import hazard5 from './data/hazard5.json';
+
+const ALL_RECORDS = [...hazard1, ...hazard2, ...hazard3, ...hazard4, ...hazard5];
+const RECORD_BY_ID = Object.fromEntries(ALL_RECORDS.map(r => [r.id, r]));
 
 /* ── Preset config ── */
 const PRESETS = [
@@ -161,6 +169,11 @@ export default function App() {
   const chartMeasId = nodeMeasList.some(m => m.id === selectedMeasId)
     ? selectedMeasId : nodeMeasList[0]?.id ?? null;
   const chartMeas = chartMeasId ? measurements?.[chartMeasId] : null;
+
+  // GuidancePanel derived state
+  const guidanceRecord = RECORD_BY_ID[chartMeasId] ?? null;
+  const guidanceMeasValue = chartMeas?.value ?? null;
+  const guidanceMeasStatus = (chartMeas?.status ?? 'green').toLowerCase();
 
   function handleSelectNode(nodeId) {
     setSelectedNode(nodeId);
@@ -552,84 +565,39 @@ export default function App() {
             <Chart measurement={chartMeas} measurementKey={chartMeasId} />
           </Panel>
 
-          <Panel style={{ padding: 0, flex: 1, minHeight: 0, display: 'flex',
-            flexDirection: 'column', overflow: 'hidden' }}>
-            <div style={{ padding: '12px 14px 6px',
-              borderBottom: '1px solid rgba(0,180,255,0.08)', flexShrink: 0 }}>
-              <HudLabel>Immediate Actions &amp; Guidance</HudLabel>
-            </div>
-            <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '10px 14px 14px' }}>
+          {/* Stats strip — RED / YELLOW / STREAK */}
+          {data.overallDetails && (
+            <Panel style={{ padding: '8px 14px', flexShrink: 0 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
+                {[
+                  { label: 'RED',    value: data.overallDetails.redCount,    color: '#ff3355' },
+                  { label: 'YELLOW', value: data.overallDetails.yellowCount, color: '#ffc800' },
+                  { label: 'STREAK', value: `${data.overallDetails.streakDays}d`, color: 'rgba(0,180,255,0.6)' },
+                ].map(({ label, value, color }) => (
+                  <div key={label} style={{ padding: '5px 8px',
+                    border: '1px solid rgba(0,180,255,0.1)',
+                    background: 'rgba(0,180,255,0.03)', textAlign: 'center' }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13,
+                      fontWeight: 700, color }}>{value}</div>
+                    <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 7,
+                      letterSpacing: '0.1em', color: 'rgba(0,180,255,0.4)', marginTop: 2 }}>{label}</div>
+                  </div>
+                ))}
+              </div>
+            </Panel>
+          )}
 
-              {data.overallDetails && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
-                  gap: 6, marginBottom: 12 }}>
-                  {[
-                    { label: 'RED',    value: data.overallDetails.redCount,    color: '#ff3355' },
-                    { label: 'YELLOW', value: data.overallDetails.yellowCount, color: '#ffc800' },
-                    { label: 'STREAK', value: `${data.overallDetails.streakDays}d`, color: 'rgba(0,180,255,0.6)' },
-                  ].map(({ label, value, color }) => (
-                    <div key={label} style={{ padding: '5px 8px',
-                      border: '1px solid rgba(0,180,255,0.1)',
-                      background: 'rgba(0,180,255,0.03)', textAlign: 'center' }}>
-                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13,
-                        fontWeight: 700, color }}>{value}</div>
-                      <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 7,
-                        letterSpacing: '0.1em', color: 'rgba(0,180,255,0.4)', marginTop: 2 }}>{label}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {allActions.length === 0 ? (
-                <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 9,
-                  color: 'rgba(0,180,255,0.3)', lineHeight: 1.8 }}>
-                  No critical actions required.<br />All systems nominal.
-                </p>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-                  {allActions.map((act) => {
-                    const done = !!checkedActs[act.id];
-                    return (
-                      <label key={act.id} style={{ display: 'flex', alignItems: 'flex-start',
-                        gap: 8, cursor: 'pointer' }}>
-                        <span onClick={() => toggleAction(act.id)} style={{
-                          flexShrink: 0, marginTop: 1, width: 14, height: 14,
-                          border: `1px solid ${done ? 'rgba(0,255,157,0.5)' : 'rgba(0,180,255,0.3)'}`,
-                          background: done ? 'rgba(0,255,157,0.1)' : 'transparent',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          transition: 'all 0.15s' }}>
-                          {done && <span style={{ color: '#00ff9d', fontSize: 9, lineHeight: 1 }}>✓</span>}
-                        </span>
-                        <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 10,
-                          lineHeight: 1.55,
-                          color: done ? 'rgba(200,228,255,0.25)' : 'rgba(200,228,255,0.8)',
-                          textDecoration: done ? 'line-through' : 'none', transition: 'all 0.2s' }}>
-                          {act.label}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              )}
-
-              {(cards ?? []).filter(c => c.summary).length > 0 && (
-                <div style={{ marginTop: 14, borderTop: '1px solid rgba(0,180,255,0.08)',
-                  paddingTop: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {(cards ?? []).filter(c => c.summary).map(c => (
-                    <div key={c.id}>
-                      <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 7,
-                        letterSpacing: '0.12em', color: 'rgba(0,180,255,0.45)', marginBottom: 3 }}>
-                        [{c.id}] {c.title?.toUpperCase()}
-                      </div>
-                      <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10,
-                        color: 'rgba(200,228,255,0.45)', lineHeight: 1.55 }}>
-                        {c.summary}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          {/* GuidancePanel — wired to selected measurement */}
+          <Panel style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: 0 }}>
+            <GuidancePanel
+              record={guidanceRecord}
+              status={guidanceMeasStatus}
+              value={guidanceMeasValue}
+              onOpenInstructions={guidanceRecord ? () => {
+                setDrawerRecord(guidanceRecord);
+                setShowDrawer(true);
+              } : undefined}
+            />
           </Panel>
         </aside>
       </main>
