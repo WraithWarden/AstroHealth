@@ -1,52 +1,74 @@
 const STATUS_COLORS = {
-  GREEN:  { bar: 'bg-green-500',  text: 'text-green-400'  },
-  YELLOW: { bar: 'bg-yellow-500', text: 'text-yellow-400' },
-  RED:    { bar: 'bg-red-500',    text: 'text-red-400'    },
+  GREEN:  { bar: '#00ff9d', text: '#00ff9d', glow: 'rgba(0,255,157,0.4)'  },
+  YELLOW: { bar: '#ffc800', text: '#ffc800', glow: 'rgba(255,200,0,0.4)'  },
+  RED:    { bar: '#ff3355', text: '#ff3355', glow: 'rgba(255,51,85,0.4)'  },
 };
 
-const AUTONOMY_LABELS = {
-  A0: { label: 'A0 Real-time',  color: 'text-green-400',  bg: 'bg-green-500/20'  },
-  A1: { label: 'A1 Delayed',    color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
-  A2: { label: 'A2 Autonomous', color: 'text-red-400',    bg: 'bg-red-500/20'    },
+const AUTONOMY_CFG = {
+  A0: { label: 'A0 · REAL-TIME',  color: '#00ff9d', bg: 'rgba(0,255,157,0.08)',  border: 'rgba(0,255,157,0.3)'  },
+  A1: { label: 'A1 · DELAYED',    color: '#ffc800', bg: 'rgba(255,200,0,0.08)',  border: 'rgba(255,200,0,0.3)'  },
+  A2: { label: 'A2 · AUTONOMOUS', color: '#ff3355', bg: 'rgba(255,51,85,0.08)', border: 'rgba(255,51,85,0.3)'  },
 };
 
 export default function HazardBars({ hazards, autonomy }) {
-  const autonomyCfg = AUTONOMY_LABELS[autonomy] ?? AUTONOMY_LABELS.A0;
+  const aCfg = AUTONOMY_CFG[autonomy] ?? AUTONOMY_CFG.A0;
 
   return (
-    <div className="space-y-3 w-full">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Hazards</span>
-        {/* Autonomy chip — slot reserved for Person 1 to fill */}
-        <span
-          className={`text-xs font-bold px-2 py-0.5 rounded-full ${autonomyCfg.color} ${autonomyCfg.bg}`}
-          aria-label={`Autonomy level: ${autonomyCfg.label}`}
-        >
-          {autonomyCfg.label}
+    <div style={{ width: '100%' }}>
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span className="hud-label">NASA Hazard Risk Scores</span>
+        <span style={{
+          fontFamily:    "'Orbitron', sans-serif",
+          fontSize:      9,
+          fontWeight:    700,
+          letterSpacing: '0.12em',
+          color:         aCfg.color,
+          background:    aCfg.bg,
+          border:        `1px solid ${aCfg.border}`,
+          padding:       '2px 10px',
+        }}>
+          {aCfg.label}
         </span>
       </div>
-      {(hazards ?? []).map((h) => {
-        const cfg = STATUS_COLORS[h.status] ?? STATUS_COLORS.GREEN;
-        return (
-          <div key={h.id} className="space-y-0.5">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-300 font-medium">{h.name}</span>
-              <span className={`font-bold ${cfg.text}`}>{h.score}</span>
+
+      {/* Hazard rows */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {(hazards ?? []).map((h) => {
+          const cfg = STATUS_COLORS[h.status] ?? STATUS_COLORS.GREEN;
+          return (
+            <div key={h.id}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, color: 'rgba(200,228,255,0.75)', fontWeight: 500 }}>
+                  {h.name}
+                </span>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700, color: cfg.text,
+                  textShadow: `0 0 6px ${cfg.glow}` }}>
+                  {h.score}
+                </span>
+              </div>
+              {/* Bar track */}
+              <div style={{ width: '100%', height: 4, background: 'rgba(0,180,255,0.07)', position: 'relative' }}>
+                <div
+                  role="meter"
+                  aria-valuenow={h.score}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${h.name}: ${h.score}`}
+                  style={{
+                    position:   'absolute',
+                    left:       0, top: 0, bottom: 0,
+                    width:      `${h.score}%`,
+                    background: cfg.bar,
+                    boxShadow:  `0 0 6px ${cfg.glow}`,
+                    transition: 'width 0.8s ease',
+                  }}
+                />
+              </div>
             </div>
-            <div className="w-full h-2.5 bg-slate-700 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full ${cfg.bar}`}
-                style={{ width: `${h.score}%`, transition: 'width 0.6s ease' }}
-                role="meter"
-                aria-valuenow={h.score}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label={`${h.name}: ${h.score}`}
-              />
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

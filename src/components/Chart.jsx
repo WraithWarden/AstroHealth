@@ -3,30 +3,39 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 
-const STATUS_COLORS = { GREEN: '#22c55e', YELLOW: '#eab308', RED: '#ef4444' };
+const STATUS_COLORS = {
+  GREEN:  '#00ff9d',
+  YELLOW: '#ffc800',
+  RED:    '#ff3355',
+};
 
 function TrendArrow({ history }) {
   if (!history || history.length < 3) return null;
   const last3 = history.slice(-3);
   const delta = last3[2] - last3[0];
   const threshold = 0.05 * (Math.abs(last3[0]) || 1);
-  if (Math.abs(delta) < threshold) return <span className="text-slate-400">→ Stable</span>;
+  if (Math.abs(delta) < threshold)
+    return <span style={{ color: 'rgba(0,180,255,0.6)', fontSize: 9 }}>→ STABLE</span>;
   return delta > 0
-    ? <span className="text-red-400">↑ Rising</span>
-    : <span className="text-green-400">↓ Falling</span>;
+    ? <span style={{ color: '#ff3355', fontSize: 9 }}>↑ RISING</span>
+    : <span style={{ color: '#00ff9d', fontSize: 9 }}>↓ FALLING</span>;
 }
 
-function CustomTooltip({ active, payload, label }) {
+function NasaTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload;
   const color = STATUS_COLORS[d?.status] ?? '#94a3b8';
   return (
-    <div className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-xs shadow-xl">
-      <p className="text-slate-400 mb-1">Day {label}</p>
-      <p style={{ color }} className="font-bold">{payload[0]?.value} {d?.unit}</p>
-      {d?.status && (
-        <p style={{ color }} className="mt-0.5 uppercase tracking-wide">{d.status}</p>
-      )}
+    <div style={{
+      background: '#060f1e',
+      border: `1px solid rgba(0,180,255,0.2)`,
+      padding: '8px 12px',
+      fontFamily: "'Space Mono', monospace",
+      fontSize: 10,
+    }}>
+      <p style={{ color: 'rgba(0,180,255,0.6)', marginBottom: 4 }}>DAY {label}</p>
+      <p style={{ color, fontWeight: 700 }}>{payload[0]?.value} <span style={{ opacity: 0.6 }}>{d?.unit}</span></p>
+      {d?.status && <p style={{ color, opacity: 0.8, marginTop: 2, letterSpacing: '0.1em' }}>{d.status}</p>}
     </div>
   );
 }
@@ -34,8 +43,10 @@ function CustomTooltip({ active, payload, label }) {
 export default function Chart({ measurement, measurementKey }) {
   if (!measurement) {
     return (
-      <div className="flex items-center justify-center h-48 text-slate-500 text-sm">
-        Select a body node to view chart
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: 160, color: 'rgba(0,180,255,0.3)', fontFamily: "'Orbitron', sans-serif",
+        fontSize: 10, letterSpacing: '0.1em', textAlign: 'center' }}>
+        SELECT A NODE<br/>TO VIEW TREND
       </div>
     );
   }
@@ -43,21 +54,18 @@ export default function Chart({ measurement, measurementKey }) {
   const { history = [], unit = '', status = 'GREEN', baseline } = measurement;
   const color = STATUS_COLORS[status] ?? '#94a3b8';
 
-  // Build chart data with day labels
   const data = history.map((val, i) => ({
     day: i + 1,
     value: val,
     unit,
     status,
-    // Baseline band
     baseHigh: baseline ? baseline.mean + baseline.sd : undefined,
     baseLow:  baseline ? baseline.mean - baseline.sd : undefined,
   }));
 
-  const earthNormal = measurement.earth_normal;
+  const earthNormal  = measurement.earth_normal;
   const baselineMean = baseline?.mean;
 
-  // Auto-scale Y axis with padding
   const vals = data.map(d => d.value).filter(Boolean);
   const allVals = [
     ...vals,
@@ -66,43 +74,49 @@ export default function Chart({ measurement, measurementKey }) {
     baseline ? baseline.mean + baseline.sd : null,
     baseline ? baseline.mean - baseline.sd : null,
   ].filter(v => v != null);
-  const minY = Math.min(...allVals) * 0.9;
-  const maxY = Math.max(...allVals) * 1.1;
+  const pad   = 0.1;
+  const minY  = Math.min(...allVals) * (1 - pad);
+  const maxY  = Math.max(...allVals) * (1 + pad);
 
   return (
-    <div className="w-full">
-      {/* Chart header */}
-      <div className="flex items-center justify-between mb-2 text-xs">
-        <span className="text-slate-300 font-semibold">{measurementKey ?? 'Measurement'} ({unit})</span>
-        <span className="font-medium">
+    <div style={{ width: '100%' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 9, fontWeight: 600,
+          letterSpacing: '0.12em', color: 'rgba(0,180,255,0.7)', textTransform: 'uppercase' }}>
+          {measurementKey ?? 'Measurement'} ({unit})
+        </span>
+        <span style={{ fontFamily: "'Space Mono', monospace" }}>
           <TrendArrow history={history} />
         </span>
       </div>
 
-      <ResponsiveContainer width="100%" height={180}>
-        <ComposedChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+      <ResponsiveContainer width="100%" height={160}>
+        <ComposedChart data={data} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="2 4" stroke="rgba(0,180,255,0.05)" vertical={false} />
           <XAxis
             dataKey="day"
-            tick={{ fill: '#64748b', fontSize: 10 }}
+            tick={{ fill: 'rgba(0,180,255,0.3)', fontSize: 9, fontFamily: "'Space Mono', monospace" }}
             tickLine={false}
-            label={{ value: 'Day', position: 'insideBottomRight', fill: '#475569', fontSize: 10, offset: -4 }}
+            axisLine={{ stroke: 'rgba(0,180,255,0.1)' }}
           />
           <YAxis
             domain={[minY, maxY]}
-            tick={{ fill: '#64748b', fontSize: 10 }}
+            tick={{ fill: 'rgba(0,180,255,0.3)', fontSize: 9, fontFamily: "'Space Mono', monospace" }}
             tickLine={false}
+            axisLine={false}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<NasaTooltip />} />
 
-          {/* Personal baseline band (mean ± 1 SD) */}
+          {/* Baseline band */}
           {baseline && (
             <ReferenceArea
               y1={baseline.mean - baseline.sd}
               y2={baseline.mean + baseline.sd}
-              fill="#3b82f6"
-              fillOpacity={0.08}
-              label={{ value: 'Baseline', position: 'insideTopRight', fill: '#3b82f6', fontSize: 9 }}
+              fill="rgba(0,180,255,0.06)"
+              stroke="none"
+              label={{ value: 'BL', position: 'insideTopRight', fill: 'rgba(0,180,255,0.3)', fontSize: 8,
+                fontFamily: "'Space Mono', monospace" }}
             />
           )}
 
@@ -110,10 +124,11 @@ export default function Chart({ measurement, measurementKey }) {
           {earthNormal != null && (
             <ReferenceLine
               y={earthNormal}
-              stroke="#60a5fa"
-              strokeDasharray="5 3"
-              strokeWidth={1.5}
-              label={{ value: 'Earth', position: 'insideTopRight', fill: '#60a5fa', fontSize: 9 }}
+              stroke="rgba(0,180,255,0.4)"
+              strokeDasharray="4 3"
+              strokeWidth={1}
+              label={{ value: 'Earth', position: 'insideTopRight', fill: 'rgba(0,180,255,0.4)', fontSize: 8,
+                fontFamily: "'Space Mono', monospace" }}
             />
           )}
 
@@ -122,24 +137,33 @@ export default function Chart({ measurement, measurementKey }) {
             type="monotone"
             dataKey="value"
             stroke={color}
-            strokeWidth={2.5}
-            dot={{ r: 3, fill: color, strokeWidth: 0 }}
-            activeDot={{ r: 5, fill: color }}
-            animationDuration={600}
+            strokeWidth={2}
+            dot={{ r: 2.5, fill: color, strokeWidth: 0 }}
+            activeDot={{ r: 4, fill: color, strokeWidth: 0 }}
+            animationDuration={700}
+            style={{ filter: `drop-shadow(0 0 4px ${color})` }}
           />
         </ComposedChart>
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="flex gap-3 mt-1 text-xs text-slate-400">
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-4 border-t-2 border-blue-400 border-dashed" /> Earth normal
+      <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 8,
+          fontFamily: "'Space Mono', monospace", color: 'rgba(0,180,255,0.4)' }}>
+          <span style={{ display: 'inline-block', width: 14, height: 1, background: 'rgba(0,180,255,0.4)',
+            borderTop: '1px dashed rgba(0,180,255,0.4)' }}/>
+          Earth Normal
         </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block w-4 h-2 bg-blue-500 opacity-20 rounded" /> Baseline ±1SD
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 8,
+          fontFamily: "'Space Mono', monospace", color: 'rgba(0,180,255,0.4)' }}>
+          <span style={{ display: 'inline-block', width: 10, height: 6,
+            background: 'rgba(0,180,255,0.1)' }}/>
+          Baseline ±1SD
         </span>
-        <span className="flex items-center gap-1" style={{ color }}>
-          <span className="inline-block w-4 border-t-2" style={{ borderColor: color }} /> 7-day
+        <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 8,
+          fontFamily: "'Space Mono', monospace", color }}>
+          <span style={{ display: 'inline-block', width: 14, height: 1, background: color }}/>
+          7-Day
         </span>
       </div>
     </div>
