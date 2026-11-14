@@ -1,0 +1,53 @@
+{
+  "overall": 51,
+  "badge": "CRITICAL",
+  "autonomy": "A2",
+  "hazards": [
+    {
+      "id": 1,
+      "name": "Neurological",
+      "score": 49,
+      "status": "RED",
+      "cards": ["Brain", "Eyes"]
+    },
+    {
+      "id": 2,
+      "name": "Radiation & Metabolic",
+      "score": 35,
+      "status": "RED",
+      "cards": ["Radiation", "Glucose"]
+    },
+    {
+      "id": 3,
+      "name": "Cardio & Sleep",
+      "score": 68,
+      "status": "YELLOW",
+      "cards": ["Cardiovascular", "Sleep"]
+    },
+    {
+      "id": 4,
+      "name": "Integumentary",
+      "score": 92,
+      "status": "GREEN",
+      "cards": ["Skin", "Musculoskeletal"]
+    }
+  ],
+  "nodes": {
+    "brain": "RED",
+    "eyes": "RED",
+    "heart": "YELLOW",
+    "lungs": "GREEN",
+    "bones": "RED",
+    "whole": "YELLOW"
+  },
+  "measurements": {
+    "ONSD": { "value": 5.9, "unit": "mm", "status": "RED", "node": "eyes", "history": [5.1, 5.2, 5.3, 5.5, 5.7, 5.8, 5.9] },
+    "Sleep": { "value": 5.2, "unit": "h", "status": "YELLOW", "node": "brain", "history": [7.1, 6.8, 6.5, 6.2, 5.9, 5.5, 5.2] },
+    "HeartRate": { "value": 78, "unit": "bpm", "status": "GREEN", "node": "heart", "history": [72, 73, 74, 75, 76, 77, 78] },
+    "SpO2": { "value": 97, "unit": "%", "status": "GREEN", "node": "lungs", "history": [98, 98, 97, 97, 97, 97, 97] },
+    "RadDose": { "value": 320, "unit": "mSv", "status": "YELLOW", "node": "bones", "history": [150, 190, 220, 255, 280, 300, 320] },
+    "Glucose": { "value": 6.1, "unit": "mmol/L", "status": "GREEN", "node": "whole", "history": [5.5, 5.7, 5.9, 6.0, 6.0, 6.1, 6.1] }
+  },
+  "delay_seconds": 1260,
+  "preset": "mars"
+}

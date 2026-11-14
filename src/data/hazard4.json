@@ -1,0 +1,119 @@
+[
+  {
+    "id": "4A-i",
+    "name": "Skin Assessment",
+    "unit": "category",
+    "node": "whole",
+    "categories": ["Clear", "Mild", "Moderate", "Severe"],
+    "earth_range": ["Clear", "Mild"],
+    "earth_normal": "Clear",
+    "baseline": { "mean": "Clear", "sd": null },
+    "direction": "category_high_bad",
+    "yellow": "Mild",
+    "red": "Moderate",
+    "input": "skin_category",
+    "equipment": "Visual inspection; well-lit environment; magnifying glass optional",
+    "steps": [
+      "Inspect exposed skin areas: face, neck, forearms, hands, and any area under friction (waistband, collar).",
+      "Classify using the 4-category scale: Clear (no lesions), Mild (1–5 small lesions < 1 cm), Moderate (6–20 lesions or any lesion > 1 cm), Severe (> 20 lesions, open wounds, or spreading redness).",
+      "Photograph any lesion that was not present at the previous check-in and attach to the report."
+    ],
+    "when": "Every 3 days, or immediately after any skin injury or unusual rash.",
+    "mistakes": "Confusing dry skin (common in low-humidity cabin air) with an allergic or infectious rash. Dry skin has no raised borders or fluid.",
+    "escalate_if": "Any rapidly spreading redness (> 5 cm diameter increase in 12 h), fever above 38 °C alongside a skin lesion, or pus discharge.",
+    "why": "Microgravity and elevated radiation increase skin fragility. Immune suppression in space slows healing and raises infection risk from minor wounds.",
+    "benefits": "Early classification prevents minor skin issues from progressing to infections that require systemic antibiotics.",
+    "actions": {
+      "yellow": "Apply prescribed topical moisturiser or barrier cream. Increase skin inspection frequency to daily. Document and photograph.",
+      "red":    "Contact flight surgeon immediately. Begin wound care protocol. Isolate the affected area from further friction or contamination."
+    },
+    "source_tag": "NASA-STD-3001 Vol.1 §4.11; NASA HRP Evidence Report: Risk of Skin Breakdown"
+  },
+  {
+    "id": "4A-ii",
+    "name": "Wound Healing Rate",
+    "unit": "days",
+    "node": "whole",
+    "earth_range": [0, 7],
+    "earth_normal": 5,
+    "baseline": { "mean": 5, "sd": 1 },
+    "direction": "high_bad",
+    "yellow": 10,
+    "red": 14,
+    "input": "wound_healing_days",
+    "equipment": "Wound closure strips, sterile dressings, ruler or wound measurement tool",
+    "steps": [
+      "On the day a wound is noted, record the date and photograph the wound with a scale reference.",
+      "Re-photograph every 48 hours. Measure the longest dimension of the open wound area.",
+      "Record how many days since wound onset when the wound is fully closed (epithelialised)."
+    ],
+    "when": "Starting at wound onset; re-assessed every 48 h until healed.",
+    "mistakes": "Recording wound closure when a scab forms rather than when full epithelialisation is confirmed.",
+    "escalate_if": "No measurable reduction in wound area after 7 days, or signs of infection (warmth, purulent discharge, increasing pain).",
+    "why": "Wound healing is impaired in microgravity and under elevated radiation. Slow healing is an early systemic health indicator.",
+    "benefits": "Tracking healing rate allows early antibiotic intervention, preventing mission-threatening infections.",
+    "actions": {
+      "yellow": "Increase wound care frequency. Apply silver-containing dressing if available. Report to flight surgeon.",
+      "red":    "Ground consult mandatory. Begin systemic antibiotic protocol. Document and transmit wound photos."
+    },
+    "source_tag": "NASA-STD-3001 Vol.1 §4.11; NASA HRP Evidence Report: Risk of Adverse Health Outcomes"
+  },
+  {
+    "id": "4B-i",
+    "name": "Back Pain (VAS)",
+    "unit": "0–10",
+    "node": "bones",
+    "earth_range": [0, 3],
+    "earth_normal": 1,
+    "baseline": { "mean": 1.5, "sd": 0.8 },
+    "direction": "high_bad",
+    "yellow": 4,
+    "red": 7,
+    "input": "back_pain_vas",
+    "equipment": "Visual Analogue Scale (printed card or digital slider); no additional equipment required",
+    "steps": [
+      "At the same time each day (after waking), rate your overall back and spinal discomfort on a 0–10 scale (0 = no pain, 10 = worst imaginable pain).",
+      "Record the number in the check-in form.",
+      "If pain is localised, note the location (lumbar, thoracic, cervical) in the notes field."
+    ],
+    "when": "Once per day, immediately after waking.",
+    "mistakes": "Rating pain after exercise or physical therapy can underestimate chronic baseline pain.",
+    "escalate_if": "Pain score ≥ 7 and not relieved by standard analgesics within 2 h, or any neurological symptoms (numbness, tingling, weakness in legs).",
+    "why": "Spinal elongation in microgravity increases disc pressure and back pain. Bone density loss compounds the risk of vertebral compression fractures on return.",
+    "benefits": "Daily VAS tracking identifies accelerating spinal stress before structural injury, enabling targeted exercise countermeasures.",
+    "actions": {
+      "yellow": "Increase resistive exercise frequency per exercise countermeasure protocol. Apply heat. Report to flight surgeon if score persists for 3 days.",
+      "red":    "Restrict heavy lifting. Contact flight surgeon immediately. Begin diagnostic imaging protocol if available."
+    },
+    "source_tag": "NASA-STD-3001 Vol.1 §4.5; NASA HRP Evidence Report: Risk of Bone Fracture"
+  },
+  {
+    "id": "4B-ii",
+    "name": "Grip Strength",
+    "unit": "kg",
+    "node": "whole",
+    "earth_range": [25, 60],
+    "earth_normal": 42,
+    "baseline": { "mean": 40, "sd": 5 },
+    "direction": "low_bad",
+    "yellow": 32,
+    "red": 25,
+    "input": "grip_strength_kg",
+    "equipment": "Hand dynamometer (stored in medical kit)",
+    "steps": [
+      "Sit or brace against a stable surface. Hold the dynamometer with the dominant hand, elbow at 90°.",
+      "Squeeze as hard as possible for 3 seconds. Record the peak value.",
+      "Repeat 3 times with a 1-minute rest between trials. Record the maximum of the three values."
+    ],
+    "when": "Every 7 days, before exercise. Always use the dominant hand.",
+    "mistakes": "Measuring after a workout gives falsely low results due to muscle fatigue. Wait at least 4 hours after vigorous exercise.",
+    "escalate_if": "Drop of more than 20 % from personal baseline in a single week — indicates rapid muscle atrophy.",
+    "why": "Grip strength is a validated proxy for overall muscle mass and systemic muscle atrophy, which is a key risk during extended microgravity exposure.",
+    "benefits": "Weekly tracking allows the exercise countermeasure programme to be intensified before significant functional impairment occurs.",
+    "actions": {
+      "yellow": "Review and intensify resistive exercise protocol with flight surgeon. Add extra upper-body RED sessions.",
+      "red":    "Report to flight surgeon immediately. Begin enhanced musculoskeletal assessment. Consider early mission modification."
+    },
+    "source_tag": "NASA-STD-3001 Vol.1 §4.5; NASA HRP Evidence Report: Risk of Muscle Atrophy"
+  }
+]
