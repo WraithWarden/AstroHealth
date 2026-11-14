@@ -1,0 +1,166 @@
+[
+  {
+    "id": "5A",
+    "name": "One-way Communication Delay",
+    "unit": "seconds (shown as s or min)",
+    "node": "Context banner",
+    "scored": false,
+    "kind": "context",
+    "earth_range": {
+      "text": "About 0 s"
+    },
+    "baseline": {
+      "mean": null,
+      "sd": null,
+      "text": "ISS about 0 s (A0); Moon about 1.3 s (A0); Mars 4–22 min (A2)"
+    },
+    "direction": "HIGH",
+    "levels": [
+      {
+        "level": "A0",
+        "label": "Real-time",
+        "lt_seconds": 5
+      },
+      {
+        "level": "A1",
+        "label": "Delayed",
+        "gte_seconds": 5,
+        "lte_seconds": 300
+      },
+      {
+        "level": "A2",
+        "label": "Autonomous",
+        "gt_seconds": 300
+      }
+    ],
+    "yellow": {
+      "gte": 5,
+      "lte": 300,
+      "text": "A1 Delayed: 5 s to 5 min"
+    },
+    "red": {
+      "gt": 300,
+      "text": "A2 Autonomous: over 5 min (turns on Earth-independent triage mode)"
+    },
+    "input": {
+      "type": "number",
+      "min": 0,
+      "max": 2000,
+      "step": 0.1,
+      "auto": true,
+      "label": "One-way delay (seconds)"
+    },
+    "equipment": [
+      "Mission link telemetry (automatic)"
+    ],
+    "steps": [
+      "Look at the banner at the top of the dashboard. It updates automatically.",
+      "Read the delay and the autonomy level (A0, A1 or A2).",
+      "At A2, open the offline triage checklist before acting."
+    ],
+    "when": "Continuous.",
+    "mistakes": [
+      "Waiting for ground answers when the delay makes that impractical.",
+      "Forgetting that messages and photos are queued, not instant."
+    ],
+    "escalate_if": [
+      "The level changes to A2.",
+      "A communication blackout starts."
+    ],
+    "why": "Near Earth, doctors on the ground can help in real time. On Mars the delay can be 4–22 minutes each way, so the crew must be able to triage and treat on their own. This indicator only sets the mode; it is never scored as a body measure.",
+    "benefits": [
+      "Switches the app to the right mode automatically.",
+      "Shows when offline checklists are needed.",
+      "Applies the 10-point penalty only when a Red indicator exists at A2."
+    ],
+    "actions": {
+      "yellow": [
+        "Expect delayed replies and plan ahead.",
+        "Send complete reports in one message."
+      ],
+      "red": [
+        "Use the offline Crew Medical Officer checklist.",
+        "Package the report for ground to be sent when the link allows.",
+        "Do not wait for ground approval on urgent steps in the checklist."
+      ]
+    },
+    "source_tag": [
+      "S",
+      "L",
+      "H"
+    ]
+  },
+  {
+    "id": "5B",
+    "name": "Medical Kit Stock",
+    "unit": "% remaining",
+    "node": "Context banner",
+    "scored": false,
+    "kind": "context",
+    "earth_range": {
+      "text": "100% with resupply"
+    },
+    "baseline": {
+      "mean": null,
+      "sd": null,
+      "text": "70% or more is normal"
+    },
+    "direction": "LOW",
+    "yellow": {
+      "gte": 50,
+      "lte": 69,
+      "text": "50–69%"
+    },
+    "red": {
+      "lt": 50,
+      "critical_item_depleted": true,
+      "text": "Under 50%, or any life-critical item used up (oxygen, IV fluid, key drug)"
+    },
+    "input": {
+      "type": "number",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "auto": true,
+      "label": "Kit stock (automatic inventory log)"
+    },
+    "equipment": [
+      "Onboard inventory log (automatic)"
+    ],
+    "steps": [
+      "Open the medical kit card. The inventory updates when items are used.",
+      "Read the percent remaining and any life-critical items that are low.",
+      "Log every item you use so the count stays correct."
+    ],
+    "when": "Continuous, updated whenever an item is dispensed.",
+    "mistakes": [
+      "Using an item and forgetting to log it.",
+      "Looking only at the total and missing a life-critical item that is nearly gone."
+    ],
+    "escalate_if": [
+      "Under 70%.",
+      "Under 50%.",
+      "Any life-critical item is depleted."
+    ],
+    "why": "On a long mission there is no resupply and no quick return to Earth. Knowing what is left decides which treatments are possible. This is context for the crew and does not change the health score.",
+    "benefits": [
+      "Prompts early conservation.",
+      "Helps choose treatments you can actually deliver.",
+      "Gives ground a clear stock picture."
+    ],
+    "actions": {
+      "yellow": [
+        "Start conservation steps.",
+        "Use checklist-approved alternatives where possible."
+      ],
+      "red": [
+        "Follow the conservation protocol strictly.",
+        "Use only checklist-approved alternatives.",
+        "Tell the Crew Medical Officer and report to ground."
+      ]
+    },
+    "source_tag": [
+      "H"
+    ]
+  }
+]

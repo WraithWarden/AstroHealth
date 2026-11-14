@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── NASA Palette ── */
+  --color-bg-primary:   #030e1c;
+  --color-bg-card:      #060f1e;
+  --color-bg-elevated:  #081525;
+  --color-accent:       #00b4ff;
+  --color-accent-dim:   rgba(0, 180, 255, 0.15);
+  --color-accent-glow:  rgba(0, 180, 255, 0.4);
+
+  --color-nasa-green:   #00ff9d;
+  --color-nasa-yellow:  #ffc800;
+  --color-nasa-red:     #ff3355;
+
+  --color-text-primary:  #c8e4ff;
+  --color-text-dim:      #4a7fa5;
+  --color-text-muted:    #2a5070;
+
+  /* ── Fonts ── */
+  --font-display: 'Orbitron', 'Inter', sans-serif;
+  --font-mono:    'Space Mono', 'Courier New', monospace;
+  --font-body:    'Inter', sans-serif;
+}
+
+/* ── Keyframes ── */
+@keyframes nodePulse {
+  0%, 100% { opacity: 0.5; transform: scale(1);    }
+  50%       { opacity: 1;   transform: scale(1.25); }
+}
+@keyframes critBlink {
+  0%, 100% { opacity: 1;   }
+  50%       { opacity: 0.6; }
+}
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+@keyframes gaugeIn {
+  from { stroke-dasharray: 0 500; }
+}
+
+/* ── Base ── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { height: 100%; }
+
+  body {
+    min-height: 100%;
+    background-color: #030e1c;
+    color: #c8e4ff;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar       { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: #030e1c; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,180,255,0.3); border-radius: 2px; }
+}
+
+/* ── HUD Panel ── */
+.hud-panel {
+  position: relative;
+  background: #060f1e;
+  border: 1px solid rgba(0, 180, 255, 0.15);
+  overflow: hidden;
+}
+
+/* corner decorators */
+.hud-panel::before,
+.hud-panel::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: rgba(0, 180, 255, 0.5);
+  border-style: solid;
+}
+.hud-panel::before { top: 0; left: 0; border-width: 1px 0 0 1px; }
+.hud-panel::after  { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+
+/* ── HUD section label ── */
+.hud-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 180, 255, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hud-label::before {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 10px;
+  background: rgba(0, 180, 255, 0.5);
+  flex-shrink: 0;
+}
+
+/* ── NASA utility colors ── */
+.text-nasa-green  { color: #00ff9d; }
+.text-nasa-yellow { color: #ffc800; }
+.text-nasa-red    { color: #ff3355; }
+.text-accent      { color: #00b4ff; }
+
+/* ── Orbitron font util ── */
+.font-display { font-family: 'Orbitron', sans-serif; }
+.font-mono    { font-family: 'Space Mono', monospace; }
+
+/* ── Node pulse animation ── */
+.node-pulse { animation: nodePulse 1.6s ease-in-out infinite; }
+.crit-blink { animation: critBlink 1s ease-in-out infinite; }
+
+/* ── Fade-in ── */
+.fade-in { animation: fadeIn 0.3s ease both; }
+
+/* ── Modal overlay ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 14, 28, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}

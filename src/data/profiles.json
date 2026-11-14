@@ -1,0 +1,116 @@
+{
+  "AST-001": {
+    "id": "AST-001",
+    "name": "Capt. Marcus Chen",
+    "role": "Flight Engineer",
+    "missionType": "ISS Increment 74 (0g LEO)",
+    "regime": "ISS",
+    "gravityG": 0,
+    "missionDay": 14,
+    "missionTotalDays": 180,
+    "timestampUtc": "2026-11-14T08:00:00Z",
+    "sex": "M",
+    "age": 37,
+    "heightCm": 178,
+    "weightKg": 76,
+    "allergies": [
+      "None"
+    ],
+    "careerPreFlightDoseMsv": 90
+  },
+  "iss": {
+    "id": "AST-001",
+    "name": "Capt. Marcus Chen",
+    "role": "Flight Engineer",
+    "missionType": "ISS Increment 74 (0g LEO)",
+    "regime": "ISS",
+    "gravityG": 0,
+    "missionDay": 14,
+    "missionTotalDays": 180,
+    "timestampUtc": "2026-11-14T08:00:00Z",
+    "sex": "M",
+    "age": 37,
+    "heightCm": 178,
+    "weightKg": 76,
+    "allergies": [
+      "None"
+    ],
+    "careerPreFlightDoseMsv": 90
+  },
+  "AST-002": {
+    "id": "AST-002",
+    "name": "Dr. Priya Nair",
+    "role": "Lunar Surface Specialist / CMO",
+    "missionType": "Artemis Base Camp (1/6g Lunar)",
+    "regime": "LUNAR",
+    "gravityG": 0.167,
+    "missionDay": 90,
+    "missionTotalDays": 180,
+    "timestampUtc": "2026-11-14T08:00:00Z",
+    "sex": "F",
+    "age": 36,
+    "heightCm": 166,
+    "weightKg": 60,
+    "allergies": [
+      "Sulfa drugs"
+    ],
+    "careerPreFlightDoseMsv": 140
+  },
+  "lunar": {
+    "id": "AST-002",
+    "name": "Dr. Priya Nair",
+    "role": "Lunar Surface Specialist / CMO",
+    "missionType": "Artemis Base Camp (1/6g Lunar)",
+    "regime": "LUNAR",
+    "gravityG": 0.167,
+    "missionDay": 90,
+    "missionTotalDays": 180,
+    "timestampUtc": "2026-11-14T08:00:00Z",
+    "sex": "F",
+    "age": 36,
+    "heightCm": 166,
+    "weightKg": 60,
+    "allergies": [
+      "Sulfa drugs"
+    ],
+    "careerPreFlightDoseMsv": 140
+  },
+  "AST-003": {
+    "id": "AST-003",
+    "name": "Cmdr. Elena Vance",
+    "role": "Commander / Crew Medical Officer",
+    "missionType": "Mars Transit (0g Deep Space)",
+    "regime": "MARS",
+    "gravityG": 0,
+    "missionDay": 240,
+    "missionTotalDays": 540,
+    "timestampUtc": "2026-11-14T08:00:00Z",
+    "sex": "F",
+    "age": 39,
+    "heightCm": 172,
+    "weightKg": 66,
+    "allergies": [
+      "Penicillin"
+    ],
+    "careerPreFlightDoseMsv": 120
+  },
+  "mars": {
+    "id": "AST-003",
+    "name": "Cmdr. Elena Vance",
+    "role": "Commander / Crew Medical Officer",
+    "missionType": "Mars Transit (0g Deep Space)",
+    "regime": "MARS",
+    "gravityG": 0,
+    "missionDay": 240,
+    "missionTotalDays": 540,
+    "timestampUtc": "2026-11-14T08:00:00Z",
+    "sex": "F",
+    "age": 39,
+    "heightCm": 172,
+    "weightKg": 66,
+    "allergies": [
+      "Penicillin"
+    ],
+    "careerPreFlightDoseMsv": 120
+  }
+}

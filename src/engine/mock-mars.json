@@ -1,0 +1,1120 @@
+{
+  "profile": {
+    "id": "AST-003",
+    "name": "Cmdr. Elena Vance",
+    "role": "Commander / Crew Medical Officer",
+    "missionType": "Mars Transit (0g Deep Space)",
+    "regime": "MARS",
+    "gravityG": 0,
+    "missionDay": 240,
+    "missionTotalDays": 540,
+    "timestampUtc": "2026-11-14T08:00:00Z",
+    "sex": "F",
+    "age": 39,
+    "heightCm": 172,
+    "weightKg": 66,
+    "allergies": [
+      "Penicillin"
+    ],
+    "careerPreFlightDoseMsv": 120
+  },
+  "overall": 51,
+  "badge": "CRITICAL",
+  "autonomy": "A2",
+  "overallDetails": {
+    "score": 51,
+    "rawAverage": 61,
+    "autonomyPenalty": 10,
+    "status": "CRITICAL",
+    "triageMode": "EARTH_INDEPENDENT_A2",
+    "redCount": 3,
+    "yellowCount": 7,
+    "streakDays": 14,
+    "activeRedFlagSymptoms": []
+  },
+  "autonomyDetails": {
+    "level": "A2",
+    "levelOfCare": "Level of Care V",
+    "commDelayMin": 18,
+    "commDelaySec": 1080,
+    "medKitStockPct": 62,
+    "medKitStatus": "WARNING",
+    "bannerAlert": "MARS COMM DELAY (18 MIN ONE-WAY): Earth-Independent Triage Mode (A2 / Level of Care V) Active."
+  },
+  "hazards": [
+    {
+      "id": 1,
+      "hazardId": "H1",
+      "name": "Altered Gravity Fields",
+      "score": 49,
+      "status": "RED",
+      "triageStatus": "CRITICAL",
+      "cappedByRedFloor": true,
+      "cards": [
+        "1A",
+        "1B"
+      ]
+    },
+    {
+      "id": 2,
+      "hazardId": "H2",
+      "name": "Space Radiation & Immune",
+      "score": 35,
+      "status": "RED",
+      "triageStatus": "CRITICAL",
+      "cappedByRedFloor": true,
+      "cards": [
+        "2A",
+        "2B"
+      ]
+    },
+    {
+      "id": 3,
+      "hazardId": "H3",
+      "name": "Isolation & Confinement",
+      "score": 68,
+      "status": "YELLOW",
+      "triageStatus": "WARNING",
+      "cappedByRedFloor": false,
+      "cards": [
+        "3A",
+        "3B"
+      ]
+    },
+    {
+      "id": 4,
+      "hazardId": "H4",
+      "name": "Hostile Closed Environment",
+      "score": 92,
+      "status": "GREEN",
+      "triageStatus": "NOMINAL",
+      "cappedByRedFloor": false,
+      "cards": [
+        "4A",
+        "4B"
+      ]
+    }
+  ],
+  "nodes": {
+    "brain": "YELLOW",
+    "eyes": "RED",
+    "heart": "GREEN",
+    "lungs": "GREEN",
+    "bones": "YELLOW",
+    "whole": "RED"
+  },
+  "cards": [
+    {
+      "id": "1A",
+      "hazardId": "H1",
+      "title": "Cardiovascular & Hemodynamics",
+      "score": 85,
+      "status": "GREEN",
+      "measurementIds": [
+        "1A-i",
+        "1A-ii"
+      ]
+    },
+    {
+      "id": "1B",
+      "hazardId": "H1",
+      "title": "Neuro-Ocular (SANS) & Skeletal Calcium",
+      "score": 16,
+      "status": "RED",
+      "measurementIds": [
+        "1B-i",
+        "1B-ii"
+      ],
+      "summary": "ONSD reached 5.90 mm (z=+4.33, Red) and 24-h urine calcium elevated at 285 mg/day (z=+2.75, Yellow).",
+      "actions": [
+        {
+          "id": "act-1b-1",
+          "label": "Don Lower Body Negative Pressure (LBNP) suit for 45 min per CMO checklist",
+          "checked": false
+        }
+      ]
+    },
+    {
+      "id": "2A",
+      "hazardId": "H2",
+      "title": "Acute & Cumulative Radiologic Exposure",
+      "score": 10,
+      "status": "RED",
+      "measurementIds": [
+        "2A-i",
+        "2A-ii"
+      ],
+      "summary": "Solar particle event onset: 6.20 mSv/day (4.0x spike) and career dose at 515 mSv (86% of limit).",
+      "actions": [
+        {
+          "id": "act-2a-1",
+          "label": "Relocate crew to storm shelter (water wall module)",
+          "checked": false
+        }
+      ]
+    },
+    {
+      "id": "2B",
+      "hazardId": "H2",
+      "title": "Hostile Environmental Immune & Thermoregulation",
+      "score": 60,
+      "status": "YELLOW",
+      "measurementIds": [
+        "2B-i",
+        "2B-ii"
+      ],
+      "summary": "WBC down to 4.0 x 10^9/L (mild leukopenia); core temp stable at 37.2 \u00b0C.",
+      "actions": []
+    },
+    {
+      "id": "3A",
+      "hazardId": "H3",
+      "title": "Sleep Architecture & Neurobehavioral Performance",
+      "score": 68,
+      "status": "YELLOW",
+      "measurementIds": [
+        "3A-i",
+        "3A-ii"
+      ],
+      "summary": "Sleep down to 5.4 h; PVT median slowed to 310 ms with 1 lapse.",
+      "actions": [
+        {
+          "id": "act-3a-1",
+          "label": "Schedule 60 min protected recovery rest block",
+          "checked": false
+        }
+      ]
+    },
+    {
+      "id": "3B",
+      "hazardId": "H3",
+      "title": "Autonomic & Psychosocial Stress",
+      "score": 68,
+      "status": "YELLOW",
+      "measurementIds": [
+        "3B-i",
+        "3B-ii"
+      ],
+      "summary": "Stress self-report elevated at 5/10; HRV RMSSD reduced to 41 ms.",
+      "actions": []
+    },
+    {
+      "id": "4A",
+      "hazardId": "H4",
+      "title": "Respiratory Gas Dynamics",
+      "score": 92,
+      "status": "GREEN",
+      "measurementIds": [
+        "4A-i",
+        "4A-ii"
+      ],
+      "summary": "SpO2 nominal at 97%; Cabin ppCO2 stable at 2.6 mmHg.",
+      "actions": []
+    },
+    {
+      "id": "4B",
+      "hazardId": "H4",
+      "title": "Metabolic & Integumentary Integrity",
+      "score": 92,
+      "status": "GREEN",
+      "measurementIds": [
+        "4B-i",
+        "4B-ii"
+      ],
+      "summary": "Fasting glucose 99 mg/dL; skin intact with 0 lesions.",
+      "actions": []
+    },
+    {
+      "id": "5A",
+      "hazardId": "H5",
+      "title": "Telecommunication Latency & Ground Reachability",
+      "score": 0,
+      "status": "RED",
+      "measurementIds": [
+        "5A"
+      ],
+      "summary": "18 min one-way communication latency active. Earth-Independent Triage Mode enabled.",
+      "actions": []
+    },
+    {
+      "id": "5B",
+      "hazardId": "H5",
+      "title": "Medical Consumables Buffer",
+      "score": 62,
+      "status": "YELLOW",
+      "measurementIds": [
+        "5B"
+      ],
+      "summary": "Medical kit stock at 62% capacity.",
+      "actions": []
+    }
+  ],
+  "measurements": {
+    "1A-i": {
+      "id": "1A-i",
+      "name": "Blood Pressure",
+      "unit": "mmHg",
+      "value": 118,
+      "status": "GREEN",
+      "node": "heart",
+      "history": [
+        112,
+        113,
+        111,
+        112,
+        114,
+        116,
+        118
+      ],
+      "baseline": {
+        "mean": 112,
+        "sd": 5
+      },
+      "earth_normal": 120,
+      "cardId": "1A",
+      "hazardId": "H1"
+    },
+    "BloodPressure": {
+      "id": "1A-i",
+      "name": "Blood Pressure",
+      "unit": "mmHg",
+      "value": 118,
+      "status": "GREEN",
+      "node": "heart",
+      "history": [
+        112,
+        113,
+        111,
+        112,
+        114,
+        116,
+        118
+      ],
+      "baseline": {
+        "mean": 112,
+        "sd": 5
+      },
+      "earth_normal": 120,
+      "cardId": "1A",
+      "hazardId": "H1"
+    },
+    "1A-ii": {
+      "id": "1A-ii",
+      "name": "Resting Heart Rate",
+      "unit": "bpm",
+      "value": 66,
+      "status": "GREEN",
+      "node": "heart",
+      "history": [
+        62,
+        61,
+        63,
+        62,
+        63,
+        65,
+        66
+      ],
+      "baseline": {
+        "mean": 62,
+        "sd": 4
+      },
+      "earth_normal": 100,
+      "cardId": "1A",
+      "hazardId": "H1"
+    },
+    "HeartRate": {
+      "id": "1A-ii",
+      "name": "Resting Heart Rate",
+      "unit": "bpm",
+      "value": 66,
+      "status": "GREEN",
+      "node": "heart",
+      "history": [
+        62,
+        61,
+        63,
+        62,
+        63,
+        65,
+        66
+      ],
+      "baseline": {
+        "mean": 62,
+        "sd": 4
+      },
+      "earth_normal": 100,
+      "cardId": "1A",
+      "hazardId": "H1"
+    },
+    "1B-i": {
+      "id": "1B-i",
+      "name": "Optic Nerve Sheath Diameter (ONSD)",
+      "unit": "mm",
+      "value": 5.9,
+      "status": "RED",
+      "node": "eyes",
+      "history": [
+        5.25,
+        5.22,
+        5.28,
+        5.25,
+        5.47,
+        5.68,
+        5.9
+      ],
+      "baseline": {
+        "mean": 5.25,
+        "sd": 0.15
+      },
+      "earth_normal": 5.0,
+      "cardId": "1B",
+      "hazardId": "H1"
+    },
+    "ONSD": {
+      "id": "1B-i",
+      "name": "Optic Nerve Sheath Diameter (ONSD)",
+      "unit": "mm",
+      "value": 5.9,
+      "status": "RED",
+      "node": "eyes",
+      "history": [
+        5.25,
+        5.22,
+        5.28,
+        5.25,
+        5.47,
+        5.68,
+        5.9
+      ],
+      "baseline": {
+        "mean": 5.25,
+        "sd": 0.15
+      },
+      "earth_normal": 5.0,
+      "cardId": "1B",
+      "hazardId": "H1"
+    },
+    "1B-ii": {
+      "id": "1B-ii",
+      "name": "24-h Urine Calcium",
+      "unit": "mg/day",
+      "value": 285,
+      "status": "YELLOW",
+      "node": "bones",
+      "history": [
+        230,
+        226,
+        234,
+        230,
+        248,
+        267,
+        285
+      ],
+      "baseline": {
+        "mean": 230,
+        "sd": 20
+      },
+      "earth_normal": 240,
+      "cardId": "1B",
+      "hazardId": "H1"
+    },
+    "UrineCalcium": {
+      "id": "1B-ii",
+      "name": "24-h Urine Calcium",
+      "unit": "mg/day",
+      "value": 285,
+      "status": "YELLOW",
+      "node": "bones",
+      "history": [
+        230,
+        226,
+        234,
+        230,
+        248,
+        267,
+        285
+      ],
+      "baseline": {
+        "mean": 230,
+        "sd": 20
+      },
+      "earth_normal": 240,
+      "cardId": "1B",
+      "hazardId": "H1"
+    },
+    "2A-i": {
+      "id": "2A-i",
+      "name": "Daily Radiation Dose Rate",
+      "unit": "mSv/day",
+      "value": 6.2,
+      "status": "RED",
+      "node": "whole",
+      "history": [
+        1.55,
+        1.5,
+        1.6,
+        1.55,
+        3.1,
+        4.65,
+        6.2
+      ],
+      "baseline": {
+        "mean": 1.55,
+        "sd": 0.2
+      },
+      "earth_normal": 0.01,
+      "cardId": "2A",
+      "hazardId": "H2"
+    },
+    "RadDose": {
+      "id": "2A-i",
+      "name": "Daily Radiation Dose Rate",
+      "unit": "mSv/day",
+      "value": 6.2,
+      "status": "RED",
+      "node": "whole",
+      "history": [
+        1.55,
+        1.5,
+        1.6,
+        1.55,
+        3.1,
+        4.65,
+        6.2
+      ],
+      "baseline": {
+        "mean": 1.55,
+        "sd": 0.2
+      },
+      "earth_normal": 0.01,
+      "cardId": "2A",
+      "hazardId": "H2"
+    },
+    "2A-ii": {
+      "id": "2A-ii",
+      "name": "Cumulative Career Dose",
+      "unit": "mSv",
+      "value": 515,
+      "status": "RED",
+      "node": "whole",
+      "history": [
+        501.0,
+        502.5,
+        504.1,
+        505.6,
+        508.7,
+        513.4,
+        515.0
+      ],
+      "baseline": {
+        "mean": 300,
+        "sd": 50
+      },
+      "earth_normal": 50,
+      "cardId": "2A",
+      "hazardId": "H2"
+    },
+    "CareerDose": {
+      "id": "2A-ii",
+      "name": "Cumulative Career Dose",
+      "unit": "mSv",
+      "value": 515,
+      "status": "RED",
+      "node": "whole",
+      "history": [
+        501.0,
+        502.5,
+        504.1,
+        505.6,
+        508.7,
+        513.4,
+        515.0
+      ],
+      "baseline": {
+        "mean": 300,
+        "sd": 50
+      },
+      "earth_normal": 50,
+      "cardId": "2A",
+      "hazardId": "H2"
+    },
+    "2B-i": {
+      "id": "2B-i",
+      "name": "White Blood Cell Count (WBC)",
+      "unit": "x10^9/L",
+      "value": 4.0,
+      "status": "YELLOW",
+      "node": "whole",
+      "history": [
+        6.5,
+        6.6,
+        6.4,
+        6.5,
+        5.7,
+        4.8,
+        4.0
+      ],
+      "baseline": {
+        "mean": 6.5,
+        "sd": 1.0
+      },
+      "earth_normal": 11.0,
+      "cardId": "2B",
+      "hazardId": "H2"
+    },
+    "WBC": {
+      "id": "2B-i",
+      "name": "White Blood Cell Count (WBC)",
+      "unit": "x10^9/L",
+      "value": 4.0,
+      "status": "YELLOW",
+      "node": "whole",
+      "history": [
+        6.5,
+        6.6,
+        6.4,
+        6.5,
+        5.7,
+        4.8,
+        4.0
+      ],
+      "baseline": {
+        "mean": 6.5,
+        "sd": 1.0
+      },
+      "earth_normal": 11.0,
+      "cardId": "2B",
+      "hazardId": "H2"
+    },
+    "2B-ii": {
+      "id": "2B-ii",
+      "name": "Body Temperature",
+      "unit": "\u00b0C",
+      "value": 37.2,
+      "status": "GREEN",
+      "node": "whole",
+      "history": [
+        37.1,
+        37.0,
+        37.1,
+        37.1,
+        37.1,
+        37.2,
+        37.2
+      ],
+      "baseline": {
+        "mean": 37.1,
+        "sd": 0.2
+      },
+      "earth_normal": 37.2,
+      "cardId": "2B",
+      "hazardId": "H2"
+    },
+    "BodyTemp": {
+      "id": "2B-ii",
+      "name": "Body Temperature",
+      "unit": "\u00b0C",
+      "value": 37.2,
+      "status": "GREEN",
+      "node": "whole",
+      "history": [
+        37.1,
+        37.0,
+        37.1,
+        37.1,
+        37.1,
+        37.2,
+        37.2
+      ],
+      "baseline": {
+        "mean": 37.1,
+        "sd": 0.2
+      },
+      "earth_normal": 37.2,
+      "cardId": "2B",
+      "hazardId": "H2"
+    },
+    "3A-i": {
+      "id": "3A-i",
+      "name": "Sleep Duration",
+      "unit": "h",
+      "value": 5.4,
+      "status": "YELLOW",
+      "node": "brain",
+      "history": [
+        6.4,
+        6.5,
+        6.3,
+        6.4,
+        6.1,
+        5.7,
+        5.4
+      ],
+      "baseline": {
+        "mean": 6.4,
+        "sd": 0.5
+      },
+      "earth_normal": 9.0,
+      "cardId": "3A",
+      "hazardId": "H3"
+    },
+    "Sleep": {
+      "id": "3A-i",
+      "name": "Sleep Duration",
+      "unit": "h",
+      "value": 5.4,
+      "status": "YELLOW",
+      "node": "brain",
+      "history": [
+        6.4,
+        6.5,
+        6.3,
+        6.4,
+        6.1,
+        5.7,
+        5.4
+      ],
+      "baseline": {
+        "mean": 6.4,
+        "sd": 0.5
+      },
+      "earth_normal": 9.0,
+      "cardId": "3A",
+      "hazardId": "H3"
+    },
+    "3A-ii": {
+      "id": "3A-ii",
+      "name": "Psychomotor Vigilance (PVT)",
+      "unit": "ms",
+      "value": 310,
+      "status": "YELLOW",
+      "node": "brain",
+      "history": [
+        260,
+        256,
+        264,
+        260,
+        277,
+        293,
+        310
+      ],
+      "baseline": {
+        "mean": 260,
+        "sd": 20
+      },
+      "earth_normal": 270,
+      "cardId": "3A",
+      "hazardId": "H3"
+    },
+    "PVT": {
+      "id": "3A-ii",
+      "name": "Psychomotor Vigilance (PVT)",
+      "unit": "ms",
+      "value": 310,
+      "status": "YELLOW",
+      "node": "brain",
+      "history": [
+        260,
+        256,
+        264,
+        260,
+        277,
+        293,
+        310
+      ],
+      "baseline": {
+        "mean": 260,
+        "sd": 20
+      },
+      "earth_normal": 270,
+      "cardId": "3A",
+      "hazardId": "H3"
+    },
+    "3B-i": {
+      "id": "3B-i",
+      "name": "Mood / Stress Score",
+      "unit": "VAS 1-10",
+      "value": 5,
+      "status": "YELLOW",
+      "node": "brain",
+      "history": [
+        3,
+        3,
+        3,
+        3,
+        4,
+        4,
+        5
+      ],
+      "baseline": {
+        "mean": 3.0,
+        "sd": 1.0
+      },
+      "earth_normal": 3,
+      "cardId": "3B",
+      "hazardId": "H3"
+    },
+    "MoodStress": {
+      "id": "3B-i",
+      "name": "Mood / Stress Score",
+      "unit": "VAS 1-10",
+      "value": 5,
+      "status": "YELLOW",
+      "node": "brain",
+      "history": [
+        3,
+        3,
+        3,
+        3,
+        4,
+        4,
+        5
+      ],
+      "baseline": {
+        "mean": 3.0,
+        "sd": 1.0
+      },
+      "earth_normal": 3,
+      "cardId": "3B",
+      "hazardId": "H3"
+    },
+    "3B-ii": {
+      "id": "3B-ii",
+      "name": "Heart Rate Variability (RMSSD)",
+      "unit": "ms",
+      "value": 41,
+      "status": "YELLOW",
+      "node": "brain",
+      "history": [
+        50,
+        51,
+        49,
+        50,
+        47,
+        44,
+        41
+      ],
+      "baseline": {
+        "mean": 50,
+        "sd": 4
+      },
+      "earth_normal": 75,
+      "cardId": "3B",
+      "hazardId": "H3"
+    },
+    "HRV": {
+      "id": "3B-ii",
+      "name": "Heart Rate Variability (RMSSD)",
+      "unit": "ms",
+      "value": 41,
+      "status": "YELLOW",
+      "node": "brain",
+      "history": [
+        50,
+        51,
+        49,
+        50,
+        47,
+        44,
+        41
+      ],
+      "baseline": {
+        "mean": 50,
+        "sd": 4
+      },
+      "earth_normal": 75,
+      "cardId": "3B",
+      "hazardId": "H3"
+    },
+    "4A-i": {
+      "id": "4A-i",
+      "name": "Blood Oxygen (SpO2)",
+      "unit": "%",
+      "value": 97,
+      "status": "GREEN",
+      "node": "lungs",
+      "history": [
+        98,
+        97,
+        98,
+        97,
+        97,
+        97,
+        97
+      ],
+      "baseline": {
+        "mean": 97.5,
+        "sd": 2.0
+      },
+      "earth_normal": 100,
+      "cardId": "4A",
+      "hazardId": "H4"
+    },
+    "SpO2": {
+      "id": "4A-i",
+      "name": "Blood Oxygen (SpO2)",
+      "unit": "%",
+      "value": 97,
+      "status": "GREEN",
+      "node": "lungs",
+      "history": [
+        98,
+        97,
+        98,
+        97,
+        97,
+        97,
+        97
+      ],
+      "baseline": {
+        "mean": 97.5,
+        "sd": 2.0
+      },
+      "earth_normal": 100,
+      "cardId": "4A",
+      "hazardId": "H4"
+    },
+    "4A-ii": {
+      "id": "4A-ii",
+      "name": "Cabin ppCO2",
+      "unit": "mmHg",
+      "value": 2.6,
+      "status": "GREEN",
+      "node": "lungs",
+      "history": [
+        2.3,
+        2.2,
+        2.4,
+        2.3,
+        2.4,
+        2.5,
+        2.6
+      ],
+      "baseline": {
+        "mean": 2.3,
+        "sd": 0.5
+      },
+      "earth_normal": 0.76,
+      "cardId": "4A",
+      "hazardId": "H4"
+    },
+    "CabinCO2": {
+      "id": "4A-ii",
+      "name": "Cabin ppCO2",
+      "unit": "mmHg",
+      "value": 2.6,
+      "status": "GREEN",
+      "node": "lungs",
+      "history": [
+        2.3,
+        2.2,
+        2.4,
+        2.3,
+        2.4,
+        2.5,
+        2.6
+      ],
+      "baseline": {
+        "mean": 2.3,
+        "sd": 0.5
+      },
+      "earth_normal": 0.76,
+      "cardId": "4A",
+      "hazardId": "H4"
+    },
+    "4B-i": {
+      "id": "4B-i",
+      "name": "Fasting Blood Glucose",
+      "unit": "mg/dL",
+      "value": 99,
+      "status": "GREEN",
+      "node": "whole",
+      "history": [
+        90,
+        88,
+        92,
+        90,
+        93,
+        96,
+        99
+      ],
+      "baseline": {
+        "mean": 90,
+        "sd": 8
+      },
+      "earth_normal": 99,
+      "cardId": "4B",
+      "hazardId": "H4"
+    },
+    "Glucose": {
+      "id": "4B-i",
+      "name": "Fasting Blood Glucose",
+      "unit": "mg/dL",
+      "value": 99,
+      "status": "GREEN",
+      "node": "whole",
+      "history": [
+        90,
+        88,
+        92,
+        90,
+        93,
+        96,
+        99
+      ],
+      "baseline": {
+        "mean": 90,
+        "sd": 8
+      },
+      "earth_normal": 99,
+      "cardId": "4B",
+      "hazardId": "H4"
+    },
+    "4B-ii": {
+      "id": "4B-ii",
+      "name": "Skin / Cutaneous Status",
+      "unit": "0-3 scale",
+      "value": 0,
+      "status": "GREEN",
+      "node": "whole",
+      "history": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "baseline": {
+        "mean": 0,
+        "sd": 1
+      },
+      "earth_normal": 0,
+      "cardId": "4B",
+      "hazardId": "H4"
+    },
+    "SkinStatus": {
+      "id": "4B-ii",
+      "name": "Skin / Cutaneous Status",
+      "unit": "0-3 scale",
+      "value": 0,
+      "status": "GREEN",
+      "node": "whole",
+      "history": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "baseline": {
+        "mean": 0,
+        "sd": 1
+      },
+      "earth_normal": 0,
+      "cardId": "4B",
+      "hazardId": "H4"
+    },
+    "5A": {
+      "id": "5A",
+      "name": "One-Way Comm Delay",
+      "unit": "min",
+      "value": 18,
+      "status": "RED",
+      "node": "context",
+      "history": [
+        17.1,
+        17.3,
+        17.4,
+        17.6,
+        17.7,
+        17.9,
+        18.0
+      ],
+      "baseline": {
+        "mean": 0,
+        "sd": 1
+      },
+      "earth_normal": 0,
+      "cardId": "5A",
+      "hazardId": "H5"
+    },
+    "CommDelay": {
+      "id": "5A",
+      "name": "One-Way Comm Delay",
+      "unit": "min",
+      "value": 18,
+      "status": "RED",
+      "node": "context",
+      "history": [
+        17.1,
+        17.3,
+        17.4,
+        17.6,
+        17.7,
+        17.9,
+        18.0
+      ],
+      "baseline": {
+        "mean": 0,
+        "sd": 1
+      },
+      "earth_normal": 0,
+      "cardId": "5A",
+      "hazardId": "H5"
+    },
+    "5B": {
+      "id": "5B",
+      "name": "Medical Kit Stock",
+      "unit": "%",
+      "value": 62,
+      "status": "YELLOW",
+      "node": "context",
+      "history": [
+        68,
+        67,
+        66,
+        65,
+        64,
+        63,
+        62
+      ],
+      "baseline": {
+        "mean": 85,
+        "sd": 5
+      },
+      "earth_normal": 100,
+      "cardId": "5B",
+      "hazardId": "H5"
+    },
+    "MedKitStock": {
+      "id": "5B",
+      "name": "Medical Kit Stock",
+      "unit": "%",
+      "value": 62,
+      "status": "YELLOW",
+      "node": "context",
+      "history": [
+        68,
+        67,
+        66,
+        65,
+        64,
+        63,
+        62
+      ],
+      "baseline": {
+        "mean": 85,
+        "sd": 5
+      },
+      "earth_normal": 100,
+      "cardId": "5B",
+      "hazardId": "H5"
+    }
+  },
+  "delay_seconds": 1080,
+  "preset": "mars"
+}

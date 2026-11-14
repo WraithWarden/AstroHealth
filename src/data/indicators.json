@@ -1,0 +1,688 @@
+{
+  "1A-i": {
+    "id": "1A-i",
+    "cardId": "1A",
+    "hazardId": "H1",
+    "nodeId": "heart_vessels",
+    "name": "Blood Pressure",
+    "unit": "mmHg",
+    "driftDirection": "BOTH",
+    "provenance": [
+      "C",
+      "H"
+    ],
+    "earthRange": {
+      "min": 90,
+      "max": 120,
+      "secondaryMin": 60,
+      "secondaryMax": 80,
+      "label": "90/60 - 120/80 mmHg"
+    },
+    "spaceBaseline": {
+      "mean": 112,
+      "sigmaMin": 5,
+      "secondaryMean": 71,
+      "secondarySigmaMin": 4,
+      "bandLow": 105,
+      "bandHigh": 118
+    },
+    "thresholds": {
+      "yellowLow": 86,
+      "yellowHigh": 121,
+      "redLow": 85,
+      "redHigh": 140,
+      "secondaryYellowLow": 56,
+      "secondaryYellowHigh": 81,
+      "secondaryRedLow": 55,
+      "secondaryRedHigh": 90
+    },
+    "cadence": {
+      "routine": "Daily, within 30 min of waking",
+      "routineIntervalDays": 1,
+      "escalation": "Repeat after 30 min seated rest if Yellow or Red"
+    },
+    "node": "heart"
+  },
+  "1A-ii": {
+    "id": "1A-ii",
+    "cardId": "1A",
+    "hazardId": "H1",
+    "nodeId": "heart_vessels",
+    "name": "Resting Heart Rate",
+    "unit": "bpm",
+    "driftDirection": "BOTH",
+    "provenance": [
+      "C",
+      "H"
+    ],
+    "earthRange": {
+      "min": 60,
+      "max": 100,
+      "label": "60 - 100 bpm (fit: 55-80)"
+    },
+    "spaceBaseline": {
+      "mean": 62,
+      "sigmaMin": 4,
+      "bandLow": 55,
+      "bandHigh": 72
+    },
+    "thresholds": {
+      "yellowLow": 49,
+      "yellowHigh": 81,
+      "redLow": 40,
+      "redHigh": 100
+    },
+    "cadence": {
+      "routine": "Daily, concurrent with waking BP",
+      "routineIntervalDays": 1,
+      "escalation": "Repeat after 10 min rest + hydration if Yellow or Red"
+    },
+    "node": "heart"
+  },
+  "1B-i": {
+    "id": "1B-i",
+    "cardId": "1B",
+    "hazardId": "H1",
+    "nodeId": "eyes",
+    "name": "Optic Nerve Sheath Diameter (ONSD)",
+    "unit": "mm",
+    "driftDirection": "HIGH",
+    "provenance": [
+      "L",
+      "H"
+    ],
+    "earthRange": {
+      "min": 4.2,
+      "max": 5.0,
+      "label": "4.2 - 5.0 mm (< 5.9 terrestrial cutoff)"
+    },
+    "spaceBaseline": {
+      "mean": 5.25,
+      "sigmaMin": 0.15,
+      "bandLow": 5.1,
+      "bandHigh": 5.4
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 5.5,
+      "redLow": null,
+      "redHigh": 5.8
+    },
+    "cadence": {
+      "routine": "Every 3 days",
+      "routineIntervalDays": 3,
+      "escalation": "Repeat in 24 h if Yellow; immediate surgeon packet if Red"
+    },
+    "node": "eyes"
+  },
+  "1B-ii": {
+    "id": "1B-ii",
+    "cardId": "1B",
+    "hazardId": "H1",
+    "nodeId": "bones",
+    "name": "24-h Urine Calcium",
+    "unit": "mg/day",
+    "driftDirection": "HIGH",
+    "provenance": [
+      "L",
+      "H"
+    ],
+    "earthRange": {
+      "min": 100,
+      "max": 240,
+      "label": "100 - 240 mg/day (< 150 stone-safe)"
+    },
+    "spaceBaseline": {
+      "mean": 230,
+      "sigmaMin": 20,
+      "bandLow": 200,
+      "bandHigh": 260
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 261,
+      "redLow": null,
+      "redHigh": 300
+    },
+    "cadence": {
+      "routine": "Weekly 24-h assay",
+      "routineIntervalDays": 7,
+      "escalation": "Per flight-surgeon direction while Yellow or Red"
+    },
+    "node": "bones"
+  },
+  "2A-i": {
+    "id": "2A-i",
+    "cardId": "2A",
+    "hazardId": "H2",
+    "nodeId": "whole_body",
+    "name": "Daily Radiation Dose Rate",
+    "unit": "mSv/day",
+    "driftDirection": "HIGH",
+    "provenance": [
+      "S",
+      "L",
+      "H"
+    ],
+    "earthRange": {
+      "min": 0.005,
+      "max": 0.01,
+      "label": "~0.008 mSv/day (~3 mSv/yr)"
+    },
+    "spaceBaselineByRegime": {
+      "ISS": {
+        "mean": 0.48,
+        "sigmaMin": 0.05,
+        "bandLow": 0.4,
+        "bandHigh": 0.55
+      },
+      "LUNAR": {
+        "mean": 0.8,
+        "sigmaMin": 0.1,
+        "bandLow": 0.6,
+        "bandHigh": 1.0
+      },
+      "MARS": {
+        "mean": 1.55,
+        "sigmaMin": 0.2,
+        "bandLow": 1.2,
+        "bandHigh": 1.8
+      }
+    },
+    "thresholdsByRegime": {
+      "ISS": {
+        "yellowLow": null,
+        "yellowHigh": 1.5,
+        "redLow": null,
+        "redHigh": 5.0
+      },
+      "LUNAR": {
+        "yellowLow": null,
+        "yellowHigh": 1.5,
+        "redLow": null,
+        "redHigh": 5.0
+      },
+      "MARS": {
+        "yellowLow": null,
+        "yellowHigh": 2.5,
+        "redLow": null,
+        "redHigh": 5.0
+      }
+    },
+    "cadence": {
+      "routine": "Continuous automated dosimeter feed",
+      "routineIntervalDays": 1,
+      "escalation": "Hourly check in Yellow; immediate shelter relocation in Red"
+    },
+    "node": "whole"
+  },
+  "2A-ii": {
+    "id": "2A-ii",
+    "cardId": "2A",
+    "hazardId": "H2",
+    "nodeId": "whole_body",
+    "name": "Cumulative Career Dose",
+    "unit": "mSv",
+    "careerLimitMsv": 600,
+    "speLimitMsv": 250,
+    "driftDirection": "HIGH",
+    "provenance": [
+      "S",
+      "H"
+    ],
+    "earthRange": {
+      "min": 0,
+      "max": 50,
+      "label": "Limit: < 600 mSv universal [V1 4030]"
+    },
+    "spaceBaseline": {
+      "mean": 300,
+      "sigmaMin": 50,
+      "bandLow": 0,
+      "bandHigh": 300
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 300,
+      "redLow": null,
+      "redHigh": 480
+    },
+    "cadence": {
+      "routine": "Continuous cumulative integration",
+      "routineIntervalDays": 1,
+      "escalation": "Immediate EVA & shielding re-plan at >= 50% (Y) or >= 80% (R)"
+    },
+    "node": "whole"
+  },
+  "2B-i": {
+    "id": "2B-i",
+    "cardId": "2B",
+    "hazardId": "H2",
+    "nodeId": "whole_body",
+    "name": "White Blood Cell Count (WBC)",
+    "unit": "x10^9/L",
+    "driftDirection": "BOTH",
+    "provenance": [
+      "C",
+      "H"
+    ],
+    "earthRange": {
+      "min": 4.5,
+      "max": 11.0,
+      "label": "4.5 - 11.0 x10^9/L"
+    },
+    "spaceBaseline": {
+      "mean": 6.5,
+      "sigmaMin": 1.0,
+      "bandLow": 4.2,
+      "bandHigh": 9.5
+    },
+    "thresholds": {
+      "yellowLow": 4.1,
+      "yellowHigh": 9.6,
+      "redLow": 3.5,
+      "redHigh": 11.0
+    },
+    "cadence": {
+      "routine": "Weekly via point-of-care hematology analyzer",
+      "routineIntervalDays": 7,
+      "escalation": "Repeat immediately after any SPE or febrile reading (>= 38.0 \u00b0C)"
+    },
+    "node": "whole"
+  },
+  "2B-ii": {
+    "id": "2B-ii",
+    "cardId": "2B",
+    "hazardId": "H2",
+    "nodeId": "whole_body",
+    "name": "Body Temperature",
+    "unit": "\u00b0C",
+    "driftDirection": "HIGH",
+    "provenance": [
+      "C",
+      "H"
+    ],
+    "earthRange": {
+      "min": 36.1,
+      "max": 37.2,
+      "label": "36.1 - 37.2 \u00b0C"
+    },
+    "spaceBaseline": {
+      "mean": 37.1,
+      "sigmaMin": 0.2,
+      "bandLow": 36.8,
+      "bandHigh": 37.5
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 37.6,
+      "redLow": null,
+      "redHigh": 38.0
+    },
+    "cadence": {
+      "routine": "Daily oral or temporal thermometry",
+      "routineIntervalDays": 1,
+      "escalation": "Twice daily while Yellow or symptomatic; recheck in 1 h if Red"
+    },
+    "node": "whole"
+  },
+  "3A-i": {
+    "id": "3A-i",
+    "cardId": "3A",
+    "hazardId": "H3",
+    "nodeId": "brain",
+    "name": "Sleep Duration",
+    "unit": "h",
+    "driftDirection": "LOW",
+    "provenance": [
+      "L",
+      "H"
+    ],
+    "earthRange": {
+      "min": 7.0,
+      "max": 9.0,
+      "label": "7.0 - 9.0 hours/night"
+    },
+    "spaceBaseline": {
+      "mean": 6.4,
+      "sigmaMin": 0.5,
+      "bandLow": 6.0,
+      "bandHigh": 6.8
+    },
+    "thresholds": {
+      "yellowLow": 5.5,
+      "yellowHigh": null,
+      "redLow": 4.5,
+      "redHigh": null
+    },
+    "cadence": {
+      "routine": "Automatic nightly wrist actigraphy sync",
+      "routineIntervalDays": 1,
+      "escalation": "Enforce recovery sleep & halt critical tasks if Red (< 4.5 h)"
+    },
+    "node": "brain"
+  },
+  "3A-ii": {
+    "id": "3A-ii",
+    "cardId": "3A",
+    "hazardId": "H3",
+    "nodeId": "brain",
+    "name": "Psychomotor Vigilance (PVT)",
+    "unit": "ms",
+    "driftDirection": "HIGH",
+    "provenance": [
+      "L",
+      "H"
+    ],
+    "earthRange": {
+      "min": 200,
+      "max": 270,
+      "label": "200 - 270 ms"
+    },
+    "spaceBaseline": {
+      "mean": 260,
+      "sigmaMin": 20,
+      "bandLow": 230,
+      "bandHigh": 290
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 291,
+      "redLow": null,
+      "redHigh": 350
+    },
+    "cadence": {
+      "routine": "Daily and prior to safety-critical tasks",
+      "routineIntervalDays": 1,
+      "escalation": "Repeat after 10 min rest if Yellow or Red"
+    },
+    "node": "brain"
+  },
+  "3B-i": {
+    "id": "3B-i",
+    "cardId": "3B",
+    "hazardId": "H3",
+    "nodeId": "brain",
+    "name": "Mood / Stress Score",
+    "unit": "VAS 1-10",
+    "driftDirection": "HIGH",
+    "provenance": [
+      "L",
+      "H"
+    ],
+    "earthRange": {
+      "min": 1,
+      "max": 3,
+      "label": "1 - 3 VAS"
+    },
+    "spaceBaseline": {
+      "mean": 3.0,
+      "sigmaMin": 1.0,
+      "bandLow": 2.0,
+      "bandHigh": 4.0
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 5,
+      "redLow": null,
+      "redHigh": 7
+    },
+    "cadence": {
+      "routine": "Daily self-report slider during check-in",
+      "routineIntervalDays": 1,
+      "escalation": "Add mid-day check if Yellow; immediate PPC / CMO alert if Red"
+    },
+    "node": "brain"
+  },
+  "3B-ii": {
+    "id": "3B-ii",
+    "cardId": "3B",
+    "hazardId": "H3",
+    "nodeId": "brain",
+    "name": "Heart Rate Variability (RMSSD)",
+    "unit": "ms",
+    "driftDirection": "LOW",
+    "provenance": [
+      "H"
+    ],
+    "earthRange": {
+      "min": 40,
+      "max": 75,
+      "label": "40 - 75 ms"
+    },
+    "spaceBaseline": {
+      "mean": 50,
+      "sigmaMin": 4,
+      "bandLow": 46,
+      "bandHigh": 54
+    },
+    "thresholds": {
+      "yellowLow": 42,
+      "yellowHigh": null,
+      "redLow": 38,
+      "redHigh": null
+    },
+    "cadence": {
+      "routine": "Daily at rest (chest strap ECG or wrist PPG)",
+      "routineIntervalDays": 1,
+      "escalation": "Repeat next morning under identical resting conditions"
+    },
+    "node": "brain"
+  },
+  "4A-i": {
+    "id": "4A-i",
+    "cardId": "4A",
+    "hazardId": "H4",
+    "nodeId": "lungs",
+    "name": "Blood Oxygen (SpO2)",
+    "unit": "%",
+    "driftDirection": "LOW",
+    "provenance": [
+      "C",
+      "H"
+    ],
+    "earthRange": {
+      "min": 95,
+      "max": 100,
+      "label": "95 - 100%"
+    },
+    "spaceBaseline": {
+      "mean": 97.5,
+      "sigmaMin": 2.0,
+      "bandLow": 95.0,
+      "bandHigh": 99.0
+    },
+    "thresholds": {
+      "yellowLow": 94,
+      "yellowHigh": null,
+      "redLow": 91,
+      "redHigh": null
+    },
+    "cadence": {
+      "routine": "Daily fingertip pulse oximetry",
+      "routineIntervalDays": 1,
+      "escalation": "Twice daily while Yellow; recheck in 5 min & verify cabin O2/CO2"
+    },
+    "node": "lungs"
+  },
+  "4A-ii": {
+    "id": "4A-ii",
+    "cardId": "4A",
+    "hazardId": "H4",
+    "nodeId": "lungs",
+    "name": "Cabin ppCO2",
+    "unit": "mmHg",
+    "driftDirection": "HIGH",
+    "provenance": [
+      "S",
+      "L"
+    ],
+    "earthRange": {
+      "min": 0.3,
+      "max": 0.76,
+      "label": "~0.3 mmHg (indoor: 0.61-0.76)"
+    },
+    "spaceBaseline": {
+      "mean": 2.3,
+      "sigmaMin": 0.5,
+      "bandLow": 1.8,
+      "bandHigh": 2.5
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 3.0,
+      "redLow": null,
+      "redHigh": 4.0
+    },
+    "cadence": {
+      "routine": "Continuous automated spacecraft telemetry",
+      "routineIntervalDays": 1,
+      "escalation": "Immediate alert & fan/CDRA scrubber check when >= 3.0 mmHg"
+    },
+    "node": "lungs"
+  },
+  "4B-i": {
+    "id": "4B-i",
+    "cardId": "4B",
+    "hazardId": "H4",
+    "nodeId": "whole_body",
+    "name": "Fasting Blood Glucose",
+    "unit": "mg/dL",
+    "driftDirection": "BOTH",
+    "provenance": [
+      "C",
+      "L",
+      "H"
+    ],
+    "earthRange": {
+      "min": 70,
+      "max": 99,
+      "label": "70 - 99 mg/dL"
+    },
+    "spaceBaseline": {
+      "mean": 90,
+      "sigmaMin": 8,
+      "bandLow": 75,
+      "bandHigh": 105
+    },
+    "thresholds": {
+      "yellowLow": 70,
+      "yellowHigh": 106,
+      "redLow": 70,
+      "redHigh": 126
+    },
+    "cadence": {
+      "routine": "Weekly fasting fingerstick glucometer",
+      "routineIntervalDays": 7,
+      "escalation": "Daily while Yellow/Red; 15 min recheck if hypoglycemic (< 70)"
+    },
+    "node": "whole"
+  },
+  "4B-ii": {
+    "id": "4B-ii",
+    "cardId": "4B",
+    "hazardId": "H4",
+    "nodeId": "whole_body",
+    "name": "Skin / Cutaneous Status",
+    "unit": "0-3 scale",
+    "driftDirection": "THRESHOLD_ONLY",
+    "provenance": [
+      "H"
+    ],
+    "earthRange": {
+      "min": 0,
+      "max": 0,
+      "label": "0 (Clear)"
+    },
+    "spaceBaseline": {
+      "mean": 0,
+      "sigmaMin": 1,
+      "bandLow": 0,
+      "bandHigh": 0
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 1,
+      "redLow": null,
+      "redHigh": 3
+    },
+    "cadence": {
+      "routine": "Weekly visual / tablet camera inspection",
+      "routineIntervalDays": 7,
+      "escalation": "Photograph daily while Yellow/Red; immediate surgeon packet if Red"
+    },
+    "node": "whole"
+  },
+  "5A": {
+    "id": "5A",
+    "cardId": "5A",
+    "hazardId": "H5",
+    "nodeId": "context_banner",
+    "name": "One-Way Comm Delay",
+    "unit": "min",
+    "driftDirection": "CONTEXT_ONLY",
+    "provenance": [
+      "S",
+      "L",
+      "H"
+    ],
+    "earthRange": {
+      "min": 0,
+      "max": 0,
+      "label": "~0 s"
+    },
+    "spaceBaseline": {
+      "mean": 0,
+      "sigmaMin": 1,
+      "bandLow": 0,
+      "bandHigh": 0.083
+    },
+    "thresholds": {
+      "yellowLow": null,
+      "yellowHigh": 0.083,
+      "redLow": null,
+      "redHigh": 5.0
+    },
+    "cadence": {
+      "routine": "Continuous mission link telemetry",
+      "routineIntervalDays": 1,
+      "escalation": "Switches UI to Earth-Independent Triage Mode at > 5 min (A2)"
+    },
+    "node": "context"
+  },
+  "5B": {
+    "id": "5B",
+    "cardId": "5B",
+    "hazardId": "H5",
+    "nodeId": "context_banner",
+    "name": "Medical Kit Stock",
+    "unit": "%",
+    "driftDirection": "CONTEXT_ONLY",
+    "provenance": [
+      "H"
+    ],
+    "earthRange": {
+      "min": 100,
+      "max": 100,
+      "label": "100% (resupply)"
+    },
+    "spaceBaseline": {
+      "mean": 85,
+      "sigmaMin": 5,
+      "bandLow": 70,
+      "bandHigh": 100
+    },
+    "thresholds": {
+      "yellowLow": 69,
+      "yellowHigh": null,
+      "redLow": 49,
+      "redHigh": null
+    },
+    "cadence": {
+      "routine": "Continuous automated inventory log",
+      "routineIntervalDays": 1,
+      "escalation": "Flag conservation protocols at < 70% (Y) and < 50% (R)"
+    },
+    "node": "context"
+  }
+}
