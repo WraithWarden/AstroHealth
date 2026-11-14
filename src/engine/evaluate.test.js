@@ -1,12 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import {
   evaluate,
+  addReading,
+  evaluateAutonomy,
   checkThreshold,
   checkDrift,
   checkTrend,
   scoreMeasurement,
   generateHistory,
 } from './index.js';
+import { resolveAutonomyLevel, formatCommDelay } from '../components/AutonomyChip.jsx';
 import indicators from '../data/indicators.json';
 import presets from '../data/presets.json';
 import hazard1 from '../data/hazard1.json';
@@ -168,5 +171,73 @@ describe('Phase 1: Stage 4 Scoring & Full Presets Verification', () => {
     expect(hazard5.length).toBe(2);
     expect(Object.keys(indicators).length).toBe(18);
     expect(Object.keys(presets.mars.readings).length).toBe(18);
+  });
+});
+
+describe('Phase 2: Preset Histories, addReading() & Autonomy Chip', () => {
+  it('verifies Mars preset 7-day histories drift toward red on key indicators', () => {
+    const mars = evaluate('mars');
+    const onsdHist = mars.measurements['1B-i'].history;
+    const radHist = mars.measurements['2A-i'].history;
+    expect(onsdHist.length).toBe(7);
+    expect(onsdHist[6]).toBe(5.9);
+    expect(onsdHist[6]).toBeGreaterThan(onsdHist[4]);
+    expect(onsdHist[4]).toBeGreaterThan(onsdHist[3]);
+    expect(radHist[6]).toBe(6.2);
+    expect(radHist[6]).toBeGreaterThan(radHist[3]);
+  });
+
+  it('advances missionDay by 1, keeps strictly 7 days, and returns a new immutable state', () => {
+    const day14 = presets.iss;
+    const day15 = addReading(day14, { '4A-i': 90, sleep: 5.2 });
+
+    expect(day14.profile.missionDay).toBe(14);
+    expect(day15.profile.missionDay).toBe(15);
+    expect(day14.readings['4A-i'].value).toBe(98);
+    expect(day15.readings['4A-i'].value).toBe(90);
+
+    for (const indId of Object.keys(indicators)) {
+      expect(day15.readings[indId].history7d.length).toBe(7);
+    }
+    expect(day15.readings['4A-i'].history7d[6]).toBe(90);
+    expect(day15.readings['3A-i'].history7d[6]).toBe(5.2);
+
+    const res = evaluate(day15);
+    expect(res.nodes.lungs).toBe('RED');
+    expect(res.badge).toBe('CRITICAL');
+  });
+
+  it('increments Lunar Day 90 -> 91 and Mars Day 240 -> 241 and supports symptom arrays', () => {
+    const lunar91 = addReading('lunar', { symptoms: ['Blurred vision'] });
+    expect(lunar91.profile.missionDay).toBe(91);
+    expect(lunar91.symptoms.blurredVision).toBe(true);
+    expect(evaluate(lunar91).nodes.eyes).toBe('RED');
+
+    const mars241 = addReading('mars', { onsd: 6.0 });
+    expect(mars241.profile.missionDay).toBe(241);
+    expect(mars241.readings['1B-i'].value).toBe(6.0);
+  });
+
+  it('classifies autonomy tiers (< 5s A0, 5s-5m A1, > 5m A2) and formats delays for the chip', () => {
+    const iss = evaluate('iss');
+    const lunar = evaluate('lunar');
+    const mars = evaluate('mars');
+
+    expect(resolveAutonomyLevel(iss.autonomy, iss.delay_seconds)).toBe('A0');
+    expect(formatCommDelay(iss.delay_seconds)).toBe('0s');
+
+    expect(resolveAutonomyLevel(lunar.autonomy, lunar.delay_seconds)).toBe('A0');
+    expect(formatCommDelay(lunar.delay_seconds)).toBe('1.3s');
+
+    expect(resolveAutonomyLevel(mars.autonomy, mars.delay_seconds)).toBe('A2');
+    expect(formatCommDelay(mars.delay_seconds)).toBe('18 min');
+
+    // Boundary checks for A1 Delayed (5s to 300s)
+    expect(evaluateAutonomy({ commDelaySec: 4 }).level).toBe('A0');
+    expect(evaluateAutonomy({ commDelaySec: 5 }).level).toBe('A1');
+    expect(evaluateAutonomy({ commDelaySec: 300 }).level).toBe('A1');
+    expect(evaluateAutonomy({ commDelaySec: 301 }).level).toBe('A2');
+    expect(resolveAutonomyLevel(undefined, 45)).toBe('A1');
+    expect(formatCommDelay(45)).toBe('45s');
   });
 });

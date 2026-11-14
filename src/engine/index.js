@@ -1,4 +1,4 @@
-export { evaluate, default } from './evaluate.js';
+export { evaluate, addReading, default } from './evaluate.js';
 export { checkThreshold } from './thresholds.js';
 export { checkDrift } from './drift.js';
 export { checkTrend } from './trend.js';

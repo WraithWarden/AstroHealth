@@ -267,7 +267,29 @@ $$\text{node.status} = \max(\text{status of constituent measurements})$$
 To support existing UI components without regressions:
 - `data.overall`: Numeric score `0–100` consumed by `<Gauge score={overall} />`.
 - `data.badge`: String `"NOMINAL" | "WARNING" | "CRITICAL"` consumed by `<Badge status={badge} />` and `<Gauge status={badge} />`.
-- `data.autonomy`: String `"A0" | "A1" | "A2"` consumed by `<HazardBars autonomy={autonomy} />`.
+- `data.autonomy`: String `"A0" | "A1" | "A2"` consumed by `<HazardBars autonomy={autonomy} delaySeconds={data.delay_seconds} />` and `<AutonomyChip />`.
+- `data.delay_seconds`: Numeric one-way comm delay in seconds (`< 5` = `A0 Real-time`, `5..300` = `A1 Delayed`, `> 300` = `A2 Autonomous`).
 - `data.hazards`: Array of hazard objects `{ id, name, score, status }` consumed by `<HazardBars hazards={hazards} />`.
 - `data.nodes`: Object with keys `brain`, `eyes`, `heart`, `lungs`, `bones`, `whole` mapping to `"GREEN" | "YELLOW" | "RED"`.
 - `data.measurements`: Dictionary of measurements containing `value`, `unit`, `status`, `node`, `history`, `baseline`, and `earth_normal` consumed by `<Chart />` and the Guidance Drawer.
+
+---
+
+## 5. How to Call the Engine
+
+```javascript
+import { evaluate, addReading } from '../engine/index.js';
+
+// 1. Evaluate a built-in mission preset ('iss' | 'lunar' | 'mars')
+const marsResult = evaluate('mars');
+
+// 2. Log a daily check-in (advances missionDay by +1, keeps last 7 days)
+//    Accepts indicator IDs ('4A-i', '1B-i', ...) or form keys (sleep, hr, spo2, onsd, mood, glucose)
+const nextState = addReading('iss', {
+  '4A-i': 90,          // or { spo2: 90, sleep: 5.2 }
+  symptoms: { blurredVision: false },
+});
+
+// 3. Re-evaluate the updated mission state to refresh all UI components
+const updatedResult = evaluate(nextState);
+```

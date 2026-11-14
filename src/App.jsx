@@ -446,7 +446,12 @@ export default function App() {
 
           {/* BOTTOM PANEL — Hazard Risk Bars */}
           <Panel style={{ padding: 14, flexShrink: 0 }}>
-            <HazardBars hazards={hazards} autonomy={autonomy} />
+            <HazardBars
+              hazards={hazards}
+              autonomy={autonomy}
+              delaySeconds={data.delay_seconds}
+              autonomyDetails={autonomyDetails}
+            />
           </Panel>
         </section>
 
