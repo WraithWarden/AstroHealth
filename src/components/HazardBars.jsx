@@ -1,35 +1,20 @@
+import AutonomyChip from './AutonomyChip.jsx';
+
 const STATUS_COLORS = {
   GREEN:  { bar: '#00ff9d', text: '#00ff9d', glow: 'rgba(0,255,157,0.4)'  },
   YELLOW: { bar: '#ffc800', text: '#ffc800', glow: 'rgba(255,200,0,0.4)'  },
   RED:    { bar: '#ff3355', text: '#ff3355', glow: 'rgba(255,51,85,0.4)'  },
 };
 
-const AUTONOMY_CFG = {
-  A0: { label: 'A0 · REAL-TIME',  color: '#00ff9d', bg: 'rgba(0,255,157,0.08)',  border: 'rgba(0,255,157,0.3)'  },
-  A1: { label: 'A1 · DELAYED',    color: '#ffc800', bg: 'rgba(255,200,0,0.08)',  border: 'rgba(255,200,0,0.3)'  },
-  A2: { label: 'A2 · AUTONOMOUS', color: '#ff3355', bg: 'rgba(255,51,85,0.08)', border: 'rgba(255,51,85,0.3)'  },
-};
-
-export default function HazardBars({ hazards, autonomy }) {
-  const aCfg = AUTONOMY_CFG[autonomy] ?? AUTONOMY_CFG.A0;
+export default function HazardBars({ hazards, autonomy, delaySeconds, autonomyDetails }) {
+  const effectiveDelay = delaySeconds ?? autonomyDetails?.commDelaySec;
 
   return (
     <div style={{ width: '100%' }}>
       {/* Header row */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
         <span className="hud-label">NASA Hazard Risk Scores</span>
-        <span style={{
-          fontFamily:    "'Orbitron', sans-serif",
-          fontSize:      9,
-          fontWeight:    700,
-          letterSpacing: '0.12em',
-          color:         aCfg.color,
-          background:    aCfg.bg,
-          border:        `1px solid ${aCfg.border}`,
-          padding:       '2px 10px',
-        }}>
-          {aCfg.label}
-        </span>
+        <AutonomyChip autonomy={autonomy} delaySeconds={effectiveDelay} />
       </div>
 
       {/* Hazard rows */}

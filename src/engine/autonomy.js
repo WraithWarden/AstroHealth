@@ -7,8 +7,14 @@
  * @returns {Object} Autonomy metadata
  */
 export function evaluateAutonomy(reading5A = {}, reading5B = {}) {
-  const commDelayMin = Number(reading5A.value ?? 0);
-  const commDelaySec = Number(reading5A.commDelaySec ?? Math.round(commDelayMin * 60));
+  const hasSec = reading5A.commDelaySec != null;
+  const hasMin = reading5A.value != null;
+  const commDelaySec = hasSec
+    ? Number(reading5A.commDelaySec)
+    : Math.round(Number(reading5A.value ?? 0) * 60);
+  const commDelayMin = hasMin
+    ? Number(reading5A.value)
+    : Math.round((commDelaySec / 60) * 1000) / 1000;
   const medKitStockPct = Number(reading5B.value ?? 100);
   const criticalDepleted = Boolean(reading5B.criticalItemDepleted);
 

@@ -29,6 +29,56 @@ const FRIENDLY_NAMES = {
   '5B': 'MedKitStock',
 };
 
+const ALIAS_TO_ID = {
+  ...Object.fromEntries(Object.entries(FRIENDLY_NAMES).map(([id, name]) => [name.toLowerCase(), id])),
+  bp: '1A-i',
+  sbp: '1A-i',
+  systolic: '1A-i',
+  hr: '1A-ii',
+  heartrate: '1A-ii',
+  onsd: '1B-i',
+  calcium: '1B-ii',
+  urinecalcium: '1B-ii',
+  raddose: '2A-i',
+  careerdose: '2A-ii',
+  wbc: '2B-i',
+  temp: '2B-ii',
+  temperature: '2B-ii',
+  sleep: '3A-i',
+  pvt: '3A-ii',
+  mood: '3B-i',
+  stress: '3B-i',
+  hrv: '3B-ii',
+  spo2: '4A-i',
+  co2: '4A-ii',
+  ppco2: '4A-ii',
+  glucose: '4B-i',
+  skin: '4B-ii',
+  commdelay: '5A',
+  medkit: '5B',
+};
+
+const SYMPTOM_LABEL_MAP = {
+  'blurred vision': 'blurredVision',
+  blurredvision: 'blurredVision',
+  headache: 'persistentHeadache',
+  'persistent headache': 'persistentHeadache',
+  persistentheadache: 'persistentHeadache',
+  dizziness: 'dizzinessSyncope',
+  'dizziness or fainting': 'dizzinessSyncope',
+  fainting: 'dizzinessSyncope',
+  syncope: 'dizzinessSyncope',
+  dizzinesssyncope: 'dizzinessSyncope',
+  'chest pain': 'chestPain',
+  chestpain: 'chestPain',
+  confusion: 'confusion',
+  nausea: 'nausea',
+  'low mood': 'selfHarmIdeation',
+  'thoughts of self-harm': 'selfHarmIdeation',
+  'low mood or thoughts of self-harm': 'selfHarmIdeation',
+  selfharmideation: 'selfHarmIdeation',
+};
+
 /**
  * Resolves either a preset identifier ('iss', 'lunar', 'mars', 'AST-001'..'AST-003')
  * or a full `{ profile, symptoms, readings }` input object.
@@ -167,6 +217,186 @@ export function evaluate(input = 'mars') {
     measurements,
     delay_seconds: autonomyDetails.commDelaySec,
     preset: presetKey,
+  };
+}
+
+function toFiniteNumber(raw) {
+  if (raw === '' || raw === null || raw === undefined) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
+function normalizeSymptoms(prevSymptoms = {}, incoming) {
+  const next = { ...prevSymptoms };
+  if (!incoming) return next;
+
+  if (Array.isArray(incoming)) {
+    for (const label of incoming) {
+      const key = SYMPTOM_LABEL_MAP[String(label).trim().toLowerCase()];
+      if (key) next[key] = true;
+    }
+    return next;
+  }
+
+  if (typeof incoming === 'object') {
+    for (const [rawKey, active] of Object.entries(incoming)) {
+      const key = SYMPTOM_LABEL_MAP[rawKey.trim().toLowerCase()] || rawKey;
+      next[key] = Boolean(active);
+    }
+  }
+  return next;
+}
+
+function extractIncomingPatches(reading = {}) {
+  const patches = {};
+  const sources = [
+    reading.readings && typeof reading.readings === 'object' ? reading.readings : null,
+    reading && typeof reading === 'object' ? reading : null,
+  ].filter(Boolean);
+
+  for (const src of sources) {
+    for (const [rawKey, rawVal] of Object.entries(src)) {
+      if (rawKey === 'readings' || rawKey === 'symptoms' || rawKey === 'timestamp' || rawKey === 'timestampUtc') {
+        continue;
+      }
+
+      const lower = rawKey.toLowerCase();
+      if (lower === 'dbp' || lower === 'diastolic') {
+        const dbp = toFiniteNumber(rawVal);
+        if (dbp !== null) {
+          patches['1A-i'] = { ...(patches['1A-i'] || {}), secondaryValue: dbp };
+        }
+        continue;
+      }
+      if (lower === 'lapses') {
+        const lapses = toFiniteNumber(rawVal);
+        if (lapses !== null) {
+          patches['3A-ii'] = { ...(patches['3A-ii'] || {}), lapses };
+        }
+        continue;
+      }
+      if (lower === 'commdelaysec') {
+        const sec = toFiniteNumber(rawVal);
+        if (sec !== null) {
+          patches['5A'] = { ...(patches['5A'] || {}), commDelaySec: sec };
+        }
+        continue;
+      }
+
+      const indId = indicators[rawKey] ? rawKey : ALIAS_TO_ID[lower];
+      if (!indId) continue;
+
+      if (typeof rawVal === 'object' && rawVal !== null) {
+        const val = toFiniteNumber(rawVal.value ?? rawVal.sbp);
+        const secVal = toFiniteNumber(rawVal.secondaryValue ?? rawVal.dbp);
+        const patch = { ...rawVal };
+        if (val !== null) patch.value = val;
+        else delete patch.value;
+        if (secVal !== null) patch.secondaryValue = secVal;
+        if (Object.keys(patch).length > 0) {
+          patches[indId] = { ...(patches[indId] || {}), ...patch };
+        }
+      } else {
+        const val = toFiniteNumber(rawVal);
+        if (val !== null) {
+          patches[indId] = { ...(patches[indId] || {}), value: val };
+        }
+      }
+    }
+  }
+
+  return patches;
+}
+
+/**
+ * Advances the mission state by one day (`missionDay + 1`), applies any new
+ * check-in readings and symptoms, trims every indicator's history to the last
+ * 7 days, and returns a fresh state object ready for `evaluate(newState)`.
+ *
+ * @param {string|Object} state Current state (`{ profile, symptoms, readings }`) or preset key
+ * @param {Object} [reading={}] Check-in readings (by indicator ID or friendly key) & symptoms
+ * @returns {{ profile: Object, symptoms: Object, readings: Object }} Updated mission state
+ */
+export function addReading(state, reading = {}) {
+  const resolved = resolveInput(state);
+  const regime = normalizeRegime(resolved.profile?.regime);
+
+  const nextProfile = {
+    ...resolved.profile,
+    missionDay: (Number(resolved.profile?.missionDay) || 0) + 1,
+    ...(reading.timestamp || reading.timestampUtc
+      ? { timestampUtc: reading.timestamp || reading.timestampUtc }
+      : {}),
+  };
+
+  const nextSymptoms = normalizeSymptoms(resolved.symptoms, reading?.symptoms);
+  const patches = extractIncomingPatches(reading);
+  const nextReadings = {};
+
+  for (const indId of Object.keys(indicators)) {
+    const { baseline } = getIndicatorSpec(indId, regime);
+    const rawPrev = resolved.readings[indId] ?? { value: baseline.mean };
+    const prev = typeof rawPrev === 'object' && rawPrev !== null
+      ? { ...rawPrev }
+      : { value: rawPrev };
+
+    const prevValue = toFiniteNumber(prev.value) ?? baseline.mean;
+    const prevHistory = Array.isArray(prev.history7d) && prev.history7d.length > 0
+      ? [...prev.history7d]
+      : generateHistory(baseline.mean, baseline.sigmaMin, prevValue, hashKey(indId));
+
+    const patch = patches[indId];
+    const hasNewValue = patch && (patch.value != null || patch.commDelaySec != null);
+
+    let nextValue = prevValue;
+    let nextCommDelaySec = prev.commDelaySec;
+
+    if (indId === '5A' && patch) {
+      if (patch.commDelaySec != null && patch.value == null) {
+        nextCommDelaySec = patch.commDelaySec;
+        nextValue = Math.round((nextCommDelaySec / 60) * 1000) / 1000;
+      } else if (patch.value != null && patch.commDelaySec == null) {
+        nextValue = patch.value;
+        nextCommDelaySec = Math.round(nextValue * 60);
+      } else if (patch.value != null && patch.commDelaySec != null) {
+        nextValue = patch.value;
+        nextCommDelaySec = patch.commDelaySec;
+      }
+    } else if (patch?.value != null) {
+      nextValue = patch.value;
+    }
+
+    const nextHistory = [...prevHistory, nextValue].slice(-7);
+
+    const updated = {
+      ...prev,
+      ...(patch || {}),
+      value: nextValue,
+      history7d: nextHistory,
+      lastMeasuredDaysAgo: hasNewValue ? 0 : (Number(prev.lastMeasuredDaysAgo) || 0) + 1,
+    };
+
+    if (indId === '5A' && nextCommDelaySec != null) {
+      updated.commDelaySec = nextCommDelaySec;
+    }
+
+    if (indId === '1A-i') {
+      const prevSec = toFiniteNumber(prev.secondaryValue) ?? baseline.secondaryMean ?? 71;
+      const nextSec = patch?.secondaryValue != null ? patch.secondaryValue : prevSec;
+      const prevSecHist = Array.isArray(prev.historySecondary7d) && prev.historySecondary7d.length > 0
+        ? [...prev.historySecondary7d]
+        : Array(prevHistory.length).fill(prevSec);
+      updated.secondaryValue = nextSec;
+      updated.historySecondary7d = [...prevSecHist, nextSec].slice(-7);
+    }
+
+    nextReadings[indId] = updated;
+  }
+
+  return {
+    profile: nextProfile,
+    symptoms: nextSymptoms,
+    readings: nextReadings,
   };
 }
 
