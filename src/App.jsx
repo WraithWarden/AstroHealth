@@ -7,6 +7,7 @@ import HazardBars from './components/HazardBars.jsx';
 import BodyMap from './components/BodyMap.jsx';
 import Chart from './components/Chart.jsx';
 import CheckInModal from './components/CheckInModal.jsx';
+import CheckInHost from './components/CheckInHost.jsx';
 import InstructionDrawer from './components/InstructionDrawer.jsx';
 import GuidancePanel from './components/GuidancePanel.jsx';
 import AutonomyChip from './components/AutonomyChip.jsx';
@@ -467,20 +468,34 @@ export default function App() {
             </Panel>
           )}
 
-          {/* Log Check-In button — Phase 4: starts PVT flow first */}
+          {/* Check-In — Phase 3 Person 3: CheckInHost replaces manual PVT+modal buttons */}
           <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <button onClick={() => setModalFlow('pvt')}
-              style={{ width: '100%', padding: '10px 0',
-                background: 'rgba(0,180,255,0.07)', border: '1px solid rgba(0,180,255,0.3)',
-                color: '#00b4ff', cursor: 'pointer', fontFamily: "'Orbitron', sans-serif",
-                fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', transition: 'all 0.2s' }}
-              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,180,255,0.14)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,180,255,0.07)'; }}>
-              + LOG DAILY CHECK-IN
-            </button>
+            <CheckInHost
+              preset={activePreset}
+              state={liveState ?? activePreset}
+              addReading={addReading}
+              evaluate={(s) => evaluate(s)}
+              onUpdate={(newState, output) => {
+                const nextData = output ?? evaluate(newState);
+                const histEntry = {
+                  timestamp:  new Date().toISOString(),
+                  missionDay: newState?.profile?.missionDay ?? newState?.day,
+                  overall:    nextData.overall,
+                  badge:      nextData.badge,
+                  redFlag:    false,
+                };
+                const nextHist = [histEntry, ...checkInHistory].slice(0, 20);
+                setLiveState(newState);
+                setCheckInHistory(nextHist);
+                setCheckedActs({});
+                saveState(activePreset, newState);
+                saveHistory(activePreset, nextHist);
+              }}
+              auto={{ radiation: guidanceMeasValue ?? 0.48 }}
+            />
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 7,
               color: 'rgba(0,180,255,0.25)', textAlign: 'center' }}>
-              shortcut: C
+              shortcut: C (opens legacy flow)
             </div>
 
             <button
