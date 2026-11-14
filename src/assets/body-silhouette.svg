@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 480" fill="none">
+  <defs>
+    <linearGradient id="bodyG" x1="0.3" y1="0" x2="0.7" y2="1">
+      <stop offset="0%"   stop-color="#0d2a45" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#061626" stop-opacity="1"/>
+    </linearGradient>
+    <radialGradient id="headG" cx="50%" cy="40%" r="60%">
+      <stop offset="0%"   stop-color="#112e4a"/>
+      <stop offset="100%" stop-color="#061a30"/>
+    </radialGradient>
+    <filter id="soft">
+      <feGaussianBlur stdDeviation="1" result="b"/>
+      <feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- ═══ LEFT ARM ═══ -->
+  <!-- Upper arm - organic taper -->
+  <path d="M46,96 C38,98 28,106 20,122 C14,134 10,150 11,164 C12,174 14,180 18,182 C24,170 28,154 32,138 C36,122 42,110 48,102 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.4)" stroke-width="1.2" stroke-linejoin="round"/>
+  <!-- Forearm -->
+  <path d="M18,182 C14,185 8,198 5,216 C2,232 2,248 4,260 C6,268 9,272 12,273 C14,264 15,250 17,236 C19,220 22,206 24,196 C26,188 24,184 18,182 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.38)" stroke-width="1.1" stroke-linejoin="round"/>
+  <!-- Left hand -->
+  <path d="M4,260 C3,268 3,275 5,280 C7,285 10,288 13,288 C17,286 19,282 20,276 C18,272 15,268 12,273 C9,272 6,268 4,260 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.35)" stroke-width="1"/>
+  <!-- Fingers hint -->
+  <path d="M5,280 Q4,286 5,290 M9,282 Q9,289 10,293 M13,281 Q14,288 15,292 M17,278 Q19,284 20,288"
+        stroke="rgba(0,180,255,0.2)" stroke-width="0.8" stroke-linecap="round"/>
+
+  <!-- ═══ RIGHT ARM ═══ -->
+  <path d="M114,96 C122,98 132,106 140,122 C146,134 150,150 149,164 C148,174 146,180 142,182 C136,170 132,154 128,138 C124,122 118,110 112,102 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.4)" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M142,182 C146,185 152,198 155,216 C158,232 158,248 156,260 C154,268 151,272 148,273 C146,264 145,250 143,236 C141,220 138,206 136,196 C134,188 136,184 142,182 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.38)" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M156,260 C157,268 157,275 155,280 C153,285 150,288 147,288 C143,286 141,282 140,276 C142,272 145,268 148,273 C151,272 154,268 156,260 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.35)" stroke-width="1"/>
+  <path d="M155,280 Q156,286 155,290 M151,282 Q151,289 150,293 M147,281 Q146,288 145,292 M143,278 Q141,284 140,288"
+        stroke="rgba(0,180,255,0.2)" stroke-width="0.8" stroke-linecap="round"/>
+
+  <!-- ═══ TORSO ═══ -->
+  <!-- Shoulders and trunk - realistic narrowing at waist -->
+  <path d="M44,88 C40,90 36,94 32,100 C28,106 26,114 26,120
+           L28,180 C28,196 30,210 34,222 C38,232 44,240 50,246
+           L52,260 L108,260 L110,246
+           C116,240 122,232 126,222 C130,210 132,196 132,180
+           L134,120 C134,114 132,106 128,100 C124,94 120,90 116,88
+           C108,84 94,82 80,82 C66,82 52,84 44,88 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.5)" stroke-width="1.4"
+        stroke-linejoin="round" filter="url(#soft)"/>
+
+  <!-- ═══ PELVIS / HIPS ═══ -->
+  <path d="M52,260 C48,264 44,272 42,282 C40,290 40,298 42,304
+           L46,308 L114,308 L118,304
+           C120,298 120,290 118,282 C116,272 112,264 108,260 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.42)" stroke-width="1.2" stroke-linejoin="round"/>
+
+  <!-- ═══ LEFT LEG ═══ -->
+  <!-- Thigh -->
+  <path d="M42,304 C38,308 34,318 32,332 C30,346 30,362 32,376 C34,386 36,392 40,396
+           L52,398 C56,390 58,376 58,362 C58,346 56,330 52,316 C50,308 46,304 42,304 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.42)" stroke-width="1.2" stroke-linejoin="round"/>
+  <!-- Shin/calf -->
+  <path d="M40,396 C36,400 32,412 30,426 C28,438 29,450 32,458 C34,464 37,467 40,468
+           L52,468 C54,462 55,450 54,438 C53,424 50,410 48,400 L52,398 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.4)" stroke-width="1.1" stroke-linejoin="round"/>
+  <!-- Left foot -->
+  <path d="M32,458 C28,460 24,462 22,465 C20,468 20,472 23,474 C28,476 36,477 44,476 C50,475 54,472 54,468 L40,468 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.38)" stroke-width="1"/>
+
+  <!-- ═══ RIGHT LEG ═══ -->
+  <path d="M118,304 C122,308 126,318 128,332 C130,346 130,362 128,376 C126,386 124,392 120,396
+           L108,398 C104,390 102,376 102,362 C102,346 104,330 108,316 C110,308 114,304 118,304 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.42)" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M120,396 C124,400 128,412 130,426 C132,438 131,450 128,458 C126,464 123,467 120,468
+           L108,468 C106,462 105,450 106,438 C107,424 110,410 112,400 L108,398 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.4)" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M128,458 C132,460 136,462 138,465 C140,468 140,472 137,474 C132,476 124,477 116,476 C110,475 106,472 106,468 L120,468 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.38)" stroke-width="1"/>
+
+  <!-- ═══ NECK ═══ -->
+  <path d="M68,72 C66,74 65,78 65,82 L65,88 C68,90 74,92 80,92 C86,92 92,90 95,88 L95,82 C95,78 94,74 92,72 Z"
+        fill="url(#bodyG)" stroke="rgba(0,180,255,0.45)" stroke-width="1.2"/>
+
+  <!-- ═══ HEAD ═══ -->
+  <!-- More anatomically proportioned head -->
+  <path d="M80,8 C62,8 50,16 46,28 C42,38 42,50 46,60 C50,70 58,76 68,78 C72,80 76,80 80,80 C84,80 88,80 92,78 C102,76 110,70 114,60 C118,50 118,38 114,28 C110,16 98,8 80,8 Z"
+        fill="url(#headG)" stroke="rgba(0,180,255,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+  <!-- Ear left -->
+  <path d="M46,36 C42,38 40,42 40,46 C40,50 42,54 46,54" stroke="rgba(0,180,255,0.3)" stroke-width="1.2" fill="none"/>
+  <!-- Ear right -->
+  <path d="M114,36 C118,38 120,42 120,46 C120,50 118,54 114,54" stroke="rgba(0,180,255,0.3)" stroke-width="1.2" fill="none"/>
+
+  <!-- ═══ INTERNAL DETAIL ═══ -->
+  <!-- Clavicle hints -->
+  <path d="M60,92 C68,94 74,95 80,95 C86,95 92,94 100,92"
+        stroke="rgba(0,180,255,0.12)" stroke-width="1" fill="none"/>
+  <!-- Ribcage arcs -->
+  <path d="M38,118 C52,126 68,130 80,130 C92,130 108,126 122,118"
+        stroke="rgba(0,180,255,0.1)" stroke-width="0.8" fill="none" stroke-dasharray="2 3"/>
+  <path d="M36,132 C50,142 66,146 80,146 C94,146 110,142 124,132"
+        stroke="rgba(0,180,255,0.09)" stroke-width="0.8" fill="none" stroke-dasharray="2 3"/>
+  <path d="M35,146 C49,157 65,162 80,162 C95,162 111,157 125,146"
+        stroke="rgba(0,180,255,0.08)" stroke-width="0.8" fill="none" stroke-dasharray="2 3"/>
+  <!-- Spine -->
+  <line x1="80" y1="90" x2="80" y2="262" stroke="rgba(0,180,255,0.07)" stroke-width="1" stroke-dasharray="2 5"/>
+  <!-- Sternum -->
+  <line x1="80" y1="96" x2="80" y2="170" stroke="rgba(0,180,255,0.1)" stroke-width="0.8"/>
+  <!-- Navel -->
+  <circle cx="80" cy="220" r="2" fill="rgba(0,180,255,0.1)" stroke="rgba(0,180,255,0.15)" stroke-width="0.5"/>
+  <!-- Knee caps -->
+  <ellipse cx="46" cy="398" rx="8" ry="5" fill="rgba(0,180,255,0.07)" stroke="rgba(0,180,255,0.15)" stroke-width="0.8"/>
+  <ellipse cx="114" cy="398" rx="8" ry="5" fill="rgba(0,180,255,0.07)" stroke="rgba(0,180,255,0.15)" stroke-width="0.8"/>
+</svg>
