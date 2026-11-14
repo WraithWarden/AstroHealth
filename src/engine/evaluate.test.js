@@ -3,6 +3,7 @@ import {
   evaluate,
   addReading,
   evaluateAutonomy,
+  evaluateCadence,
   checkThreshold,
   checkDrift,
   checkTrend,
@@ -10,6 +11,8 @@ import {
   generateHistory,
 } from './index.js';
 import { resolveAutonomyLevel, formatCommDelay } from '../components/AutonomyChip.jsx';
+import { actionsFor } from '../components/GuidancePanel.jsx';
+import { computeActionProgress, buildReportPacket, formatReportText } from '../utils/reportPacket.js';
 import indicators from '../data/indicators.json';
 import presets from '../data/presets.json';
 import hazard1 from '../data/hazard1.json';
@@ -239,5 +242,102 @@ describe('Phase 2: Preset Histories, addReading() & Autonomy Chip', () => {
     expect(evaluateAutonomy({ commDelaySec: 301 }).level).toBe('A2');
     expect(resolveAutonomyLevel(undefined, 45)).toBe('A1');
     expect(formatCommDelay(45)).toBe('45s');
+  });
+});
+
+describe('Phase 3: Cadence Due-Now, Streak & Action Ring, and Mars Report Packet', () => {
+  it('flags DUE_NOW / OVERDUE measurements from cadence intervals and resets after check-in', () => {
+    const iss = evaluate('iss');
+    expect(iss.dueSummary.dueCount).toBe(3);
+    expect(iss.dueSummary.overdueCount).toBe(0);
+    expect(iss.dueSummary.allLogged).toBe(false);
+    expect(iss.measurements['1A-ii'].cadenceStatus).toBe('DUE_NOW');
+    expect(iss.measurements['5A'].cadenceStatus).toBe('CURRENT');
+
+    const mars = evaluate('mars');
+    expect(mars.measurements['1B-i'].cadenceStatus).toBe('OVERDUE');
+    expect(mars.dueSummary.overdueCount).toBe(1);
+
+    // Log all manual daily items + PVT on ISS -> Mission Readiness achieved
+    const afterIss = addReading('iss', {
+      '1A-i': { sbp: 118, dbp: 74 },
+      '1A-ii': 62,
+      '2B-ii': 36.8,
+      '3A-i': 7.5,
+      '3A-ii': { median_ms: 255, lapses: 0 },
+      '3B-i': 2,
+      '4A-i': 98,
+      '4B-i': 88,
+    });
+    const reEval = evaluate(afterIss);
+    expect(reEval.dueSummary.dueCount).toBe(0);
+    expect(reEval.dueSummary.allLogged).toBe(true);
+    expect(reEval.measurements['1A-ii'].cadenceStatus).toBe('CURRENT');
+    expect(reEval.measurements['3A-ii'].value).toBe(255);
+  });
+
+  it('tracks streakDays in profile and overallDetails and supports CheckInModal symptom slugs', () => {
+    const iss = evaluate('iss');
+    expect(iss.overallDetails.streakDays).toBe(14);
+
+    const next = addReading(iss.profile ? presets.iss : 'iss', {
+      '3A-ii': { median_ms: 280, lapses: 1 },
+      symptoms: ['blurred'],
+    });
+    expect(next.missionDay).toBe(15);
+    expect(next.profile.streakDays).toBe(15);
+    expect(next.symptoms.blurredVision).toBe(true);
+
+    const nextEval = evaluate(next);
+    expect(nextEval.overallDetails.streakDays).toBe(15);
+    expect(nextEval.nodes.eyes).toBe('RED');
+  });
+
+  it('builds a Mars A2 report packet with 7-day trends, statuses, and CMO completed actions', () => {
+    const mars = evaluate('mars');
+    const recordById = Object.fromEntries([...hazard1, ...hazard5].map((r) => [r.id, r]));
+
+    const progress = computeActionProgress({
+      measurements: mars.measurements,
+      recordById,
+      actionsFor,
+      guidanceDoneCountById: { '1B-i': 2 },
+      autonomy: mars.autonomy,
+      marsStepsDone: { re_measure: true, queue_ground: true },
+    });
+    expect(progress.marsTotal).toBe(4);
+    expect(progress.marsCompleted).toBe(2);
+    expect(progress.completed).toBe(4);
+
+    const packet = buildReportPacket({
+      data: mars,
+      recordById,
+      actionsFor,
+      guidanceDoneCountById: { '1B-i': 2 },
+      marsStepsDone: { re_measure: true, queue_ground: true },
+      marsNotes: 'Verified CDRA scrubber nominal; ONSD re-measured at 5.9 mm.',
+      queuedForGround: true,
+    });
+
+    expect(packet.autonomy.level).toBe('A2');
+    expect(packet.autonomy.oneWayDelayMin).toBe(18);
+    expect(packet.actionsProgress.queuedForGround).toBe(true);
+    expect(packet.actionsProgress.marsOfflineChecklist.length).toBe(4);
+    expect(packet.measurements.length).toBe(18);
+
+    const onsdEntry = packet.measurements.find((m) => m.id === '1B-i');
+    expect(onsdEntry.trend7d.length).toBe(7);
+    expect(onsdEntry.status).toBe('RED');
+    expect(onsdEntry.cadenceStatus).toBe('OVERDUE');
+
+    const txt = formatReportText(packet);
+    expect(txt).toContain('MARS EARTH-INDEPENDENT CMO CHECKLIST');
+    expect(txt).toContain('Queued for Ground: YES');
+  });
+
+  it('evaluates evaluateCadence helper directly on raw inputs', () => {
+    const res = evaluateCadence(indicators, { '1B-i': { lastMeasuredDaysAgo: 3 } });
+    expect(res.byMeasurement['1B-i'].cadenceStatus).toBe('DUE_NOW');
+    expect(res.summary.dueIds).toContain('1B-i');
   });
 });

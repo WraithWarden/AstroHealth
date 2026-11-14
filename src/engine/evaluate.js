@@ -7,6 +7,7 @@ import { checkDrift } from './drift.js';
 import { checkTrend } from './trend.js';
 import { evaluateAutonomy } from './autonomy.js';
 import { scoreMeasurement, aggregateScores } from './scoring.js';
+import { evaluateCadence } from './cadence.js';
 
 const FRIENDLY_NAMES = {
   '1A-i': 'BloodPressure',
@@ -61,6 +62,7 @@ const ALIAS_TO_ID = {
 const SYMPTOM_LABEL_MAP = {
   'blurred vision': 'blurredVision',
   blurredvision: 'blurredVision',
+  blurred: 'blurredVision',
   headache: 'persistentHeadache',
   'persistent headache': 'persistentHeadache',
   persistentheadache: 'persistentHeadache',
@@ -71,13 +73,18 @@ const SYMPTOM_LABEL_MAP = {
   dizzinesssyncope: 'dizzinessSyncope',
   'chest pain': 'chestPain',
   chestpain: 'chestPain',
+  chest_pain: 'chestPain',
   confusion: 'confusion',
   nausea: 'nausea',
   'low mood': 'selfHarmIdeation',
   'thoughts of self-harm': 'selfHarmIdeation',
   'low mood or thoughts of self-harm': 'selfHarmIdeation',
   selfharmideation: 'selfHarmIdeation',
+  self_harm: 'selfHarmIdeation',
 };
+
+// Continuous passive/spacecraft telemetry sensors stay synced across routine check-ins unless manually flagged stale.
+const PASSIVE_TELEMETRY_IDS = new Set(['2A-i', '2A-ii', '3B-ii', '4A-ii', '5A', '5B']);
 
 /**
  * Resolves either a preset identifier ('iss', 'lunar', 'mars', 'AST-001'..'AST-003')
@@ -126,6 +133,7 @@ export function evaluate(input = 'mars') {
 
   const byId = {};
   const measurements = {};
+  const cadence = evaluateCadence(indicators, readings);
 
   for (const indId of Object.keys(indicators)) {
     const { indicator, baseline } = getIndicatorSpec(indId, regime);
@@ -159,6 +167,7 @@ export function evaluate(input = 'mars') {
         ? Math.round(((earthRange.min + earthRange.max) / 2) * 100) / 100
         : earthRange.max ?? null;
 
+    const cadenceInfo = cadence.byMeasurement[indId];
     const evaluated = {
       id: indId,
       cardId: indicator.cardId,
@@ -178,6 +187,9 @@ export function evaluate(input = 'mars') {
       history,
       baseline: { mean: baseline.mean, sd: baseline.sigmaMin },
       earth_normal: earthMid,
+      cadenceStatus: cadenceInfo.cadenceStatus,
+      cadenceIntervalDays: cadenceInfo.cadenceIntervalDays,
+      lastMeasuredDaysAgo: cadenceInfo.lastMeasuredDaysAgo,
     };
 
     byId[indId] = evaluated;
@@ -208,8 +220,10 @@ export function evaluate(input = 'mars') {
       triageMode: autonomyDetails.level === 'A2' ? 'EARTH_INDEPENDENT_A2' : autonomyDetails.level,
       redCount: agg.redCount,
       yellowCount: agg.yellowCount,
+      streakDays: Number(profile?.streakDays ?? 0),
       activeRedFlagSymptoms,
     },
+    dueSummary: cadence.summary,
     autonomyDetails,
     hazards: agg.hazards,
     nodes: agg.nodes,
@@ -287,7 +301,7 @@ function extractIncomingPatches(reading = {}) {
       if (!indId) continue;
 
       if (typeof rawVal === 'object' && rawVal !== null) {
-        const val = toFiniteNumber(rawVal.value ?? rawVal.sbp);
+        const val = toFiniteNumber(rawVal.value ?? rawVal.sbp ?? rawVal.median_ms);
         const secVal = toFiniteNumber(rawVal.secondaryValue ?? rawVal.dbp);
         const patch = { ...rawVal };
         if (val !== null) patch.value = val;
@@ -324,6 +338,7 @@ export function addReading(state, reading = {}) {
   const nextProfile = {
     ...resolved.profile,
     missionDay: (Number(resolved.profile?.missionDay) || 0) + 1,
+    streakDays: (Number(resolved.profile?.streakDays) || 0) + 1,
     ...(reading.timestamp || reading.timestampUtc
       ? { timestampUtc: reading.timestamp || reading.timestampUtc }
       : {}),
@@ -368,12 +383,18 @@ export function addReading(state, reading = {}) {
 
     const nextHistory = [...prevHistory, nextValue].slice(-7);
 
+    const nextDaysAgo = hasNewValue
+      ? 0
+      : PASSIVE_TELEMETRY_IDS.has(indId)
+        ? Number(prev.lastMeasuredDaysAgo) || 0
+        : (Number(prev.lastMeasuredDaysAgo) || 0) + 1;
+
     const updated = {
       ...prev,
       ...(patch || {}),
       value: nextValue,
       history7d: nextHistory,
-      lastMeasuredDaysAgo: hasNewValue ? 0 : (Number(prev.lastMeasuredDaysAgo) || 0) + 1,
+      lastMeasuredDaysAgo: nextDaysAgo,
     };
 
     if (indId === '5A' && nextCommDelaySec != null) {
@@ -394,6 +415,7 @@ export function addReading(state, reading = {}) {
   }
 
   return {
+    missionDay: nextProfile.missionDay,
     profile: nextProfile,
     symptoms: nextSymptoms,
     readings: nextReadings,

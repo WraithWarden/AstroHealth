@@ -271,7 +271,9 @@ To support existing UI components without regressions:
 - `data.delay_seconds`: Numeric one-way comm delay in seconds (`< 5` = `A0 Real-time`, `5..300` = `A1 Delayed`, `> 300` = `A2 Autonomous`).
 - `data.hazards`: Array of hazard objects `{ id, name, score, status }` consumed by `<HazardBars hazards={hazards} />`.
 - `data.nodes`: Object with keys `brain`, `eyes`, `heart`, `lungs`, `bones`, `whole` mapping to `"GREEN" | "YELLOW" | "RED"`.
-- `data.measurements`: Dictionary of measurements containing `value`, `unit`, `status`, `node`, `history`, `baseline`, and `earth_normal` consumed by `<Chart />` and the Guidance Drawer.
+- `data.measurements`: Dictionary of measurements containing `value`, `unit`, `status`, `node`, `history`, `baseline`, `earth_normal`, `cadenceStatus` (`"CURRENT" | "DUE_NOW" | "OVERDUE"`), `cadenceIntervalDays`, and `lastMeasuredDaysAgo` consumed by `<Chart />`, measurement badges, and the Guidance Drawer.
+- `data.dueSummary`: `{ dueCount, overdueCount, dueIds, overdueIds, allLogged }` driving the Readiness strip due banner and "Mission Readiness" badge.
+- `data.overallDetails.streakDays`: Consecutive mission days logged (incremented on each `addReading` call).
 
 ---
 
@@ -283,7 +285,7 @@ import { evaluate, addReading } from '../engine/index.js';
 // 1. Evaluate a built-in mission preset ('iss' | 'lunar' | 'mars')
 const marsResult = evaluate('mars');
 
-// 2. Log a daily check-in (advances missionDay by +1, keeps last 7 days)
+// 2. Log a daily check-in (advances missionDay and streakDays by +1, keeps last 7 days)
 //    Accepts indicator IDs ('4A-i', '1B-i', ...) or form keys (sleep, hr, spo2, onsd, mood, glucose)
 const nextState = addReading('iss', {
   '4A-i': 90,          // or { spo2: 90, sleep: 5.2 }

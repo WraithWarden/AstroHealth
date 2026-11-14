@@ -4,6 +4,7 @@ export { checkDrift } from './drift.js';
 export { checkTrend } from './trend.js';
 export { scoreMeasurement, aggregateScores } from './scoring.js';
 export { evaluateAutonomy } from './autonomy.js';
+export { evaluateCadence } from './cadence.js';
 export { generateHistory, createSeededRng, hashKey } from './historyGenerator.js';
 export { worstStatus, normalizeRegime, getIndicatorSpec } from './indicatorHelpers.js';
 export { default as mockMars } from './mock-mars.json';

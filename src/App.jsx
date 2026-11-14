@@ -9,9 +9,13 @@ import Chart from './components/Chart.jsx';
 import CheckInModal from './components/CheckInModal.jsx';
 import CheckInHost from './components/CheckInHost.jsx';
 import InstructionDrawer from './components/InstructionDrawer.jsx';
-import GuidancePanel from './components/GuidancePanel.jsx';
+import GuidancePanel, { actionsFor } from './components/GuidancePanel.jsx';
 import AutonomyChip from './components/AutonomyChip.jsx';
 import PvtTest from './components/PvtTest.jsx';
+import MarsTriageModal from './components/MarsTriageModal.jsx';
+import ReadinessStrip from './components/ReadinessStrip.jsx';
+import OnsdCaliperModal from './components/OnsdCaliperModal.jsx';
+import { computeActionProgress, buildReportPacket, downloadReportPacket } from './utils/reportPacket.js';
 import hazard1 from './data/hazard1.json';
 import hazard2 from './data/hazard2.json';
 import hazard3 from './data/hazard3.json';
@@ -102,8 +106,15 @@ function HudLabel({ children, style = {} }) {
   );
 }
 
-function MeasurementRow({ label, value, unit, status, zScore, selected, onClick }) {
+function MeasurementRow({ label, value, unit, status, zScore, cadenceStatus, selected, onClick }) {
   const color = STATUS_COLOR[status] ?? '#c8e4ff';
+  const cadenceBadge =
+    cadenceStatus === 'OVERDUE'
+      ? { text: 'OVERDUE', color: '#ff3355', bg: 'rgba(255,51,85,0.14)', border: 'rgba(255,51,85,0.45)' }
+      : cadenceStatus === 'DUE_NOW'
+        ? { text: 'DUE NOW', color: '#ffc800', bg: 'rgba(255,200,0,0.12)', border: 'rgba(255,200,0,0.4)' }
+        : null;
+
   return (
     <button onClick={onClick} style={{
       width: '100%', textAlign: 'left',
@@ -111,20 +122,30 @@ function MeasurementRow({ label, value, unit, status, zScore, selected, onClick 
       border: `1px solid ${selected ? 'rgba(0,180,255,0.25)' : 'rgba(0,180,255,0.07)'}`,
       padding: '7px 10px', cursor: 'pointer', marginBottom: 4, transition: 'all 0.15s',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
         <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, color: 'rgba(200,228,255,0.7)' }}>
           {label}
         </span>
         <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700,
-          color, textShadow: `0 0 6px ${color}60` }}>
+          color, textShadow: `0 0 6px ${color}60`, flexShrink: 0 }}>
           {value != null ? value : '—'}
           {unit && <span style={{ fontSize: 8, opacity: 0.6, marginLeft: 3 }}>{unit}</span>}
         </span>
       </div>
-      {zScore != null && (
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 8,
-          color: 'rgba(0,180,255,0.4)', marginTop: 2 }}>
-          z {zScore > 0 ? '+' : ''}{zScore.toFixed(2)}
+      {(zScore != null || cadenceBadge) && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 3 }}>
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, color: 'rgba(0,180,255,0.4)' }}>
+            {zScore != null ? `z ${zScore > 0 ? '+' : ''}${zScore.toFixed(2)}` : ''}
+          </span>
+          {cadenceBadge && (
+            <span style={{
+              fontFamily: "'Orbitron', sans-serif", fontSize: 6.5, fontWeight: 700, letterSpacing: '0.08em',
+              color: cadenceBadge.color, background: cadenceBadge.bg, border: `1px solid ${cadenceBadge.border}`,
+              padding: '1px 5px',
+            }}>
+              {cadenceBadge.text}
+            </span>
+          )}
         </div>
       )}
     </button>
@@ -151,6 +172,12 @@ export default function App() {
   const [pvtResult, setPvtResult] = useState(null);
 
   const [checkedActs, setCheckedActs] = useState({});
+  const [guidanceDoneById, setGuidanceDoneById] = useState({});
+  const [showMarsModal, setShowMarsModal] = useState(false);
+  const [marsStepsDone, setMarsStepsDone] = useState({});
+  const [marsNotes, setMarsNotes] = useState('');
+  const [queuedForGround, setQueuedForGround] = useState(false);
+  const [showOnsdCaliper, setShowOnsdCaliper] = useState(false);
 
   /* ── Evaluate ── */
   const data = useMemo(() => {
@@ -158,8 +185,22 @@ export default function App() {
   }, [liveState, activePreset]);
 
   const { overall, badge, autonomy, hazards, nodes, cards,
-    measurements, autonomyDetails, profile: engineProfile } = data;
+    measurements, autonomyDetails, dueSummary, profile: engineProfile } = data;
   const profile = profiles[activePreset] ?? engineProfile ?? {};
+
+  const actionProgress = useMemo(() => computeActionProgress({
+    measurements,
+    recordById: RECORD_BY_ID,
+    actionsFor,
+    guidanceDoneCountById: guidanceDoneById,
+    autonomy,
+    marsStepsDone,
+  }), [measurements, guidanceDoneById, autonomy, marsStepsDone]);
+
+  const dueLabels = useMemo(
+    () => (dueSummary?.dueIds || []).map((id) => measurements?.[id]?.name || id),
+    [dueSummary, measurements]
+  );
 
   /* ── Node measurements ── */
   const nodeMeasIds  = NODE_MEASUREMENTS[selectedNode] ?? [];
@@ -189,6 +230,24 @@ export default function App() {
     setCheckedActs(prev => ({ ...prev, [id]: !prev[id] }));
   }
 
+  const recordStateUpdate = useCallback((nextState, redFlag = false) => {
+    const nextData = evaluate(nextState);
+    const histEntry = {
+      timestamp: new Date().toISOString(),
+      missionDay: nextState.profile?.missionDay,
+      overall: nextData.overall,
+      badge: nextData.badge,
+      redFlag,
+    };
+    const nextHist = [histEntry, ...checkInHistory].slice(0, 20);
+    setLiveState(nextState);
+    setCheckInHistory(nextHist);
+    setCheckedActs({});
+    setGuidanceDoneById({});
+    saveState(activePreset, nextState);
+    saveHistory(activePreset, nextHist);
+  }, [activePreset, checkInHistory]);
+
   /* ── Phase 4: Check-in submit with persistence + history ── */
   const handleCheckInSubmit = useCallback((reading, meta) => {
     const currentState = liveState ?? activePreset;
@@ -215,12 +274,36 @@ export default function App() {
     setCheckInHistory(nextHist);
     setPvtResult(null);
     setCheckedActs({});
+    setGuidanceDoneById({});
     setModalFlow('hidden');
 
     // Persist to localStorage
     saveState(activePreset, nextState);
     saveHistory(activePreset, nextHist);
   }, [liveState, activePreset, checkInHistory, pvtResult]);
+
+  const handleDownloadPacket = useCallback((format = 'json') => {
+    const packet = buildReportPacket({
+      data,
+      recordById: RECORD_BY_ID,
+      actionsFor,
+      guidanceDoneCountById: guidanceDoneById,
+      marsStepsDone,
+      marsNotes,
+      queuedForGround: queuedForGround || autonomy === 'A2',
+    });
+    downloadReportPacket(packet, format);
+    if (autonomy === 'A2') {
+      setQueuedForGround(true);
+      setMarsStepsDone((prev) => ({ ...prev, queue_ground: true }));
+    }
+  }, [data, guidanceDoneById, marsStepsDone, marsNotes, queuedForGround, autonomy]);
+
+  const handleApplyOnsd = useCallback((measuredMm) => {
+    const currentState = liveState ?? activePreset;
+    const nextState = addReading(currentState, { '1B-i': measuredMm });
+    recordStateUpdate(nextState, false);
+  }, [liveState, activePreset, recordStateUpdate]);
 
   /* ── Phase 4: Preset switch with persistence ── */
   function handlePresetSwitch(key) {
@@ -231,6 +314,12 @@ export default function App() {
     setSelectedNode('eyes');
     setSelectedMeasId('1B-i');
     setCheckedActs({});
+    setGuidanceDoneById({});
+    setMarsStepsDone({});
+    setMarsNotes('');
+    setQueuedForGround(false);
+    setShowMarsModal(false);
+    setShowOnsdCaliper(false);
     setPvtResult(null);
     setModalFlow('hidden');
   }
@@ -241,13 +330,17 @@ export default function App() {
     setLiveState(null);
     setCheckInHistory([]);
     setCheckedActs({});
+    setGuidanceDoneById({});
+    setMarsStepsDone({});
+    setMarsNotes('');
+    setQueuedForGround(false);
     setPvtResult(null);
   }
 
   /* ── Phase 4: Keyboard shortcuts ── */
   useEffect(() => {
     function onKey(e) {
-      if (e.target.tagName === 'INPUT') return;
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.key === 'c' || e.key === 'C') setModalFlow(f => f === 'hidden' ? 'pvt' : 'hidden');
       if (e.key === '1') handlePresetSwitch('iss');
       if (e.key === '2') handlePresetSwitch('lunar');
@@ -261,6 +354,7 @@ export default function App() {
   const isCritical   = badge === 'CRITICAL';
   const bannerAlert  = autonomyDetails?.bannerAlert;
   const delaySeconds = autonomyDetails?.commDelaySec;
+  const delayMin     = Math.max(1, Math.round((delaySeconds ?? 0) / 60));
   const isLive       = liveState !== null;
   const lastCheckIn  = checkInHistory[0];
 
@@ -323,6 +417,68 @@ export default function App() {
             color: 'rgba(255,100,120,0.9)', letterSpacing: '0.04em' }}>
             {bannerAlert}
           </span>
+        </div>
+      )}
+
+      {/* ══ MARS EARTH-INDEPENDENT TRIAGE BANNER (A2) ══ */}
+      {autonomy === 'A2' && (
+        <div style={{
+          background: 'rgba(255,51,85,0.1)',
+          borderBottom: '1px solid rgba(255,51,85,0.35)',
+          padding: '5px 18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{
+              fontFamily: "'Orbitron', sans-serif", fontSize: 8.5, fontWeight: 700,
+              letterSpacing: '0.12em', color: '#ff6680',
+            }}>
+              ◆ AUTONOMOUS MODE: {delayMin} MIN ONE-WAY DELAY
+            </span>
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 8, color: 'rgba(200,228,255,0.7)' }}>
+              EARTH-INDEPENDENT CMO PROTOCOL ACTIVE · {actionProgress.marsCompleted}/4 STEPS
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+              type="button"
+              onClick={() => setShowMarsModal(true)}
+              style={{
+                padding: '4px 10px',
+                background: 'rgba(255,51,85,0.16)',
+                border: '1px solid rgba(255,51,85,0.6)',
+                color: '#ffd0d8',
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: 8,
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                cursor: 'pointer',
+              }}
+            >
+              OPEN CMO OFFLINE CHECKLIST
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDownloadPacket('json')}
+              style={{
+                padding: '4px 10px',
+                background: 'rgba(0,180,255,0.12)',
+                border: '1px solid rgba(0,180,255,0.45)',
+                color: '#00b4ff',
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: 8,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                cursor: 'pointer',
+              }}
+            >
+              ⬇ REPORT PACKET
+            </button>
+          </div>
         </div>
       )}
 
@@ -475,23 +631,27 @@ export default function App() {
               state={liveState ?? activePreset}
               addReading={addReading}
               evaluate={(s) => evaluate(s)}
-              onUpdate={(newState, output) => {
+              onUpdate={(newState, output, metaResult) => {
                 const nextData = output ?? evaluate(newState);
                 const histEntry = {
                   timestamp:  new Date().toISOString(),
                   missionDay: newState?.profile?.missionDay ?? newState?.day,
                   overall:    nextData.overall,
                   badge:      nextData.badge,
-                  redFlag:    false,
+                  redFlag:    Boolean(metaResult?.redFlag),
                 };
                 const nextHist = [histEntry, ...checkInHistory].slice(0, 20);
                 setLiveState(newState);
                 setCheckInHistory(nextHist);
                 setCheckedActs({});
+                setGuidanceDoneById({});
                 saveState(activePreset, newState);
                 saveHistory(activePreset, nextHist);
               }}
-              auto={{ radiation: guidanceMeasValue ?? 0.48 }}
+              auto={{
+                radiation: measurements?.['2A-i']?.value ?? 0.48,
+                co2: measurements?.['4A-ii']?.value ?? 2.3,
+              }}
             />
             <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 7,
               color: 'rgba(0,180,255,0.25)', textAlign: 'center' }}>
@@ -548,9 +708,31 @@ export default function App() {
                   {nodeMeasList.map(m => (
                     <MeasurementRow key={m.id} label={m.name ?? m.id}
                       value={m.value} unit={m.unit} status={m.status} zScore={m.zScore}
+                      cadenceStatus={m.cadenceStatus}
                       selected={m.id === chartMeasId}
                       onClick={() => setSelectedMeasId(m.id)} />
                   ))}
+                  {chartMeasId === '1B-i' && (
+                    <button
+                      type="button"
+                      onClick={() => setShowOnsdCaliper(true)}
+                      style={{
+                        width: '100%',
+                        marginTop: 4,
+                        padding: '5px 8px',
+                        background: 'rgba(0,180,255,0.08)',
+                        border: '1px solid rgba(0,180,255,0.35)',
+                        color: '#00b4ff',
+                        fontFamily: "'Orbitron', sans-serif",
+                        fontSize: 7.5,
+                        fontWeight: 700,
+                        letterSpacing: '0.1em',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      ⌖ ONSD 2-CLICK CALIPER
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -567,7 +749,7 @@ export default function App() {
           </Panel>
 
           <Panel style={{ padding: 14, flexShrink: 0 }}>
-            <HazardBars hazards={hazards} autonomy={autonomy} />
+            <HazardBars hazards={hazards} autonomy={autonomy} delaySeconds={delaySeconds} />
           </Panel>
         </section>
 
@@ -580,25 +762,17 @@ export default function App() {
             <Chart measurement={chartMeas} measurementKey={chartMeasId} />
           </Panel>
 
-          {/* Stats strip — RED / YELLOW / STREAK */}
+          {/* Phase 3 Readiness strip — Streak, Action Ring, Due-Now Banner, Packet Download */}
           {data.overallDetails && (
-            <Panel style={{ padding: '8px 14px', flexShrink: 0 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 6 }}>
-                {[
-                  { label: 'RED',    value: data.overallDetails.redCount,    color: '#ff3355' },
-                  { label: 'YELLOW', value: data.overallDetails.yellowCount, color: '#ffc800' },
-                  { label: 'STREAK', value: `${data.overallDetails.streakDays}d`, color: 'rgba(0,180,255,0.6)' },
-                ].map(({ label, value, color }) => (
-                  <div key={label} style={{ padding: '5px 8px',
-                    border: '1px solid rgba(0,180,255,0.1)',
-                    background: 'rgba(0,180,255,0.03)', textAlign: 'center' }}>
-                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 13,
-                      fontWeight: 700, color }}>{value}</div>
-                    <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 7,
-                      letterSpacing: '0.1em', color: 'rgba(0,180,255,0.4)', marginTop: 2 }}>{label}</div>
-                  </div>
-                ))}
-              </div>
+            <Panel style={{ padding: '8px 12px', flexShrink: 0 }}>
+              <ReadinessStrip
+                overallDetails={data.overallDetails}
+                dueSummary={dueSummary}
+                actionProgress={actionProgress}
+                dueLabels={dueLabels}
+                onDownloadJson={() => handleDownloadPacket('json')}
+                onDownloadTxt={() => handleDownloadPacket('txt')}
+              />
             </Panel>
           )}
 
@@ -608,6 +782,9 @@ export default function App() {
               record={guidanceRecord}
               status={guidanceMeasStatus}
               value={guidanceMeasValue}
+              onProgress={({ id, completed }) => {
+                setGuidanceDoneById((prev) => (prev[id] === completed ? prev : { ...prev, [id]: completed }));
+              }}
               onOpenInstructions={guidanceRecord ? () => {
                 setDrawerRecord(guidanceRecord);
                 setShowDrawer(true);
@@ -663,6 +840,28 @@ export default function App() {
           onClose={() => setShowDrawer(false)}
         />
       )}
+
+      {/* ══ MARS EARTH-INDEPENDENT CMO CHECKLIST MODAL (A2) ══ */}
+      <MarsTriageModal
+        open={showMarsModal}
+        onClose={() => setShowMarsModal(false)}
+        delayMin={delayMin}
+        stepsDone={marsStepsDone}
+        onToggleStep={(stepId) => setMarsStepsDone((prev) => ({ ...prev, [stepId]: !prev[stepId] }))}
+        notes={marsNotes}
+        onNotesChange={setMarsNotes}
+        queuedForGround={queuedForGround}
+        onQueueAndDownload={() => handleDownloadPacket('json')}
+        onDownloadTxt={() => handleDownloadPacket('txt')}
+      />
+
+      {/* ══ ONSD TWO-CLICK ULTRASOUND CALIPER MODAL ══ */}
+      <OnsdCaliperModal
+        open={showOnsdCaliper}
+        currentValue={measurements?.['1B-i']?.value ?? 5.9}
+        onClose={() => setShowOnsdCaliper(false)}
+        onApply={handleApplyOnsd}
+      />
     </div>
   );
 }
