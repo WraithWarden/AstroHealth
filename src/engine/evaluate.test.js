@@ -1,102 +1,172 @@
 import { describe, it, expect } from 'vitest';
-import { evaluate, mockMars } from './index.js';
+import {
+  evaluate,
+  checkThreshold,
+  checkDrift,
+  checkTrend,
+  scoreMeasurement,
+  generateHistory,
+} from './index.js';
 import indicators from '../data/indicators.json';
 import presets from '../data/presets.json';
+import hazard1 from '../data/hazard1.json';
+import hazard5 from '../data/hazard5.json';
 
-describe('Phase 0: Engine Stub & Data Contract Verification', () => {
-  it('evaluate() returns mock Mars data by default', () => {
-    const result = evaluate();
-    expect(result).toBeDefined();
-    expect(result.preset).toBe('mars');
-    expect(result.overall).toBe(51);
-    expect(result.badge).toBe('CRITICAL');
-    expect(result.autonomy).toBe('A2');
-  });
+describe('Phase 1: History Generator', () => {
+  it('generates 7 days with Days 1-4 within ±0.5 SD and Day 7 equal to todayValue using fixed seed', () => {
+    const mean = 5.25;
+    const sd = 0.15;
+    const today = 5.90;
 
-  it('verifies exact Mars numbers per Phase 0 Sprint Guide', () => {
-    const result = evaluate('mars');
-    expect(result.overall).toBe(51);
-    expect(result.badge).toBe('CRITICAL');
-    expect(result.autonomy).toBe('A2');
+    const h1 = generateHistory(mean, sd, today, 1234);
+    const h2 = generateHistory(mean, sd, today, 1234);
 
-    // Hazard scores: 49 / 35 / 68 / 92
-    const h1 = result.hazards.find(h => h.id === 1 || h.hazardId === 'H1');
-    const h2 = result.hazards.find(h => h.id === 2 || h.hazardId === 'H2');
-    const h3 = result.hazards.find(h => h.id === 3 || h.hazardId === 'H3');
-    const h4 = result.hazards.find(h => h.id === 4 || h.hazardId === 'H4');
+    expect(h1).toEqual(h2); // Reproducible
+    expect(h1.length).toBe(7);
 
-    expect(h1).toBeDefined();
-    expect(h1.score).toBe(49);
-    expect(h1.status).toBe('RED');
-
-    expect(h2).toBeDefined();
-    expect(h2.score).toBe(35);
-    expect(h2.status).toBe('RED');
-
-    expect(h3).toBeDefined();
-    expect(h3.score).toBe(68);
-    expect(h3.status).toBe('YELLOW');
-
-    expect(h4).toBeDefined();
-    expect(h4.score).toBe(92);
-    expect(h4.status).toBe('GREEN');
-  });
-
-  it('contains all 6 BodyMap nodes with expected Mars statuses', () => {
-    const result = evaluate();
-    expect(result.nodes).toBeDefined();
-    expect(result.nodes.eyes).toBe('RED');
-    expect(result.nodes.whole).toBe('RED');
-    expect(result.nodes.brain).toBe('YELLOW');
-    expect(result.nodes.bones).toBe('YELLOW');
-    expect(result.nodes.heart).toBe('GREEN');
-    expect(result.nodes.lungs).toBe('GREEN');
-  });
-
-  it('contains vital measurements with history and baseline for Chart component', () => {
-    const result = evaluate();
-    expect(result.measurements).toBeDefined();
-
-    // 1B-i ONSD
-    const onsd = result.measurements['1B-i'] || result.measurements.ONSD;
-    expect(onsd).toBeDefined();
-    expect(onsd.value).toBe(5.90);
-    expect(onsd.unit).toBe('mm');
-    expect(onsd.status).toBe('RED');
-    expect(onsd.node).toBe('eyes');
-    expect(Array.isArray(onsd.history)).toBe(true);
-    expect(onsd.history.length).toBe(7);
-  });
-
-  it('validates src/data/indicators.json has all 18 NASA spaceflight indicators', () => {
-    const indicatorKeys = Object.keys(indicators);
-    expect(indicatorKeys.length).toBe(18);
-
-    const requiredKeys = [
-      '1A-i', '1A-ii', '1B-i', '1B-ii',
-      '2A-i', '2A-ii', '2B-i', '2B-ii',
-      '3A-i', '3A-ii', '3B-i', '3B-ii',
-      '4A-i', '4A-ii', '4B-i', '4B-ii',
-      '5A', '5B'
-    ];
-
-    for (const key of requiredKeys) {
-      expect(indicators[key]).toBeDefined();
-      expect(indicators[key].name).toBeTruthy();
-      expect(indicators[key].unit).toBeTruthy();
-      expect(indicators[key].node).toBeTruthy();
+    // Days 1-4 within mean ± 0.5 SD
+    for (let i = 0; i < 4; i++) {
+      expect(h1[i]).toBeGreaterThanOrEqual(mean - 0.5 * sd - 0.01);
+      expect(h1[i]).toBeLessThanOrEqual(mean + 0.5 * sd + 0.01);
     }
+
+    // Days 5-7 straight-line drift toward today
+    expect(h1[4]).toBeGreaterThan(mean);
+    expect(h1[5]).toBeGreaterThan(h1[4]);
+    expect(h1[6]).toBe(today);
+  });
+});
+
+describe('Phase 1: Stage 1 Threshold Checks', () => {
+  it('tests both low and high limits for bidirectional metrics (BP, HR, Glucose)', () => {
+    // 1A-i Blood Pressure
+    expect(checkThreshold('1A-i', { value: 112, secondaryValue: 71 }).status).toBe('GREEN');
+    expect(checkThreshold('1A-i', { value: 128, secondaryValue: 78 }).status).toBe('YELLOW');
+    expect(checkThreshold('1A-i', { value: 92, secondaryValue: 64 }).status).toBe('YELLOW');
+    expect(checkThreshold('1A-i', { value: 145, secondaryValue: 92 }).status).toBe('RED');
+    expect(checkThreshold('1A-i', { value: 82, secondaryValue: 52 }).status).toBe('RED');
+
+    // 1A-ii Resting Heart Rate
+    expect(checkThreshold('1A-ii', { value: 62 }).status).toBe('GREEN');
+    expect(checkThreshold('1A-ii', { value: 45 }).status).toBe('YELLOW');
+    expect(checkThreshold('1A-ii', { value: 88 }).status).toBe('YELLOW');
+    expect(checkThreshold('1A-ii', { value: 38 }).status).toBe('RED');
+    expect(checkThreshold('1A-ii', { value: 105, sustainedHighReadings: 2 }).status).toBe('RED');
+
+    // 4B-i Fasting Glucose (split hyper/hypoglycemic)
+    const hyper = checkThreshold('4B-i', { value: 130 });
+    expect(hyper.status).toBe('RED');
+    expect(hyper.subType).toBe('HYPERGLYCEMIC');
+
+    const hypo = checkThreshold('4B-i', { value: 65 });
+    expect(hypo.status).toBe('RED');
+    expect(hypo.subType).toBe('HYPOGLYCEMIC');
   });
 
-  it('validates src/data/presets.json has all 3 mission regimes (ISS, Lunar, Mars)', () => {
-    expect(presets.iss).toBeDefined();
-    expect(presets.lunar).toBeDefined();
-    expect(presets.mars).toBeDefined();
+  it('handles special cases: cumulative career dose %, categorical skin 0-3, and symptom overrides', () => {
+    // 2A-ii Cumulative Career Dose (600 mSv limit: 50% = 300 Yellow, 80% = 480 Red)
+    expect(checkThreshold('2A-ii', 250).status).toBe('GREEN');
+    expect(checkThreshold('2A-ii', 310).status).toBe('YELLOW');
+    expect(checkThreshold('2A-ii', 490).status).toBe('RED');
 
-    expect(presets.iss.profile.regime).toBe('ISS');
-    expect(presets.lunar.profile.regime).toBe('LUNAR');
-    expect(presets.mars.profile.regime).toBe('MARS');
+    // 4B-ii Skin categorical 0-3
+    expect(checkThreshold('4B-ii', 0).status).toBe('GREEN');
+    expect(checkThreshold('4B-ii', 1).status).toBe('YELLOW');
+    expect(checkThreshold('4B-ii', 2).status).toBe('YELLOW');
+    expect(checkThreshold('4B-ii', 3).status).toBe('RED');
 
+    // Symptom red-flag override on ONSD
+    expect(checkThreshold('1B-i', 5.2, { blurredVision: true }).status).toBe('RED');
+  });
+});
+
+describe('Phase 1: Stage 2 Directional Drift Checks (z-score)', () => {
+  it('counts only the bad direction and applies <2 Green, 2-3 Yellow, >=3 Red', () => {
+    // 1B-i ONSD (HIGH is bad: mean 5.25, sd 0.15)
+    expect(checkDrift('1B-i', 4.80).status).toBe('GREEN'); // lower is NOT bad for HIGH
+    expect(checkDrift('1B-i', 4.80).effectiveZ).toBe(0);
+    expect(checkDrift('1B-i', 5.55).status).toBe('YELLOW'); // z = +2.0
+    expect(checkDrift('1B-i', 5.90).status).toBe('RED'); // z = +4.33
+
+    // 3A-i Sleep (LOW is bad: mean 6.4, sd 0.5)
+    expect(checkDrift('3A-i', 8.0).status).toBe('GREEN'); // higher is NOT bad for LOW
+    expect(checkDrift('3A-i', 5.2).status).toBe('YELLOW'); // z = -2.4
+    expect(checkDrift('3A-i', 4.8).status).toBe('RED'); // z = -3.2
+  });
+});
+
+describe('Phase 1: Stage 3 Worsening Trend Checks', () => {
+  it('upgrades GREEN to YELLOW when last 3 intervals worsen monotonically by >= 1 SD', () => {
+    // 1B-i ONSD: mean 5.25, sd 0.15 -> 3 steps rising from 5.15 to 5.36 (delta = 0.21 >= 0.15)
+    const res = checkTrend('1B-i', [5.25, 5.25, 5.25, 5.15, 5.22, 5.29, 5.36], 'GREEN');
+    expect(res.status).toBe('YELLOW');
+    expect(res.trending).toBe(true);
+
+    // Non-monotonic stays GREEN
+    const nonMono = checkTrend('1B-i', [5.25, 5.25, 5.25, 5.20, 5.28, 5.24, 5.30], 'GREEN');
+    expect(nonMono.status).toBe('GREEN');
+    expect(nonMono.trending).toBe(false);
+  });
+});
+
+describe('Phase 1: Stage 4 Scoring & Full Presets Verification', () => {
+  it('verifies sleep 5.2 h scores ~67 and ONSD 5.9 mm scores ~17', () => {
+    // Sleep 5.2h: mean 6.4, sd 0.5 -> effZ = 2.4 -> score = 79 - 0.4 * 29 = 67.4 (~67)
+    const sleepDrift = checkDrift('3A-i', 5.2);
+    const sleepThresh = checkThreshold('3A-i', 5.2);
+    const sleepScore = scoreMeasurement('YELLOW', sleepDrift.effectiveZ, sleepThresh.thresholdScore);
+    expect(sleepScore).toBeGreaterThanOrEqual(66);
+    expect(sleepScore).toBeLessThanOrEqual(69);
+
+    // ONSD 5.9mm: mean 5.25, sd 0.15 -> effZ = 4.33 -> score ~16-17
+    const onsdDrift = checkDrift('1B-i', 5.9);
+    const onsdThresh = checkThreshold('1B-i', 5.9);
+    const onsdScore = scoreMeasurement('RED', onsdDrift.effectiveZ, onsdThresh.thresholdScore);
+    expect(onsdScore).toBeGreaterThanOrEqual(15);
+    expect(onsdScore).toBeLessThanOrEqual(18);
+  });
+
+  it('evaluates ISS preset as NOMINAL with all green physiological indicators', () => {
+    const res = evaluate('iss');
+    expect(res.badge).toBe('NOMINAL');
+    expect(res.autonomy).toBe('A0');
+    expect(res.overall).toBeGreaterThanOrEqual(80);
+    expect(res.overallDetails.redCount).toBe(0);
+    expect(res.overallDetails.yellowCount).toBe(0);
+  });
+
+  it('evaluates LUNAR preset as WARNING with zero RED physiological indicators', () => {
+    const res = evaluate('lunar');
+    expect(res.badge).toBe('WARNING');
+    expect(res.autonomy).toBe('A0'); // 1.3s comm delay (< 5s = A0)
+    expect(res.overallDetails.redCount).toBe(0);
+    expect(res.overallDetails.yellowCount).toBeGreaterThan(0);
+  });
+
+  it('evaluates MARS preset as CRITICAL with A2 autonomy penalty and Red-Floor cap', () => {
+    const res = evaluate('mars');
+    expect(res.badge).toBe('CRITICAL');
+    expect(res.autonomy).toBe('A2');
+    expect(res.overallDetails.autonomyPenalty).toBe(10);
+    expect(res.overall).toBeLessThanOrEqual(55);
+    expect(res.overall).toBeGreaterThanOrEqual(45);
+
+    // Red-Floor capping on H1 and H2
+    const h1 = res.hazards.find(h => h.hazardId === 'H1');
+    const h2 = res.hazards.find(h => h.hazardId === 'H2');
+    expect(h1.cappedByRedFloor).toBe(true);
+    expect(h1.score).toBeLessThanOrEqual(49);
+    expect(h2.cappedByRedFloor).toBe(true);
+    expect(h2.score).toBeLessThanOrEqual(49);
+
+    // Eyes node must be RED
+    expect(res.nodes.eyes).toBe('RED');
+  });
+
+  it('validates Hazard 1 and Hazard 5 content files (6 records total) and 18 indicators', () => {
+    expect(hazard1.length).toBe(4);
+    expect(hazard5.length).toBe(2);
+    expect(Object.keys(indicators).length).toBe(18);
     expect(Object.keys(presets.mars.readings).length).toBe(18);
   });
 });

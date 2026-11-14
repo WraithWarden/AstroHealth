@@ -1,0 +1,366 @@
+[
+  {
+    "id": "1A-i",
+    "name": "Blood Pressure",
+    "unit": "mm Hg",
+    "node": "Heart / Vessels",
+    "earth_range": {
+      "sbp_min": 90,
+      "sbp_max": 120,
+      "dbp_min": 60,
+      "dbp_max": 80,
+      "text": "90/60–120/80 mm Hg"
+    },
+    "baseline": {
+      "mean": {
+        "sbp": 112,
+        "dbp": 71
+      },
+      "sd": {
+        "sbp": 5,
+        "dbp": 4
+      },
+      "text": "112/71 ± 5/4 (typical 105/65–118/76)"
+    },
+    "direction": "BOTH",
+    "yellow": {
+      "high": {
+        "sbp_gte": 121,
+        "sbp_lte": 139,
+        "dbp_gte": 81,
+        "dbp_lte": 89
+      },
+      "low": {
+        "sbp_gte": 86,
+        "sbp_lte": 99,
+        "dbp_gte": 56,
+        "dbp_lte": 59
+      },
+      "text": "Top number 121–139 or bottom 81–89 (high); top 86–99 or bottom 56–59 (low)"
+    },
+    "red": {
+      "high": {
+        "sbp_gte": 140,
+        "dbp_gte": 90
+      },
+      "low": {
+        "sbp_lte": 85,
+        "dbp_lte": 55
+      },
+      "symptom_override": [
+        "syncope",
+        "chest_pain"
+      ],
+      "text": "140/90 or higher; 85/55 or lower; or any reading with fainting or chest pain"
+    },
+    "input": {
+      "type": "number_pair",
+      "auto": false,
+      "fields": [
+        {
+          "key": "sbp",
+          "label": "Top number (systolic)",
+          "unit": "mm Hg",
+          "min": 60,
+          "max": 220
+        },
+        {
+          "key": "dbp",
+          "label": "Bottom number (diastolic)",
+          "unit": "mm Hg",
+          "min": 30,
+          "max": 140
+        }
+      ]
+    },
+    "equipment": [
+      "Automatic upper-arm blood pressure cuff",
+      "Strap or tether to hold the arm in place"
+    ],
+    "steps": [
+      "Rest quietly for a few minutes. Do not drink coffee or exercise first.",
+      "Fit the cuff on your bare upper arm and strap the arm at heart level so it does not float.",
+      "Press start, stay still and silent, then record both numbers."
+    ],
+    "when": "Daily within 30 minutes of waking, before caffeine or exercise, and never within 45 minutes after an ARED workout.",
+    "mistakes": [
+      "Measuring after coffee or exercise.",
+      "Measuring within 45 minutes of an ARED workout.",
+      "Letting the arm float away from heart level.",
+      "Talking or moving during the reading.",
+      "Comparing with Earth values only: your space baseline sits slightly lower."
+    ],
+    "escalate_if": [
+      "The reading is Yellow or Red after a 30-minute seated rest and repeat.",
+      "Any dizziness, fainting or chest pain: tick the symptom checklist."
+    ],
+    "why": "In weightlessness body fluid shifts toward the head and blood volume falls by 12–15%, so a healthy astronaut's blood pressure sits a little below Earth averages. Readings that drift out of your own band can mean volume loss or strain on the heart and vessels.",
+    "benefits": [
+      "Spots dehydration or heart strain early.",
+      "Uses your adapted baseline, so normal space changes do not cause false alarms.",
+      "Pairs with resting heart rate on the same node."
+    ],
+    "actions": {
+      "yellow": [
+        "Sit and rest for 30 minutes, then repeat the measurement.",
+        "Check resting heart rate (1A-ii) and hydration.",
+        "Follow the crew medical checklist for fluid loading if the reading is low."
+      ],
+      "red": [
+        "Repeat after 30 minutes of seated rest.",
+        "Tell the Crew Medical Officer.",
+        "Avoid exertion and EVA until cleared.",
+        "Include the 7-day trend in the report packet."
+      ]
+    },
+    "source_tag": [
+      "C",
+      "H"
+    ]
+  },
+  {
+    "id": "1A-ii",
+    "name": "Resting Heart Rate",
+    "unit": "bpm",
+    "node": "Heart / Vessels",
+    "earth_range": {
+      "min": 60,
+      "max": 100,
+      "text": "60–100 bpm (fit people 55–80)"
+    },
+    "baseline": {
+      "mean": 62,
+      "sd": 4,
+      "text": "62 ± 4 bpm (typical 55–72)"
+    },
+    "direction": "BOTH",
+    "yellow": {
+      "gt": 80,
+      "lte": 100,
+      "lt": 50,
+      "gte": 40,
+      "text": "81–100 bpm or 40–49 bpm"
+    },
+    "red": {
+      "gt": 100,
+      "lt": 40,
+      "repeat_readings": 2,
+      "repeat_gap_min": 10,
+      "symptom_override": [
+        "symptomatic"
+      ],
+      "text": "Over 100 bpm at rest on 2 readings 10 minutes apart, under 40 bpm, or with symptoms"
+    },
+    "input": {
+      "type": "number",
+      "min": 30,
+      "max": 200,
+      "step": 1,
+      "auto": false,
+      "label": "Resting heart rate"
+    },
+    "equipment": [
+      "Pulse oximeter, wrist band or chest strap that shows heart rate",
+      "Same device as the blood pressure cuff if it reads pulse"
+    ],
+    "steps": [
+      "Stay seated or strapped in, relaxed and still, for a few minutes.",
+      "Start the reading with the cuff, band or strap.",
+      "Record the steady number, not the first one that appears."
+    ],
+    "when": "Daily, at the same time as the waking blood pressure.",
+    "mistakes": [
+      "Measuring right after movement or exercise.",
+      "Reading the first flicker of the display instead of the steady value.",
+      "Using the Earth range instead of your own baseline.",
+      "Skipping the second reading when the first is over 100."
+    ],
+    "escalate_if": [
+      "Over 100 bpm on 2 readings 10 minutes apart.",
+      "Under 40 bpm.",
+      "Any fainting, chest pain or dizziness."
+    ],
+    "why": "Heart rate shows how the heart is coping with fluid shifts and lower blood volume. A rise or a drop from your own baseline can signal dehydration, illness or stress on the autonomic nervous system.",
+    "benefits": [
+      "Quick and non-invasive.",
+      "Cross-checks blood pressure and HRV.",
+      "Catches illness or dehydration early."
+    ],
+    "actions": {
+      "yellow": [
+        "Rest 10 minutes, drink water and repeat.",
+        "Check blood pressure (1A-i) and temperature (2B-ii).",
+        "Measure twice a day until it returns to Green."
+      ],
+      "red": [
+        "Repeat after 10 minutes of rest to confirm.",
+        "Stop strenuous work and EVA.",
+        "Tell the Crew Medical Officer and send the trend in the report packet."
+      ]
+    },
+    "source_tag": [
+      "C",
+      "H"
+    ]
+  },
+  {
+    "id": "1B-i",
+    "name": "Optic Nerve Sheath Diameter (ONSD)",
+    "unit": "mm",
+    "node": "Eyes",
+    "earth_range": {
+      "min": 4.2,
+      "max": 5.0,
+      "text": "4.2–5.0 mm (5.9 mm or more is abnormal on Earth)"
+    },
+    "baseline": {
+      "mean": 5.25,
+      "sd": 0.15,
+      "text": "5.25 ± 0.15 mm (typical 5.1–5.4)"
+    },
+    "direction": "HIGH",
+    "yellow": {
+      "gte": 5.5,
+      "lte": 5.7,
+      "text": "5.5–5.7 mm"
+    },
+    "red": {
+      "gte": 5.8,
+      "symptom_override": [
+        "blurred_vision",
+        "persistent_headache"
+      ],
+      "text": "5.8 mm or more, or any new blurred vision or lasting headache"
+    },
+    "input": {
+      "type": "number",
+      "min": 3.0,
+      "max": 8.0,
+      "step": 0.05,
+      "auto": false,
+      "label": "ONSD"
+    },
+    "equipment": [
+      "Ocular ultrasound (B-mode) with a probe",
+      "Gel and an eye cover",
+      "A crewmate to help"
+    ],
+    "steps": [
+      "Close the eye, cover it with gel and rest the probe gently on the eyelid. Do not press.",
+      "Find the optic nerve behind the eye and freeze the image in the axial plane.",
+      "Measure the width of the dark sheath exactly 3 mm behind the back of the eye, and record it."
+    ],
+    "when": "Every 3 days (demo schedule). Repeat in 24 hours if Yellow.",
+    "mistakes": [
+      "Pressing on the eyelid, which squeezes the sheath.",
+      "Measuring at the wrong distance behind the eye (it must be 3 mm).",
+      "Using the Earth cutoff of 5.9 mm: your space alert starts earlier.",
+      "Taking one reading and ignoring the trend."
+    ],
+    "escalate_if": [
+      "5.8 mm or more.",
+      "New blurred vision or a headache that does not go away.",
+      "Rising readings over several checks."
+    ],
+    "why": "Without gravity, fluid and pressure build up around the head. The optic nerve sheath widens, and this can lead to Spaceflight-Associated Neuro-ocular Syndrome (SANS). ONSD is a screening sign, not a diagnosis, so a high value needs an expert to review the images.",
+    "benefits": [
+      "Early warning for vision-threatening pressure changes.",
+      "Lets the flight surgeon see the trend before symptoms start.",
+      "Prompts a check of cabin CO₂, which can make it worse."
+    ],
+    "actions": {
+      "yellow": [
+        "Repeat the measurement in 24 hours.",
+        "Check cabin CO₂ (4A-ii).",
+        "Review headache and vision symptoms."
+      ],
+      "red": [
+        "Remember ONSD is a screen, not a diagnosis.",
+        "Send the ultrasound and any eye images to the flight surgeon (store-and-forward).",
+        "Check cabin CO₂ (4A-ii).",
+        "Schedule lower-body negative pressure per the crew medical checklist."
+      ]
+    },
+    "source_tag": [
+      "L",
+      "H"
+    ]
+  },
+  {
+    "id": "1B-ii",
+    "name": "24-hour Urine Calcium",
+    "unit": "mg/day",
+    "node": "Bones",
+    "earth_range": {
+      "min": 100,
+      "max": 240,
+      "text": "100–240 mg/day (under 150 is a kidney-stone-safe target)"
+    },
+    "baseline": {
+      "mean": 230,
+      "sd": 20,
+      "text": "230 ± 20 mg/day (typical 200–260)"
+    },
+    "direction": "HIGH",
+    "yellow": {
+      "gt": 260,
+      "lte": 300,
+      "text": "261–300 mg/day"
+    },
+    "red": {
+      "gt": 300,
+      "text": "Over 300 mg/day"
+    },
+    "input": {
+      "type": "number",
+      "min": 0,
+      "max": 800,
+      "step": 1,
+      "auto": false,
+      "label": "24-hour urine calcium (typed from the lab result)"
+    },
+    "equipment": [
+      "24-hour urine collection kit",
+      "Point-of-care chemistry analyzer",
+      "Hydration test strip (hydration only)"
+    ],
+    "steps": [
+      "Collect all urine for 24 hours in the collection container.",
+      "Run the sample on the analyzer and read the calcium result.",
+      "Type the value (mg/day) into the check-in."
+    ],
+    "when": "Weekly as a full 24-hour test. A hydration strip can be checked daily.",
+    "mistakes": [
+      "Missing a collection and under-counting.",
+      "Thinking a hydration strip photo measures calcium. It only shows hydration.",
+      "Starting the 24 hours at a different time than the log says."
+    ],
+    "escalate_if": [
+      "Over 260 mg/day (Yellow) or over 300 mg/day (Red).",
+      "Flank pain, blood in urine or a lot less urine."
+    ],
+    "why": "Bones lose calcium in weightlessness, and it passes out in the urine. Together with lower urine volume, this makes kidney stones more likely, which could be a mission-ending emergency far from Earth.",
+    "benefits": [
+      "Tracks bone loss and stone risk.",
+      "Shows whether exercise and hydration are working.",
+      "Gives the flight surgeon numbers to adjust treatment."
+    ],
+    "actions": {
+      "yellow": [
+        "Drink about 1 extra litre of water gradually over several hours.",
+        "Check ARED resistive exercise loading.",
+        "Review vitamin D and sodium intake (salt raises calcium loss).",
+        "Ask the flight surgeon whether treatment is needed."
+      ],
+      "red": [
+        "Do all the Yellow steps.",
+        "Tell the Crew Medical Officer and send the result to the flight surgeon.",
+        "Follow flight-surgeon direction on any treatment, such as potassium citrate."
+      ]
+    },
+    "source_tag": [
+      "L",
+      "H"
+    ]
+  }
+]
