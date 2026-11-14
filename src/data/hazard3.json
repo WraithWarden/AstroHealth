@@ -1,0 +1,332 @@
+[
+  {
+    "id": "3A-i",
+    "name": "Sleep Duration",
+    "unit": "hours/night",
+    "node": "Brain",
+    "earth_range": {
+      "min": 7.0,
+      "max": 9.0,
+      "text": "7.0–9.0 h/night"
+    },
+    "baseline": {
+      "mean": 6.4,
+      "sd": 0.5,
+      "text": "6.4 ± 0.5 h (ISS mean ≈ 6.0–6.6 h)"
+    },
+    "direction": "LOW",
+    "yellow": {
+      "lt": 5.5,
+      "gt": null,
+      "text": "< 5.5 h (≤ 6.0 h is linked to slower psychomotor speed)"
+    },
+    "red": {
+      "lt": 4.5,
+      "gt": null,
+      "text": "< 4.5 h for 2 or more nights in a row",
+      "consecutive_days": 2
+    },
+    "input": {
+      "type": "number",
+      "min": 0,
+      "max": 14,
+      "step": 0.1,
+      "auto": true,
+      "label": "Hours asleep last night"
+    },
+    "equipment": [
+      "Wrist actigraphy band (sleep tracker)",
+      "Tablet or laptop for the sync"
+    ],
+    "steps": [
+      "Wear the actigraphy band snugly on the same wrist all night, including during short wake-ups.",
+      "In the morning, sync the band and read the total time asleep (not time in bed).",
+      "Enter or confirm that number in the daily check-in."
+    ],
+    "when": "Every night. The band syncs automatically; confirm the value at the morning check-in.",
+    "mistakes": [
+      "Counting time in bed instead of time actually asleep.",
+      "Taking the band off or charging it during the night.",
+      "Forgetting to sync, so the night shows as missing.",
+      "Judging sleep by how rested you feel: sleep-restricted crew often cannot tell they are impaired."
+    ],
+    "escalate_if": [
+      "Sleep is under 5.5 h (Yellow).",
+      "Sleep is under 4.5 h on 2 nights in a row (Red).",
+      "You feel drowsy or make errors during a safety-critical task (docking, robotics, EVA)."
+    ],
+    "why": "Astronauts average only about 6.0–6.6 hours of sleep in flight. At 6 hours or less, NASA studies link sleep with slower reaction speed, more stress and attention lapses. Sleep-deprived crew also find it hard to notice their own decline, so an objective number is needed.",
+    "benefits": [
+      "Catches sleep debt early, before it becomes normal.",
+      "Protects safety-critical work such as robotic arm use, docking and EVA.",
+      "Supports the PVT, mood and HRV checks on the same Brain node."
+    ],
+    "actions": {
+      "yellow": [
+        "Protect one uninterrupted 8-hour sleep block tonight.",
+        "Dim the lights in the evening.",
+        "Stop caffeine late in the day.",
+        "Repeat the PVT-lite test after waking."
+      ],
+      "red": [
+        "Postpone safety-critical tasks: robotic arm, docking and EVA.",
+        "Use blue-enriched morning light.",
+        "Contact the Crew Medical Officer. Any sleep medication only per crew medical checklist / flight-surgeon direction.",
+        "Schedule recovery sleep before returning to critical duties."
+      ]
+    },
+    "source_tag": [
+      "L",
+      "H"
+    ]
+  },
+  {
+    "id": "3A-ii",
+    "name": "Psychomotor Vigilance (PVT-lite)",
+    "unit": "ms (median) + lapses",
+    "node": "Brain",
+    "earth_range": {
+      "min": 200,
+      "max": 270,
+      "text": "200–270 ms"
+    },
+    "baseline": {
+      "mean": 260,
+      "sd": 20,
+      "text": "260 ± 20 ms (typical 230–290 ms)"
+    },
+    "direction": "HIGH",
+    "yellow": {
+      "lt": null,
+      "gt": 290,
+      "lapses_gte": 1,
+      "text": "291–350 ms, or 1 lapse (a response over 500 ms)"
+    },
+    "red": {
+      "lt": null,
+      "gt": 350,
+      "lapses_gte": 2,
+      "text": "> 350 ms, or 2 or more lapses (responses over 500 ms)"
+    },
+    "input": {
+      "type": "computed",
+      "source": "pvt-lite",
+      "auto": false,
+      "fields": [
+        {
+          "key": "median_ms",
+          "label": "Median reaction time",
+          "unit": "ms"
+        },
+        {
+          "key": "lapses",
+          "label": "Lapses (over 500 ms)",
+          "unit": "count"
+        }
+      ]
+    },
+    "equipment": [
+      "Tablet or laptop running the PVT-lite test",
+      "A quiet spot where you will not be interrupted"
+    ],
+    "steps": [
+      "Sit still in a quiet place with one finger ready on the screen or mouse.",
+      "Press Start. In each of 5 trials, wait for the circle to turn green, then tap it as fast as you can.",
+      "Read the median time and the lapse count. They are sent to the check-in automatically."
+    ],
+    "when": "Every day at the check-in, and again right before safety-critical tasks (docking, robotics, EVA).",
+    "mistakes": [
+      "Tapping before the circle turns green. The trial repeats, so wait for green.",
+      "Taking the test while distracted or while talking to someone.",
+      "Testing within 2–4 hours of waking up, when sleep inertia slows reactions.",
+      "Switching devices or hands between days, which changes the numbers.",
+      "Treating it as a diagnosis. PVT-lite is a quick screening test only."
+    ],
+    "escalate_if": [
+      "The result is still Yellow or Red after a 10-minute rest and a repeat test.",
+      "You have 2 or more lapses.",
+      "You feel foggy or drowsy before a safety-critical task, even if the result looks fine."
+    ],
+    "why": "Sleep-deprived crew often cannot judge their own alertness. A short reaction test gives an objective number. On the ISS, the same kind of test shows slower reactions and more lapses when sleep is short or the body clock is out of step. Anyone still in Yellow or Red after a 10-minute rest is treated as fatigue-impaired.",
+    "benefits": [
+      "Gives a quick, objective check of alertness before risky work.",
+      "Flags fatigue that you may not feel yourself.",
+      "Works together with the sleep, mood and HRV checks on the Brain node."
+    ],
+    "actions": {
+      "yellow": [
+        "Rest for 10 minutes, then repeat the test.",
+        "Check last night's sleep (3A-i) for a cause.",
+        "If it is still Yellow, do not start safety-critical tasks until it clears."
+      ],
+      "red": [
+        "Stop or postpone safety-critical tasks: docking, robotic arm and EVA.",
+        "Rest for 10 minutes and repeat the test once.",
+        "If it is still Red, you are fatigue-impaired: tell the Crew Medical Officer and ask a crewmate to cover your duties.",
+        "Review sleep (3A-i), mood (3B-i) and HRV (3B-ii) for linked changes."
+      ]
+    },
+    "source_tag": [
+      "L",
+      "H"
+    ]
+  },
+  {
+    "id": "3B-i",
+    "name": "Mood / Stress Score",
+    "unit": "1–10 scale",
+    "node": "Brain",
+    "earth_range": {
+      "min": 1,
+      "max": 3,
+      "text": "1–3"
+    },
+    "baseline": {
+      "mean": 3.0,
+      "sd": 1.0,
+      "text": "3.0 ± 1.0 (typical 2–4; ISS average about 3.9 ± 2.0)"
+    },
+    "direction": "HIGH",
+    "yellow": {
+      "lt": null,
+      "gt": 4,
+      "text": "5–6"
+    },
+    "red": {
+      "lt": null,
+      "gt": 6,
+      "text": "7 or higher, or any thoughts of self-harm",
+      "symptom_override": "self_harm"
+    },
+    "input": {
+      "type": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "auto": false,
+      "label": "Stress today (1 = calm, 10 = very stressed)"
+    },
+    "equipment": [
+      "Check-in form or slider on the tablet"
+    ],
+    "steps": [
+      "Take a moment and think about how tense or stressed you feel right now.",
+      "Pick a number from 1 (calm) to 10 (very stressed).",
+      "Enter it in the check-in. Go with your first honest answer."
+    ],
+    "when": "Daily at the routine check-in. Add a mid-day check if the score is Yellow.",
+    "mistakes": [
+      "Giving the number you think is expected instead of the honest one.",
+      "Rating the whole week instead of how you feel today.",
+      "Skipping the check-in on busy days, when stress is often highest.",
+      "Ignoring a slow rise over several days because each day looks small."
+    ],
+    "escalate_if": [
+      "The score is 7 or higher.",
+      "You have any thoughts of harming yourself: tell the Crew Medical Officer or a crewmate right away.",
+      "Stress keeps rising over several days, even if it is still Green."
+    ],
+    "why": "On 6-month ISS missions, self-reported stress rises over time and is highest in the last quarter of flight. Stress also links to poor sleep and slower reactions. A simple daily number lets the crew notice the climb early.",
+    "benefits": [
+      "Spots a slow build-up of stress before it affects teamwork or safety.",
+      "Takes under 10 seconds to log.",
+      "Gives behavioral health staff or the CMO a trend to act on."
+    ],
+    "actions": {
+      "yellow": [
+        "Take a 10-minute mindfulness or breathing break.",
+        "Send a message to family or talk with a crewmate.",
+        "Do an extra mid-day check-in."
+      ],
+      "red": [
+        "Contact the Crew Medical Officer now.",
+        "Book a private psychological conference with the ground behavioral health team. If the radio delay is long, use the offline coping protocol (guided breathing and virtual nature break).",
+        "Take 45 minutes of protected downtime.",
+        "Check sleep (3A-i), PVT (3A-ii) and HRV (3B-ii) for linked changes."
+      ]
+    },
+    "source_tag": [
+      "L",
+      "H"
+    ]
+  },
+  {
+    "id": "3B-ii",
+    "name": "Heart Rate Variability (RMSSD)",
+    "unit": "ms",
+    "node": "Brain",
+    "earth_range": {
+      "min": 40,
+      "max": 75,
+      "text": "40–75 ms (varies with age and fitness)"
+    },
+    "baseline": {
+      "mean": 50,
+      "sd": 4,
+      "text": "50 ± 4 ms (your own anchor matters more than the Earth range)"
+    },
+    "direction": "LOW",
+    "yellow": {
+      "lt": 42,
+      "gt": null,
+      "text": "42 ms or less (2 or more SD below your baseline, about a 15–25% drop)"
+    },
+    "red": {
+      "lt": 38,
+      "gt": null,
+      "text": "38 ms or less (3 or more SD below your baseline, over a 25% drop)"
+    },
+    "input": {
+      "type": "number",
+      "min": 5,
+      "max": 150,
+      "step": 1,
+      "auto": false,
+      "label": "HRV (RMSSD) at rest"
+    },
+    "equipment": [
+      "Chest strap ECG or wrist pulse sensor (PPG)",
+      "Tablet or app that reads RMSSD"
+    ],
+    "steps": [
+      "Rest quietly for about 5 minutes in the same position you always use. Stay still and breathe normally.",
+      "Wear the chest strap (moisten the electrodes) or a snug wrist band, then start the HRV reading without talking or moving.",
+      "Write down the RMSSD value in milliseconds when the reading ends."
+    ],
+    "when": "Daily at rest, at the same time and in the same position each morning.",
+    "mistakes": [
+      "Measuring right after exercise or caffeine.",
+      "Talking, moving or checking messages during the reading.",
+      "A loose strap or wrist band that gives noisy data.",
+      "Changing time or posture between days, which makes the trend meaningless.",
+      "Comparing your number with another person's or the Earth range instead of your own baseline."
+    ],
+    "escalate_if": [
+      "The value stays Yellow or Red the next morning under the same conditions.",
+      "A low HRV comes with a high resting heart rate, poor sleep or high stress.",
+      "You feel unwell, dizzy or have chest pain. Tick the symptom checklist."
+    ],
+    "why": "HRV shows how well the body recovers from strain. Normal values differ a lot between people, so the system compares you only with your own fixed baseline. A clear drop means the body is under load and not recovering well.",
+    "benefits": [
+      "Gives an early sign of overload before you feel it.",
+      "Fair for every crew member, because it uses a personal baseline.",
+      "Helps explain changes in sleep, mood and reaction time."
+    ],
+    "actions": {
+      "yellow": [
+        "Repeat the measurement next morning in identical resting conditions.",
+        "Check last night's sleep (3A-i) and today's stress (3B-i).",
+        "Plan lighter workload and good rest today."
+      ],
+      "red": [
+        "Rest, then repeat the measurement to rule out a poor reading.",
+        "Reduce workload and avoid safety-critical tasks until it recovers.",
+        "Tell the Crew Medical Officer and send the 7-day trend in the report packet.",
+        "Check resting heart rate (1A-ii), sleep (3A-i) and mood (3B-i) for linked changes."
+      ]
+    },
+    "source_tag": [
+      "H"
+    ]
+  }
+]
