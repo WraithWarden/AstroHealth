@@ -7,6 +7,8 @@ import HazardBars from './components/HazardBars.jsx';
 import BodyMap from './components/BodyMap.jsx';
 import Chart from './components/Chart.jsx';
 import CheckInModal from './components/CheckInModal.jsx';
+import InstructionDrawer from './components/InstructionDrawer.jsx';
+import hazard3 from './data/hazard3.json';
 
 /* ── Preset config ── */
 const PRESETS = [
@@ -71,6 +73,8 @@ export default function App() {
   const [activePreset, setActivePreset] = useState('mars');
   const [selectedNode, setSelectedNode] = useState('eyes');
   const [showCheckIn, setShowCheckIn]   = useState(false);
+  const [showDrawer, setShowDrawer]     = useState(false);
+  const [drawerRecord, setDrawerRecord] = useState(hazard3[0]);
   const [checkedActs, setCheckedActs]   = useState({});
 
   const data = useMemo(() => evaluate(activePreset), [activePreset]);
@@ -310,7 +314,7 @@ export default function App() {
           )}
 
           {/* Log Check-In (pinned to bottom of left col via marginTop auto) */}
-          <div style={{ marginTop: 'auto' }}>
+          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
             <button
               onClick={() => setShowCheckIn(true)}
               style={{
@@ -330,6 +334,30 @@ export default function App() {
               onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,180,255,0.07)'; }}
             >
               + LOG DAILY CHECK-IN
+            </button>
+
+            <button
+              onClick={() => {
+                setDrawerRecord(hazard3[0]);
+                setShowDrawer(true);
+              }}
+              style={{
+                width:         '100%',
+                padding:       '8px 0',
+                background:    'rgba(0,180,255,0.04)',
+                border:        '1px solid rgba(0,180,255,0.2)',
+                color:         'rgba(0,180,255,0.7)',
+                cursor:        'pointer',
+                fontFamily:    "'Orbitron', sans-serif",
+                fontSize:      9,
+                fontWeight:    600,
+                letterSpacing: '0.12em',
+                transition:    'all 0.2s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,180,255,0.1)'; e.currentTarget.style.color = '#c8e4ff'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,180,255,0.04)'; e.currentTarget.style.color = 'rgba(0,180,255,0.7)'; }}
+            >
+              📖 INSTRUCTION DRAWER (SLEEP)
             </button>
           </div>
         </aside>
@@ -591,6 +619,15 @@ export default function App() {
 
       {/* ══ CHECK-IN MODAL ══ */}
       {showCheckIn && <CheckInModal onClose={() => setShowCheckIn(false)} />}
+
+      {/* ══ INSTRUCTION DRAWER ══ */}
+      {showDrawer && (
+        <InstructionDrawer
+          record={drawerRecord ?? hazard3[0]}
+          open={showDrawer}
+          onClose={() => setShowDrawer(false)}
+        />
+      )}
     </div>
   );
 }
