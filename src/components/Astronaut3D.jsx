@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import nasaLogoUrl from '../assets/nasa-logo.svg';
 
 // 3D anchor positions in astronaut local space (feet ~ -1.85, helmet top ~ +1.80)
 export const NODE_ANCHORS_3D = {
@@ -35,6 +36,28 @@ function createSuitWeaveTexture(THREE) {
   tex.wrapS = THREE.RepeatWrapping;
   tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(6, 8);
+  return tex;
+}
+
+/** Rasterize the official NASA SVG emblem onto a crisp CanvasTexture for the chest DCM. */
+function createNasaBadgeTexture(THREE) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 214;
+  const ctx = canvas.getContext('2d');
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+
+  if (ctx) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      tex.needsUpdate = true;
+    };
+    img.src = nasaLogoUrl;
+  }
+
   return tex;
 }
 
@@ -170,6 +193,21 @@ function buildAstronautModel(THREE) {
   const dcmBody = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.40, 0.22), hardShellMat);
   dcmBody.position.set(0, 0.50, 0.30);
   root.add(dcmBody);
+
+  // Official NASA meatball emblem mounted cleanly on the white chest DCM face
+  const nasaBadgeTex = createNasaBadgeTexture(THREE);
+  const nasaBadgeMat = new THREE.MeshStandardMaterial({
+    map: nasaBadgeTex,
+    transparent: true,
+    roughness: 0.44,
+    metalness: 0.06,
+    polygonOffset: true,
+    polygonOffsetFactor: -2,
+  });
+  const nasaBadge = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.25 * (92 / 110)), nasaBadgeMat);
+  // Offset +0.012 on X to compensate for the SVG chevron asymmetry (circle cx=50.05 in 110-wide viewBox)
+  nasaBadge.position.set(0.012, 0.475, 0.413);
+  root.add(nasaBadge);
 
   // DCM upper telemetry visor bar & right-side cylindrical purge valve
   const dcmLatch = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.055, 0.24), silverMat);
@@ -544,10 +582,12 @@ export default function Astronaut3D({ onProjectNodes, onFallback, dragHint = tru
           obj.geometry?.dispose?.();
           if (Array.isArray(obj.material)) {
             obj.material.forEach((m) => {
+              m.map?.dispose?.();
               m.bumpMap?.dispose?.();
               m.dispose?.();
             });
           } else {
+            obj.material?.map?.dispose?.();
             obj.material?.bumpMap?.dispose?.();
             obj.material?.dispose?.();
           }
