@@ -779,8 +779,12 @@ export default function App() {
               onProgress={({ id, completed }) => {
                 setGuidanceDoneById((prev) => (prev[id] === completed ? prev : { ...prev, [id]: completed }));
               }}
-              onOpenInstructions={guidanceRecord ? (record = guidanceRecord) => {
-                setDrawerRecord(record);
+              onOpenInstructions={guidanceRecord ? (targetRecord) => {
+                const nextRecord =
+                  targetRecord && typeof targetRecord === 'object' && 'id' in targetRecord && 'name' in targetRecord
+                    ? targetRecord
+                    : guidanceRecord;
+                setDrawerRecord(nextRecord);
                 setShowDrawer(true);
               } : undefined}
             />

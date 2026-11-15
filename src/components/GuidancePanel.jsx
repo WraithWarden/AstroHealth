@@ -178,7 +178,7 @@ export default function GuidancePanel({ record, records = [], status = 'green', 
       {onOpenInstructions && (
         <button
           type="button"
-          onClick={onOpenInstructions}
+          onClick={() => onOpenInstructions(record)}
           style={{
             marginTop: 9,
             width: '100%',
