@@ -19,9 +19,8 @@
 4. [Clinical Rules Engine](#4-clinical-rules-engine)
 5. [Data Sources & Standards](#5-data-sources--standards)
 6. [Radiation Telemetry & Fallback Disclosure](#6-radiation-telemetry--fallback-disclosure)
-7. [Optional AI Protocol Assistant](#7-optional-ai-protocol-assistant)
-8. [Limitations & Medical Disclaimer](#8-limitations--medical-disclaimer)
-9. [Team & Module Ownership](#9-team--module-ownership)
+7. [Limitations & Medical Disclaimer](#7-limitations--medical-disclaimer)
+8. [Team & Module Ownership](#8-team--module-ownership)
 
 ---
 
@@ -181,15 +180,34 @@ Upgrades a GREEN indicator to YELLOW (`trending: true`) when the last 3 interval
 
 All numeric cutoffs, baselines, and clinical protocol records are **bundled offline** in `thresholds.js`, `presets.json`, and `src/data/hazard1..5.json`. The URLs below are reference sources cited in the UI guidance drawer and dashboard footer.
 
+### Reference Standards
+
 | Tag | Standard / Source | Used For |
 |-----|-------------------|----------|
 | `[S]` | [NASA-STD-3001 — Spaceflight Human-System Standard](https://www.nasa.gov/ochmo/hsa-standards/) | Cabin ppCO₂, SpO₂, radiation career limits, sleep/circadian norms, Levels of Care |
 | `[L]` | [NASA HRP — Human Research Program Risks](https://www.nasa.gov/hrp/risks/) | SANS/ONSD, bone mineral density, neuro-behavioural risks, isolation/confinement |
 | `[C]` | [NIH MedlinePlus — Vital Signs Reference](https://medlineplus.gov/vitalsigns.html) | Terrestrial clinical cutoffs: BP, HR, Body Temp, SpO₂ |
 | `[H]` | [NASA OCHMO Technical Briefs](https://www.nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs/) | Operational triage heuristics, composite scoring rules, autonomy penalties |
-| `OSDR` | [NASA Open Science Data Repository — RadLab](https://osdr.nasa.gov/bio/repo/) | ISS radiation dosimetry telemetry (2A-i Cumulative, 2A-ii Daily Dose) |
-| `RadLab UI` | [NASA OSDR RadLab Visualization Portal](https://visualization.osdr.nasa.gov/radlab/gui/overview/) | Interactive ISS dosimetry explorer used to export `export.csv` (TEPC absorbed dose, ISS *Destiny* US Lab) |
 | `HRP` | [NASA HRP — 5 Hazards of Human Spaceflight](https://www.nasa.gov/hrp/hazards/) | General spaceflight hazard reference (drawer fallback + footer) |
+
+### NASA Radiation Data Sources
+
+| Source | URL | What It Provides |
+|--------|-----|-----------------|
+| **NASA OSDR Repository** | [osdr.nasa.gov/bio/repo](https://osdr.nasa.gov/bio/repo/) | Full ISS radiation telemetry dataset repository (TEPC, DosTel instruments) |
+| **NASA OSDR RadLab Portal** | [visualization.osdr.nasa.gov/radlab](https://visualization.osdr.nasa.gov/radlab/gui/overview/) | Interactive ISS dosimetry explorer — used to export `export.csv` |
+
+**Sampled dataset:** ISS *Destiny* US Lab, instrument `TEPC-SMP327-pre`, Sep 2014 – May 2016 (325 rows, `export.csv`).
+
+**Columns in `export.csv`:**
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `timestamp` | ISO 8601 date | Daily measurement date |
+| `instrument_id` | string | e.g. `TEPC-SMP327-pre`, `IV-TEPC-SMP328-pre` |
+| `absorbed_dose_rate` | float (µGy/day) | **Absorbed dose only — not dose equivalent** |
+| `instrument_family` | string | `TEPC` |
+| `spacecraft` | string | `ISS` |
 
 > **Offline guarantee:** None of these URLs are fetched at runtime. All threshold and baseline values are statically bundled.
 
@@ -222,39 +240,7 @@ The 7-day TEPC sample from `export.csv` (absorbed dose, µGy/day, not converted)
 
 ---
 
-## 7. Optional AI Protocol Assistant
-
-The guidance panel includes an optional **Ask AstroHealth AI** feature powered by Google Gemini. It is entirely opt-in and requires a personal API key.
-
-### Setup
-
-```bash
-# 1. Copy the example environment file
-cp .env.example .env.local
-
-# 2. Add your Gemini API key (get one at https://aistudio.google.com/apikey)
-#    GEMINI_API_KEY=your-key-here
-#    GEMINI_MODEL=gemini-2.0-flash-lite   # optional, this is the default
-
-# 3. Restart the dev server
-npm run dev
-```
-
-### Deployment (Vercel)
-
-Add `GEMINI_API_KEY` (and optionally `GEMINI_MODEL`) in your Vercel project → **Settings → Environment Variables**, then redeploy. The serverless handler at `api/ask.js` picks them up automatically.
-
-### Privacy & Limitations
-
-> [!IMPORTANT]
-> The current question, up to four recent conversation turns, and matching protocol records are sent to the Gemini API. **The app does not automatically send crew profiles, check-in readings, or dashboard state.** Do not enter real names or personal health information in the AI chat.
-
-> [!WARNING]
-> AI responses are educational demo guidance only — **not diagnosis or medical advice.** Always verify against the protocol sources cited in the Instruction Drawer.
-
----
-
-## 8. Limitations & Medical Disclaimer
+## 7. Limitations & Medical Disclaimer
 
 > [!CAUTION]
 > **AstroHealth is an educational and hackathon prototype. It is not a certified medical device, diagnostic instrument, or flight-qualified software.**
@@ -269,7 +255,7 @@ Add `GEMINI_API_KEY` (and optionally `GEMINI_MODEL`) in your Vercel project → 
 
 ---
 
-## 9. Team & Module Ownership
+## 8. Team & Module Ownership
 
 | Person | Role | Owns |
 |--------|------|------|
