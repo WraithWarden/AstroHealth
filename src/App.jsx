@@ -884,15 +884,29 @@ export default function App() {
       {/* ══ DAILY CHECK-IN MODAL ══ */}
       <CheckInModal
         open={checkInModalOpen}
-        onClose={() => setCheckInModalOpen(false)}
+        onClose={() => {
+          setCheckInModalOpen(false);
+          setShowDrawer(false);
+        }}
         pvt={pvt}
         auto={{
           radiation: measurements?.['2A-i']?.value ?? 0.48,
           co2: measurements?.['4A-ii']?.value ?? 2.3,
         }}
+        guideOpen={showDrawer}
+        activeGuideId={drawerRecord?.id}
+        onInspectHow={(measId) => {
+          const rec = RECORD_BY_ID[measId];
+          if (rec) {
+            setDrawerRecord(rec);
+            setShowDrawer(true);
+          }
+        }}
+        onCloseGuide={() => setShowDrawer(false)}
         onSubmit={(reading, meta) => {
           submitHostCheckIn(reading, meta);
           setCheckInModalOpen(false);
+          setShowDrawer(false);
         }}
       />
 
@@ -901,6 +915,7 @@ export default function App() {
         <InstructionDrawer
           record={drawerRecord ?? guidanceRecord ?? hazard3[0]}
           open={showDrawer}
+          sideBySide={checkInModalOpen}
           onClose={() => setShowDrawer(false)}
         />
       )}

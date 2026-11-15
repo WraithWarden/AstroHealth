@@ -60,7 +60,7 @@ function List({ items, ordered = false }) {
   );
 }
 
-export default function InstructionDrawer({ record, open, onClose }) {
+export default function InstructionDrawer({ record, open, onClose, sideBySide = false }) {
   const [tab, setTab] = useState("how");
   const panelRef = useRef(null);
   const closeRef = useRef(null);
@@ -68,12 +68,16 @@ export default function InstructionDrawer({ record, open, onClose }) {
   const uid = useId();
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (!open) return;
     setTab("how");
+  }, [open, record?.id]);
+
+  useEffect(() => {
+    if (!open) return undefined;
     returnFocusTo.current = document.activeElement;
     closeRef.current?.focus();
     return () => returnFocusTo.current?.focus?.();
-  }, [open, record?.id]);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -136,23 +140,28 @@ export default function InstructionDrawer({ record, open, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end">
+    <div className={`fixed inset-0 flex justify-end ${sideBySide ? 'z-[60] pointer-events-none' : 'z-50'}`}>
       <div
-        className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm"
+        className={`absolute inset-0 bg-slate-950/75 backdrop-blur-sm ${sideBySide ? 'pointer-events-auto min-[1080px]:hidden' : ''}`}
         onClick={onClose}
         aria-hidden="true"
       />
       <aside
         ref={panelRef}
         role="dialog"
-        aria-modal="true"
+        aria-modal={!sideBySide}
         aria-labelledby={titleId}
         onKeyDown={trapTab}
-        className="relative flex h-full w-full max-w-md flex-col border-l border-slate-800 bg-[#0d1422] shadow-2xl"
+        className="pointer-events-auto relative flex h-full w-full max-w-md flex-col border-l border-slate-800 bg-[#0d1422] shadow-2xl"
       >
         <header className="border-b border-slate-800 px-5 pb-3 pt-5">
           <div className="flex items-start justify-between gap-3">
             <div>
+              {sideBySide && (
+                <div className="mb-1.5 inline-flex items-center gap-1.5 rounded border border-sky-500/30 bg-sky-500/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-sky-300">
+                  CHECK-IN STAYS OPEN WHILE YOU READ
+                </div>
+              )}
               <div className="text-[11px] font-semibold uppercase tracking-wider text-sky-400">
                 Clinical Measurement Protocol
               </div>
