@@ -10,29 +10,29 @@ export default function HazardBars({ hazards, autonomy, delaySeconds, autonomyDe
   const effectiveDelay = delaySeconds ?? autonomyDetails?.commDelaySec;
 
   return (
-    <div style={{ width: '100%' }}>
-      {/* Header row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-        <span className="hud-label">NASA Hazard Risk Scores</span>
+    <div style={{ width: '100%', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+      {/* Header row: always stack label above autonomy chip across all simulations */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 7, marginBottom: 10, flexShrink: 0 }}>
+        <span className="hud-label">Hazard Risk</span>
         <AutonomyChip autonomy={autonomy} delaySeconds={effectiveDelay} />
       </div>
 
-      {/* Hazard rows */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {/* Hazard rows distributed evenly to fill card height cleanly */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 8 }}>
         {(hazards ?? []).map((h) => {
           const cfg = STATUS_COLORS[h.status] ?? STATUS_COLORS.GREEN;
           return (
             <div key={h.id}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5, gap: 8 }}>
-                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#e2e8f0', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span aria-hidden="true" style={{ color: cfg.text, fontSize: 9 }}>{cfg.icon}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 6 }}>
+                <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#e2e8f0', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <span aria-hidden="true" style={{ color: cfg.text, fontSize: 8.5 }}>{cfg.icon}</span>
                   <span>{h.name}</span>
                 </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 9.5, fontWeight: 600, color: cfg.text, opacity: 0.85 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  <span style={{ fontFamily: "'Inter', sans-serif", fontSize: 9, fontWeight: 600, color: cfg.text, opacity: 0.85 }}>
                     {cfg.label}
                   </span>
-                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, fontWeight: 700, color: cfg.text, minWidth: 24, textAlign: 'right' }}>
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, fontWeight: 700, color: cfg.text, minWidth: 22, textAlign: 'right' }}>
                     {h.score}
                   </span>
                 </span>

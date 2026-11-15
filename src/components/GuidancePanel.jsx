@@ -74,11 +74,11 @@ export default function GuidancePanel({ record, status = 'green', value, onProgr
   const s = STATUS[st];
 
   return (
-    <section style={{ padding: 16 }} aria-labelledby="guidance-title">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
+    <section style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }} aria-labelledby="guidance-title">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 8 }}>
         <div>
           <div className="hud-label">Clinical Guidance</div>
-          <h3 id="guidance-title" style={{ margin: '4px 0 0', fontFamily: "'Inter', sans-serif", fontSize: 14, fontWeight: 600, color: '#f1f5f9' }}>
+          <h3 id="guidance-title" style={{ margin: '3px 0 0', fontFamily: "'Inter', sans-serif", fontSize: 13.5, fontWeight: 600, color: '#f1f5f9' }}>
             {record.name}
           </h3>
         </div>
@@ -87,9 +87,9 @@ export default function GuidancePanel({ record, status = 'green', value, onProgr
           background: s.bg,
           border: `1px solid ${s.border}`,
           borderRadius: 6,
-          padding: '4px 9px',
+          padding: '3px 8px',
           fontFamily: "'Inter', sans-serif",
-          fontSize: 10.5,
+          fontSize: 10,
           fontWeight: 700,
           letterSpacing: '0.06em',
           whiteSpace: 'nowrap',
@@ -98,75 +98,77 @@ export default function GuidancePanel({ record, status = 'green', value, onProgr
         </span>
       </div>
 
-      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12.5, lineHeight: 1.55, color: '#cbd5e1', margin: '0 0 14px' }}>
+      <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, lineHeight: 1.45, color: '#cbd5e1', margin: '0 0 10px' }}>
         {meaningSentence(record, st, value)}
       </p>
 
-      {actions.length === 0 ? (
-        <div style={{
-          padding: '10px 12px',
-          borderRadius: 8,
-          background: 'rgba(16, 185, 129, 0.06)',
-          border: '1px solid rgba(16, 185, 129, 0.2)',
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 12,
-          color: '#a7f3d0',
-        }}>
-          ◆ No acute countermeasure needed. Continue scheduled mission checks.
-        </div>
-      ) : (
-        <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
-          <legend className="hud-label" style={{ padding: 0, marginBottom: 8 }}>
-            Countermeasure Checklist ({completed}/{actions.length} done)
-          </legend>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {actions.map((text, i) => {
-              const k = keyOf(i);
-              const isChecked = !!done[k];
-              return (
-                <label
-                  key={k}
-                  style={{
-                    display: 'flex',
-                    gap: 10,
-                    alignItems: 'flex-start',
-                    padding: '8px 10px',
-                    borderRadius: 7,
-                    background: isChecked ? 'rgba(16, 185, 129, 0.08)' : 'rgba(30, 41, 59, 0.5)',
-                    border: `1px solid ${isChecked ? 'rgba(16, 185, 129, 0.28)' : 'rgba(148, 163, 184, 0.14)'}`,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => setDone((d) => ({ ...d, [k]: !d[k] }))}
-                    style={{ accentColor: '#10b981', marginTop: 2, flexShrink: 0 }}
-                  />
-                  <span style={{
-                    fontFamily: "'Inter', sans-serif",
-                    fontSize: 12,
-                    lineHeight: 1.45,
-                    color: isChecked ? '#94a3b8' : '#e2e8f0',
-                    textDecoration: isChecked ? 'line-through' : 'none',
-                  }}>
-                    {text}
-                  </span>
-                </label>
-              );
-            })}
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+        {actions.length === 0 ? (
+          <div style={{
+            padding: '8px 10px',
+            borderRadius: 7,
+            background: 'rgba(16, 185, 129, 0.06)',
+            border: '1px solid rgba(16, 185, 129, 0.2)',
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11.5,
+            color: '#a7f3d0',
+          }}>
+            ◆ No acute countermeasure needed. Continue scheduled checks.
           </div>
-        </fieldset>
-      )}
+        ) : (
+          <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+            <legend className="hud-label" style={{ padding: 0, marginBottom: 6 }}>
+              Actions ({completed}/{actions.length} done)
+            </legend>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              {actions.map((text, i) => {
+                const k = keyOf(i);
+                const isChecked = !!done[k];
+                return (
+                  <label
+                    key={k}
+                    style={{
+                      display: 'flex',
+                      gap: 8,
+                      alignItems: 'flex-start',
+                      padding: '6px 9px',
+                      borderRadius: 6,
+                      background: isChecked ? 'rgba(16, 185, 129, 0.08)' : 'rgba(30, 41, 59, 0.5)',
+                      border: `1px solid ${isChecked ? 'rgba(16, 185, 129, 0.28)' : 'rgba(148, 163, 184, 0.14)'}`,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => setDone((d) => ({ ...d, [k]: !d[k] }))}
+                      style={{ accentColor: '#10b981', marginTop: 2, flexShrink: 0 }}
+                    />
+                    <span style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: 11.5,
+                      lineHeight: 1.38,
+                      color: isChecked ? '#94a3b8' : '#e2e8f0',
+                      textDecoration: isChecked ? 'line-through' : 'none',
+                    }}>
+                      {text}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        )}
+      </div>
 
       {onOpenInstructions && (
         <button
           type="button"
           onClick={onOpenInstructions}
           style={{
-            marginTop: 12,
+            marginTop: 9,
             width: '100%',
-            padding: '8px 12px',
+            padding: '7px 10px',
             borderRadius: 7,
             background: 'rgba(56, 189, 248, 0.1)',
             border: '1px solid rgba(56, 189, 248, 0.3)',
@@ -175,7 +177,7 @@ export default function GuidancePanel({ record, status = 'green', value, onProgr
             fontFamily: "'Inter', sans-serif",
             fontSize: 11.5,
             fontWeight: 600,
-            letterSpacing: '0.03em',
+            flexShrink: 0,
           }}
         >
           How to Measure & Protocol Guide →

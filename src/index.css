@@ -128,3 +128,76 @@
   justify-content: center;
   padding: 1.25rem;
 }
+
+/* ── Responsive Layout Grids ── */
+.astro-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  color: #f1f5f9;
+  font-family: 'Inter', sans-serif;
+}
+
+.astro-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 278px minmax(500px, 1.35fr) 355px;
+  gap: 10px;
+  padding: 10px 14px;
+  max-width: 1920px;
+  width: 100%;
+  margin: 0 auto;
+  align-items: stretch;
+}
+
+.astro-map-split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 236px;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.astro-body-stage {
+  flex: 1;
+  min-height: 360px;
+  width: 100%;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.astro-suit-frame {
+  position: relative;
+  height: min(96cqh, calc(96cqw * 410 / 250));
+  width: min(96cqw, calc(96cqh * 250 / 410));
+}
+
+@media (min-width: 1181px) {
+  .astro-shell {
+    height: 100vh;
+    overflow: hidden;
+  }
+  .astro-grid {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .astro-body-stage {
+    min-height: 0;
+    height: 100%;
+  }
+}
+
+@media (max-width: 1180px) {
+  .astro-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .astro-map-split {
+    grid-template-columns: 1fr;
+  }
+}

@@ -570,7 +570,7 @@
   "AST-002": {
     "profile": {
       "id": "AST-002",
-      "name": "Dr. Priya Nair",
+      "name": "Dr. Im Nayeon",
       "role": "Lunar Surface Specialist / CMO",
       "missionType": "Artemis Base Camp (1/6g Lunar)",
       "regime": "LUNAR",
@@ -854,7 +854,7 @@
   "lunar": {
     "profile": {
       "id": "AST-002",
-      "name": "Dr. Priya Nair",
+      "name": "Dr. Im Nayeon",
       "role": "Lunar Surface Specialist / CMO",
       "missionType": "Artemis Base Camp (1/6g Lunar)",
       "regime": "LUNAR",

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const TRIALS    = 5;
+const TRIALS    = 3;
 const MIN_DELAY = 1500;
 const MAX_DELAY = 4500;
 const LAPSE_MS  = 500;
@@ -150,7 +150,7 @@ export default function PvtTest({ onComplete, onCancel }) {
               fontWeight: 600,
             }}
           >
-            Start 5-Trial Reaction Test
+            Start {TRIALS}-Trial Reaction Test
           </button>
         </div>
       )}

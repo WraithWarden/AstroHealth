@@ -103,19 +103,16 @@ export default function Chart({ measurement, measurementKey }) {
   return (
     <div style={{ width: '100%' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, gap: 8 }}>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {name ?? measurementKey ?? 'Indicator'}
-          </div>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10.5, color: '#64748b' }}>
-            {measurementKey} {unit ? `· ${unit}` : ''}
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12.5, fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {name ?? measurementKey ?? 'Indicator'} <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10.5, color: '#64748b', fontWeight: 400 }}>({unit || measurementKey})</span>
           </div>
         </div>
         <TrendArrow history={history} />
       </div>
 
-      <ResponsiveContainer width="100%" height={165}>
+      <ResponsiveContainer width="100%" height={134}>
         <ComposedChart data={data} margin={{ top: 6, right: 8, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.08)" vertical={false} />
           <XAxis
