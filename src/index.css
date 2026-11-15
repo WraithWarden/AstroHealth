@@ -1,47 +1,40 @@
 @import "tailwindcss";
 
 @theme {
-  /* ── NASA Palette ── */
-  --color-bg-primary:   #030e1c;
-  --color-bg-card:      #060f1e;
-  --color-bg-elevated:  #081525;
-  --color-accent:       #00b4ff;
-  --color-accent-dim:   rgba(0, 180, 255, 0.15);
-  --color-accent-glow:  rgba(0, 180, 255, 0.4);
+  /* ── Refined Mission Control Dark Palette ── */
+  --color-bg-primary:   #080c14;
+  --color-bg-card:      #0e1524;
+  --color-bg-elevated:  #141e31;
+  --color-accent:       #38bdf8;
+  --color-accent-dim:   rgba(56, 189, 248, 0.14);
+  --color-accent-glow:  rgba(56, 189, 248, 0.35);
 
-  --color-nasa-green:   #00ff9d;
-  --color-nasa-yellow:  #ffc800;
-  --color-nasa-red:     #ff3355;
+  --color-nasa-green:   #10b981;
+  --color-nasa-yellow:  #f59e0b;
+  --color-nasa-red:     #f43f5e;
 
-  --color-text-primary:  #c8e4ff;
-  --color-text-dim:      #4a7fa5;
-  --color-text-muted:    #2a5070;
+  --color-text-primary:  #f1f5f9;
+  --color-text-dim:      #94a3b8;
+  --color-text-muted:    #64748b;
 
   /* ── Fonts ── */
   --font-display: 'Orbitron', 'Inter', sans-serif;
   --font-mono:    'Space Mono', 'Courier New', monospace;
-  --font-body:    'Inter', sans-serif;
+  --font-body:    'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ── Keyframes ── */
 @keyframes nodePulse {
-  0%, 100% { opacity: 0.5; transform: scale(1);    }
-  50%       { opacity: 1;   transform: scale(1.25); }
+  0%, 100% { opacity: 0.72; transform: translate(-50%, -50%) scale(1);    }
+  50%       { opacity: 1;    transform: translate(-50%, -50%) scale(1.22); }
 }
 @keyframes critBlink {
-  0%, 100% { opacity: 1;   }
-  50%       { opacity: 0.6; }
-}
-@keyframes scanline {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+  0%, 100% { opacity: 1;    }
+  50%       { opacity: 0.75; }
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0);   }
-}
-@keyframes gaugeIn {
-  from { stroke-dasharray: 0 500; }
 }
 
 /* ── Base ── */
@@ -52,87 +45,86 @@
 
   body {
     min-height: 100%;
-    background-color: #030e1c;
-    color: #c8e4ff;
-    font-family: 'Inter', sans-serif;
+    margin: 0;
+    background-color: #080c14;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -15%, rgba(56, 189, 248, 0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 85% 100%, rgba(16, 185, 129, 0.04), transparent);
+    color: #f1f5f9;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
 
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  a:focus-visible {
+    outline: 2px solid #38bdf8;
+    outline-offset: 2px;
+  }
+
   /* scrollbar */
-  ::-webkit-scrollbar       { width: 4px; height: 4px; }
-  ::-webkit-scrollbar-track { background: #030e1c; }
-  ::-webkit-scrollbar-thumb { background: rgba(0,180,255,0.3); border-radius: 2px; }
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.4); }
+  ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.25); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.4); }
 }
 
-/* ── HUD Panel ── */
+/* ── Elevated Card Surface ── */
 .hud-panel {
   position: relative;
-  background: #060f1e;
-  border: 1px solid rgba(0, 180, 255, 0.15);
+  background: linear-gradient(180deg, rgba(19, 28, 46, 0.92) 0%, rgba(13, 20, 34, 0.95) 100%);
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   overflow: hidden;
 }
 
-/* corner decorators */
-.hud-panel::before,
-.hud-panel::after {
-  content: '';
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  border-color: rgba(0, 180, 255, 0.5);
-  border-style: solid;
-}
-.hud-panel::before { top: 0; left: 0; border-width: 1px 0 0 1px; }
-.hud-panel::after  { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
-
-/* ── HUD section label ── */
+/* ── Section Header Label ── */
 .hud-label {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: 10.5px;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(0, 180, 255, 0.6);
+  color: #94a3b8;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 .hud-label::before {
   content: '';
   display: block;
-  width: 2px;
-  height: 10px;
-  background: rgba(0, 180, 255, 0.5);
+  width: 3px;
+  height: 11px;
+  border-radius: 2px;
+  background: #38bdf8;
   flex-shrink: 0;
 }
 
-/* ── NASA utility colors ── */
-.text-nasa-green  { color: #00ff9d; }
-.text-nasa-yellow { color: #ffc800; }
-.text-nasa-red    { color: #ff3355; }
-.text-accent      { color: #00b4ff; }
+/* ── Utility classes ── */
+.text-nasa-green  { color: #34d399; }
+.text-nasa-yellow { color: #fbbf24; }
+.text-nasa-red    { color: #fb7185; }
+.text-accent      { color: #38bdf8; }
 
-/* ── Orbitron font util ── */
 .font-display { font-family: 'Orbitron', sans-serif; }
 .font-mono    { font-family: 'Space Mono', monospace; }
 
-/* ── Node pulse animation ── */
-.node-pulse { animation: nodePulse 1.6s ease-in-out infinite; }
-.crit-blink { animation: critBlink 1s ease-in-out infinite; }
-
-/* ── Fade-in ── */
-.fade-in { animation: fadeIn 0.3s ease both; }
+.node-pulse { animation: nodePulse 1.8s ease-in-out infinite; }
+.crit-blink { animation: critBlink 1.4s ease-in-out infinite; }
+.fade-in    { animation: fadeIn 0.22s ease both; }
 
 /* ── Modal overlay ── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(3, 14, 28, 0.85);
-  backdrop-filter: blur(4px);
+  background: rgba(6, 10, 18, 0.8);
+  backdrop-filter: blur(6px);
   z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1.25rem;
 }

@@ -1,7 +1,7 @@
 const CFG = {
-  NOMINAL:  { color: '#00ff9d', bg: 'rgba(0,255,157,0.08)',  border: 'rgba(0,255,157,0.35)',  icon: '◆', label: 'NOMINAL'  },
-  WARNING:  { color: '#ffc800', bg: 'rgba(255,200,0,0.08)',  border: 'rgba(255,200,0,0.35)',  icon: '▲', label: 'WARNING'  },
-  CRITICAL: { color: '#ff3355', bg: 'rgba(255,51,85,0.1)',   border: 'rgba(255,51,85,0.4)',   icon: '■', label: 'CRITICAL' },
+  NOMINAL:  { color: '#34d399', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.35)', icon: '◆', label: 'NOMINAL'  },
+  WARNING:  { color: '#fbbf24', bg: 'rgba(245, 158, 11, 0.12)', border: 'rgba(245, 158, 11, 0.38)', icon: '▲', label: 'WARNING'  },
+  CRITICAL: { color: '#fb7185', bg: 'rgba(244, 63, 94, 0.14)',  border: 'rgba(244, 63, 94, 0.42)',  icon: '■', label: 'CRITICAL' },
 };
 
 export default function Badge({ status }) {
@@ -14,22 +14,22 @@ export default function Badge({ status }) {
       aria-label={`Health status: ${c.label}`}
       className={isCrit ? 'crit-blink' : ''}
       style={{
-        display:        'inline-flex',
-        alignItems:     'center',
-        gap:            8,
-        padding:        '5px 16px',
-        border:         `1px solid ${c.border}`,
-        background:     c.bg,
-        color:          c.color,
-        fontFamily:     "'Orbitron', sans-serif",
-        fontSize:       11,
-        fontWeight:     700,
-        letterSpacing:  '0.2em',
-        textTransform:  'uppercase',
-        boxShadow:      `0 0 12px ${c.border}`,
+        display:       'inline-flex',
+        alignItems:    'center',
+        gap:           7,
+        padding:       '5px 12px',
+        borderRadius:  6,
+        border:        `1px solid ${c.border}`,
+        background:    c.bg,
+        color:         c.color,
+        fontFamily:    "'Inter', sans-serif",
+        fontSize:      11,
+        fontWeight:    700,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
       }}
     >
-      <span aria-hidden="true" style={{ fontSize: 8 }}>{c.icon}</span>
+      <span aria-hidden="true" style={{ fontSize: 9 }}>{c.icon}</span>
       <span>{c.label}</span>
     </div>
   );

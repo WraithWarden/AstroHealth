@@ -1,119 +1,337 @@
 [
   {
     "id": "4A-i",
-    "name": "Skin Assessment",
-    "unit": "category",
-    "node": "whole",
-    "categories": ["Clear", "Mild", "Moderate", "Severe"],
-    "earth_range": ["Clear", "Mild"],
-    "earth_normal": "Clear",
-    "baseline": { "mean": "Clear", "sd": null },
-    "direction": "category_high_bad",
-    "yellow": "Mild",
-    "red": "Moderate",
-    "input": "skin_category",
-    "equipment": "Visual inspection; well-lit environment; magnifying glass optional",
-    "steps": [
-      "Inspect exposed skin areas: face, neck, forearms, hands, and any area under friction (waistband, collar).",
-      "Classify using the 4-category scale: Clear (no lesions), Mild (1–5 small lesions < 1 cm), Moderate (6–20 lesions or any lesion > 1 cm), Severe (> 20 lesions, open wounds, or spreading redness).",
-      "Photograph any lesion that was not present at the previous check-in and attach to the report."
-    ],
-    "when": "Every 3 days, or immediately after any skin injury or unusual rash.",
-    "mistakes": "Confusing dry skin (common in low-humidity cabin air) with an allergic or infectious rash. Dry skin has no raised borders or fluid.",
-    "escalate_if": "Any rapidly spreading redness (> 5 cm diameter increase in 12 h), fever above 38 °C alongside a skin lesion, or pus discharge.",
-    "why": "Microgravity and elevated radiation increase skin fragility. Immune suppression in space slows healing and raises infection risk from minor wounds.",
-    "benefits": "Early classification prevents minor skin issues from progressing to infections that require systemic antibiotics.",
-    "actions": {
-      "yellow": "Apply prescribed topical moisturiser or barrier cream. Increase skin inspection frequency to daily. Document and photograph.",
-      "red":    "Contact flight surgeon immediately. Begin wound care protocol. Isolate the affected area from further friction or contamination."
+    "name": "Blood Oxygen (SpO₂)",
+    "unit": "%",
+    "node": "Lungs",
+    "earth_range": {
+      "min": 95,
+      "max": 100,
+      "text": "95–100%"
     },
-    "source_tag": "NASA-STD-3001 Vol.1 §4.11; NASA HRP Evidence Report: Risk of Skin Breakdown"
+    "baseline": {
+      "mean": 97.5,
+      "sd": 2,
+      "text": "97.5 ± 2.0% (typical 95–99%)"
+    },
+    "direction": "LOW",
+    "yellow": {
+      "lt": null,
+      "lte": 94,
+      "gte": 92,
+      "text": "92–94%"
+    },
+    "red": {
+      "lte": 91,
+      "text": "91% or lower"
+    },
+    "input": {
+      "type": "number",
+      "min": 70,
+      "max": 100,
+      "step": 1,
+      "auto": false,
+      "label": "SpO₂"
+    },
+    "equipment": [
+      "Fingertip pulse oximeter"
+    ],
+    "steps": [
+      "Warm your hand and remove any nail polish.",
+      "Clip the oximeter on a fingertip and keep the hand still at heart level.",
+      "Wait until the number is steady and record it."
+    ],
+    "when": "Daily. Twice a day while Yellow; recheck in 5 minutes and check cabin O₂/CO₂.",
+    "mistakes": [
+      "Cold fingers, which give a falsely low number.",
+      "Nail polish or a loose clip.",
+      "Moving the hand during the reading.",
+      "Writing down the first number before it settles."
+    ],
+    "escalate_if": [
+      "91% or lower.",
+      "Below 90% (supplemental oxygen is needed).",
+      "Shortness of breath, confusion or blue lips."
+    ],
+    "why": "SpO₂ shows how well the lungs move oxygen into the blood. A drop can come from a cabin leak, low oxygen, a rising CO₂ level or a lung problem.",
+    "benefits": [
+      "Fast and painless.",
+      "Catches cabin air problems early.",
+      "Backs up the cabin CO₂ reading on the same node."
+    ],
+    "actions": {
+      "yellow": [
+        "Warm your hand and recheck in 5 minutes.",
+        "Check cabin O₂ and CO₂ displays.",
+        "Turn on ventilation fans.",
+        "Measure twice a day until Green."
+      ],
+      "red": [
+        "Recheck right away.",
+        "Check cabin O₂/CO₂ and turn on fans.",
+        "If it is below 90%, give supplemental oxygen per the crew medical checklist.",
+        "Tell the Crew Medical Officer."
+      ]
+    },
+    "source_tag": [
+      "C",
+      "H"
+    ]
   },
   {
     "id": "4A-ii",
-    "name": "Wound Healing Rate",
-    "unit": "days",
-    "node": "whole",
-    "earth_range": [0, 7],
-    "earth_normal": 5,
-    "baseline": { "mean": 5, "sd": 1 },
-    "direction": "high_bad",
-    "yellow": 10,
-    "red": 14,
-    "input": "wound_healing_days",
-    "equipment": "Wound closure strips, sterile dressings, ruler or wound measurement tool",
-    "steps": [
-      "On the day a wound is noted, record the date and photograph the wound with a scale reference.",
-      "Re-photograph every 48 hours. Measure the longest dimension of the open wound area.",
-      "Record how many days since wound onset when the wound is fully closed (epithelialised)."
-    ],
-    "when": "Starting at wound onset; re-assessed every 48 h until healed.",
-    "mistakes": "Recording wound closure when a scab forms rather than when full epithelialisation is confirmed.",
-    "escalate_if": "No measurable reduction in wound area after 7 days, or signs of infection (warmth, purulent discharge, increasing pain).",
-    "why": "Wound healing is impaired in microgravity and under elevated radiation. Slow healing is an early systemic health indicator.",
-    "benefits": "Tracking healing rate allows early antibiotic intervention, preventing mission-threatening infections.",
-    "actions": {
-      "yellow": "Increase wound care frequency. Apply silver-containing dressing if available. Report to flight surgeon.",
-      "red":    "Ground consult mandatory. Begin systemic antibiotic protocol. Document and transmit wound photos."
+    "name": "Cabin CO₂ Pressure (ppCO₂)",
+    "unit": "mm Hg",
+    "node": "Lungs",
+    "earth_range": {
+      "typical": 0.3,
+      "text": "About 0.3 outdoors; 0.6–0.8 indoors"
     },
-    "source_tag": "NASA-STD-3001 Vol.1 §4.11; NASA HRP Evidence Report: Risk of Adverse Health Outcomes"
+    "baseline": {
+      "mean": 2.3,
+      "sd": 0.5,
+      "text": "2.3 ± 0.5 mm Hg (aim for 2.5 or less)"
+    },
+    "direction": "HIGH",
+    "yellow": {
+      "gte": 3,
+      "lte": 3.9,
+      "text": "3.0–3.9 mm Hg (above the NASA 1-hour limit)"
+    },
+    "red": {
+      "gte": 4,
+      "text": "4.0 mm Hg or more"
+    },
+    "input": {
+      "type": "number",
+      "min": 0,
+      "max": 10,
+      "step": 0.1,
+      "auto": true,
+      "label": "Cabin ppCO₂ (automatic sensor)"
+    },
+    "equipment": [
+      "Cabin CO₂ sensor (automatic feed)"
+    ],
+    "steps": [
+      "Open the cabin air panel. The sensor reports automatically.",
+      "Read the current ppCO₂ and the 7-day average.",
+      "If it is rising, check fans and the CO₂ scrubber."
+    ],
+    "when": "Continuous. Check at every check-in.",
+    "mistakes": [
+      "Reading only the average and missing local pockets of CO₂ around your face.",
+      "Ignoring headaches that appear before the alarm.",
+      "Sleeping or working in a dead-air spot with no airflow."
+    ],
+    "escalate_if": [
+      "3.0 mm Hg or more.",
+      "Headache, tiredness, blurred vision or nausea."
+    ],
+    "why": "In weightlessness, exhaled CO₂ does not rise away from your face. CO₂ also widens blood vessels in the brain, which adds to pressure behind the eyes. Astronauts feel symptoms at much lower CO₂ than people on Earth.",
+    "benefits": [
+      "Protects thinking and vision.",
+      "Helps explain headaches and high ONSD.",
+      "Shows if the scrubber needs attention."
+    ],
+    "actions": {
+      "yellow": [
+        "Switch on personal ventilation fans.",
+        "Move to a lower-CO₂ module.",
+        "Reduce hard physical effort.",
+        "Check the CO₂ removal system."
+      ],
+      "red": [
+        "Do all the Yellow steps now.",
+        "Inspect the CO₂ removal system (CDRA) and sorbent beds.",
+        "Check ONSD (1B-i) and SpO₂ (4A-i).",
+        "Tell the Crew Medical Officer and ground (if reachable)."
+      ]
+    },
+    "source_tag": [
+      "S",
+      "L"
+    ]
   },
   {
     "id": "4B-i",
-    "name": "Back Pain (VAS)",
-    "unit": "0–10",
-    "node": "bones",
-    "earth_range": [0, 3],
-    "earth_normal": 1,
-    "baseline": { "mean": 1.5, "sd": 0.8 },
-    "direction": "high_bad",
-    "yellow": 4,
-    "red": 7,
-    "input": "back_pain_vas",
-    "equipment": "Visual Analogue Scale (printed card or digital slider); no additional equipment required",
-    "steps": [
-      "At the same time each day (after waking), rate your overall back and spinal discomfort on a 0–10 scale (0 = no pain, 10 = worst imaginable pain).",
-      "Record the number in the check-in form.",
-      "If pain is localised, note the location (lumbar, thoracic, cervical) in the notes field."
-    ],
-    "when": "Once per day, immediately after waking.",
-    "mistakes": "Rating pain after exercise or physical therapy can underestimate chronic baseline pain.",
-    "escalate_if": "Pain score ≥ 7 and not relieved by standard analgesics within 2 h, or any neurological symptoms (numbness, tingling, weakness in legs).",
-    "why": "Spinal elongation in microgravity increases disc pressure and back pain. Bone density loss compounds the risk of vertebral compression fractures on return.",
-    "benefits": "Daily VAS tracking identifies accelerating spinal stress before structural injury, enabling targeted exercise countermeasures.",
-    "actions": {
-      "yellow": "Increase resistive exercise frequency per exercise countermeasure protocol. Apply heat. Report to flight surgeon if score persists for 3 days.",
-      "red":    "Restrict heavy lifting. Contact flight surgeon immediately. Begin diagnostic imaging protocol if available."
+    "name": "Fasting Blood Glucose",
+    "unit": "mg/dL",
+    "node": "Whole body",
+    "earth_range": {
+      "min": 70,
+      "max": 99,
+      "text": "70–99 mg/dL"
     },
-    "source_tag": "NASA-STD-3001 Vol.1 §4.5; NASA HRP Evidence Report: Risk of Bone Fracture"
+    "baseline": {
+      "mean": 90,
+      "sd": 8,
+      "text": "90 ± 8 mg/dL (typical 75–105; insulin resistance is common in space)"
+    },
+    "direction": "BOTH",
+    "yellow": {
+      "gt": 105,
+      "lte": 125,
+      "text": "106–125 mg/dL (raised fasting glucose)"
+    },
+    "red": {
+      "gte": 126,
+      "lt": 70,
+      "text": "High: 126 or more. Low: under 70"
+    },
+    "input": {
+      "type": "number",
+      "min": 30,
+      "max": 400,
+      "step": 1,
+      "auto": false,
+      "label": "Fasting glucose"
+    },
+    "equipment": [
+      "Glucometer",
+      "Test strips and lancet"
+    ],
+    "steps": [
+      "Measure in the morning after at least 8 hours without food. Wash and dry your hands.",
+      "Prick the side of a fingertip and touch the drop to the test strip.",
+      "Wait for the result and record the number."
+    ],
+    "when": "Weekly in the morning, fasting. Daily while Yellow or Red; recheck in 15 minutes if low (under 70).",
+    "mistakes": [
+      "Measuring after eating or drinking anything but water.",
+      "Wet or sugary fingers.",
+      "Using an expired strip.",
+      "Treating a low and a high result the same way."
+    ],
+    "escalate_if": [
+      "126 mg/dL or more.",
+      "Under 70 mg/dL.",
+      "Confusion, shaking or sweating, which can mean low glucose."
+    ],
+    "why": "Without gravity and normal exercise load, the body can become less sensitive to insulin. A creeping rise shows early. A low reading is an emergency of its own, which is why the steps for high and low are different.",
+    "benefits": [
+      "Early sign of insulin resistance.",
+      "Avoids treating low glucose the wrong way.",
+      "Gives the flight surgeon a 7-day trend."
+    ],
+    "actions": {
+      "yellow": [
+        "Measure daily until it returns to Green.",
+        "Cut back on simple sugars.",
+        "Keep up ARED and aerobic exercise."
+      ],
+      "red_high": [
+        "Repeat the fasting test tomorrow morning.",
+        "Restrict simple sugars.",
+        "Keep up ARED and aerobic exercise.",
+        "Send the 7-day trend to the flight surgeon."
+      ],
+      "red_low": [
+        "Take 15 g of fast carbohydrate now (glucose tablets or fruit juice).",
+        "Recheck in 15 minutes and repeat the carbohydrate if still under 70.",
+        "Tell the Crew Medical Officer.",
+        "If you are confused or unresponsive, a crewmate starts emergency care and gives nothing by mouth."
+      ]
+    },
+    "source_tag": [
+      "C",
+      "L",
+      "H"
+    ]
   },
   {
     "id": "4B-ii",
-    "name": "Grip Strength",
-    "unit": "kg",
-    "node": "whole",
-    "earth_range": [25, 60],
-    "earth_normal": 42,
-    "baseline": { "mean": 40, "sd": 5 },
-    "direction": "low_bad",
-    "yellow": 32,
-    "red": 25,
-    "input": "grip_strength_kg",
-    "equipment": "Hand dynamometer (stored in medical kit)",
-    "steps": [
-      "Sit or brace against a stable surface. Hold the dynamometer with the dominant hand, elbow at 90°.",
-      "Squeeze as hard as possible for 3 seconds. Record the peak value.",
-      "Repeat 3 times with a 1-minute rest between trials. Record the maximum of the three values."
-    ],
-    "when": "Every 7 days, before exercise. Always use the dominant hand.",
-    "mistakes": "Measuring after a workout gives falsely low results due to muscle fatigue. Wait at least 4 hours after vigorous exercise.",
-    "escalate_if": "Drop of more than 20 % from personal baseline in a single week — indicates rapid muscle atrophy.",
-    "why": "Grip strength is a validated proxy for overall muscle mass and systemic muscle atrophy, which is a key risk during extended microgravity exposure.",
-    "benefits": "Weekly tracking allows the exercise countermeasure programme to be intensified before significant functional impairment occurs.",
-    "actions": {
-      "yellow": "Review and intensify resistive exercise protocol with flight surgeon. Add extra upper-body RED sessions.",
-      "red":    "Report to flight surgeon immediately. Begin enhanced musculoskeletal assessment. Consider early mission modification."
+    "name": "Skin Status",
+    "unit": "0–3 scale",
+    "node": "Whole body",
+    "earth_range": {
+      "text": "0 (clear skin)"
     },
-    "source_tag": "NASA-STD-3001 Vol.1 §4.5; NASA HRP Evidence Report: Risk of Muscle Atrophy"
+    "baseline": {
+      "mean": 0,
+      "sd": null,
+      "text": "0 (clear, or mild dryness)"
+    },
+    "direction": "HIGH",
+    "threshold_only": true,
+    "yellow": {
+      "categories": [
+        1,
+        2
+      ],
+      "text": "1–2: small mild rash, contact dermatitis or lunar-dust irritation"
+    },
+    "red": {
+      "categories": [
+        3
+      ],
+      "text": "3: spreading, blistering or painful rash (such as shingles), or any rash with fever"
+    },
+    "input": {
+      "type": "select",
+      "auto": false,
+      "label": "Skin status",
+      "options": [
+        {
+          "value": 0,
+          "label": "0 – Clear"
+        },
+        {
+          "value": 1,
+          "label": "1 – Mild irritation"
+        },
+        {
+          "value": 2,
+          "label": "2 – Moderate"
+        },
+        {
+          "value": 3,
+          "label": "3 – Severe"
+        }
+      ]
+    },
+    "equipment": [
+      "Tablet camera",
+      "Good lighting"
+    ],
+    "steps": [
+      "Look over your skin, especially hands, arms, neck and any area touched by suit or dust.",
+      "Take a clear photo of any rash or change, in good light, with a size reference.",
+      "Pick the category (0–3) that fits best and record it."
+    ],
+    "when": "Weekly. Take a photo daily while Yellow or Red.",
+    "mistakes": [
+      "Photos in poor light or out of focus.",
+      "Ignoring a small rash that is spreading.",
+      "Forgetting to check temperature when there is a rash."
+    ],
+    "escalate_if": [
+      "Category 3.",
+      "Any rash together with a fever.",
+      "A painful, one-sided or blistering rash."
+    ],
+    "why": "Closed habitats have floating dust and mould, and lunar or Mars dust irritates skin. A weaker immune system in space can also wake up dormant viruses that show up as a rash, such as shingles.",
+    "benefits": [
+      "Catches infection or irritation early.",
+      "Photos let the flight surgeon help from a distance.",
+      "Links to the WBC and temperature checks."
+    ],
+    "actions": {
+      "yellow": [
+        "Wash gently and moisturise.",
+        "Take a photo each day.",
+        "Vacuum the habitat with the HEPA filter.",
+        "Check temperature (2B-ii)."
+      ],
+      "red": [
+        "Take clear photos and send them to the flight surgeon at once (store-and-forward).",
+        "Check temperature (2B-ii) and WBC (2B-i).",
+        "Do not start any treatment until authorized per the crew medical checklist.",
+        "Tell the Crew Medical Officer."
+      ]
+    },
+    "source_tag": [
+      "H"
+    ]
   }
 ]

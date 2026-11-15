@@ -18,25 +18,38 @@ export default function ReadinessStrip({
   const total = actionProgress?.total ?? 0;
   const pct = total > 0 ? Math.min(1, completed / total) : 1;
 
-  const r = 13;
+  const r = 14;
   const circ = 2 * Math.PI * r;
   const dashOffset = circ * (1 - pct);
-  const ringColor = total === 0 || pct >= 1 ? '#00ff9d' : pct >= 0.5 ? '#ffc800' : '#00b4ff';
+  const ringColor = total === 0 || pct >= 1 ? '#10b981' : pct >= 0.5 ? '#f59e0b' : '#38bdf8';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {/* Top metrics row: RED | YELLOW | STREAK | ACTION RING */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1.25fr', gap: 6, alignItems: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1.35fr', gap: 6, alignItems: 'stretch' }}>
         {[
-          { label: 'RED', value: redCount, color: '#ff3355' },
-          { label: 'YELLOW', value: yellowCount, color: '#ffc800' },
-          { label: 'STREAK', value: `${streakDays}d`, color: 'rgba(0,180,255,0.75)' },
-        ].map(({ label, value, color }) => (
-          <div key={label} style={{ textAlign: 'center', padding: '5px 0', background: 'rgba(0,180,255,0.03)', border: '1px solid rgba(0,180,255,0.08)' }}>
-            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 13, fontWeight: 700, color }}>
+          { label: 'Critical', value: redCount, color: '#fb7185', icon: '■' },
+          { label: 'Warning', value: yellowCount, color: '#fbbf24', icon: '▲' },
+          { label: 'Streak', value: `${streakDays}d`, color: '#38bdf8', icon: '◆' },
+        ].map(({ label, value, color, icon }) => (
+          <div
+            key={label}
+            style={{
+              textAlign: 'center',
+              padding: '7px 4px',
+              borderRadius: 7,
+              background: 'rgba(30, 41, 59, 0.55)',
+              border: '1px solid rgba(148, 163, 184, 0.14)',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
+            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 14, fontWeight: 700, color }}>
               {value}
             </div>
-            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 7, color: 'rgba(200,228,255,0.38)', marginTop: 1 }}>
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, color: '#94a3b8', marginTop: 2, fontWeight: 500 }}>
+              <span aria-hidden="true" style={{ fontSize: 8, marginRight: 3, color }}>{icon}</span>
               {label}
             </div>
           </div>
@@ -49,17 +62,18 @@ export default function ReadinessStrip({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 6,
-            padding: '3px 6px',
-            background: 'rgba(0,180,255,0.03)',
-            border: '1px solid rgba(0,180,255,0.1)',
+            gap: 7,
+            padding: '5px 8px',
+            borderRadius: 7,
+            background: 'rgba(30, 41, 59, 0.55)',
+            border: '1px solid rgba(148, 163, 184, 0.14)',
           }}
         >
-          <svg width="34" height="34" viewBox="0 0 34 34" aria-label={`Actions completed: ${completed} of ${total}`}>
-            <circle cx="17" cy="17" r={r} fill="none" stroke="rgba(255,255,255,0.09)" strokeWidth="3.5" />
+          <svg width="36" height="36" viewBox="0 0 36 36" aria-label={`Actions completed: ${completed} of ${total}`}>
+            <circle cx="18" cy="18" r={r} fill="none" stroke="rgba(148, 163, 184, 0.18)" strokeWidth="3.5" />
             <circle
-              cx="17"
-              cy="17"
+              cx="18"
+              cy="18"
               r={r}
               fill="none"
               stroke={ringColor}
@@ -67,21 +81,21 @@ export default function ReadinessStrip({
               strokeDasharray={circ}
               strokeDashoffset={dashOffset}
               strokeLinecap="round"
-              transform="rotate(-90 17 17)"
+              transform="rotate(-90 18 18)"
               style={{ transition: 'stroke-dashoffset 0.3s ease' }}
             />
             <text
-              x="17"
-              y="19.5"
+              x="18"
+              y="20.5"
               textAnchor="middle"
-              fill="#c8e4ff"
-              style={{ fontFamily: "'Space Mono', monospace", fontSize: 7.5, fontWeight: 700 }}
+              fill="#f1f5f9"
+              style={{ fontFamily: "'Space Mono', monospace", fontSize: 8.5, fontWeight: 700 }}
             >
               {total > 0 ? `${completed}/${total}` : 'OK'}
             </text>
           </svg>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 7, color: 'rgba(200,228,255,0.48)', lineHeight: 1.2 }}>
-            ACT<br />RING
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10, color: '#94a3b8', lineHeight: 1.2, fontWeight: 500 }}>
+            Actions<br />Done
           </div>
         </div>
       </div>
@@ -92,52 +106,54 @@ export default function ReadinessStrip({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 6,
-          padding: '6px 8px',
+          gap: 8,
+          padding: '8px 10px',
+          borderRadius: 7,
           background: allLogged
-            ? 'rgba(0,255,157,0.08)'
+            ? 'rgba(16, 185, 129, 0.1)'
             : overdueCount > 0
-              ? 'rgba(255,51,85,0.09)'
-              : 'rgba(255,200,0,0.09)',
+              ? 'rgba(244, 63, 94, 0.11)'
+              : 'rgba(245, 158, 11, 0.11)',
           border: `1px solid ${
             allLogged
-              ? 'rgba(0,255,157,0.35)'
+              ? 'rgba(16, 185, 129, 0.32)'
               : overdueCount > 0
-                ? 'rgba(255,51,85,0.35)'
-                : 'rgba(255,200,0,0.35)'
+                ? 'rgba(244, 63, 94, 0.35)'
+                : 'rgba(245, 158, 11, 0.35)'
           }`,
         }}
       >
-        <div style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
           {allLogged ? (
-            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 8.5, fontWeight: 700, letterSpacing: '0.1em', color: '#00ff9d' }}>
-              ◆ MISSION READINESS · ALL DUE LOGGED
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 11.5, fontWeight: 600, color: '#34d399' }}>
+              ◆ Mission Readiness · All Due Logged
             </div>
           ) : (
             <>
               <div
                 style={{
-                  fontFamily: "'Orbitron', sans-serif",
-                  fontSize: 8.5,
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  color: overdueCount > 0 ? '#ff6680' : '#ffc800',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11.5,
+                  fontWeight: 600,
+                  color: overdueCount > 0 ? '#fb7185' : '#fbbf24',
                 }}
               >
-                {dueCount} {dueCount === 1 ? 'MEASUREMENT' : 'MEASUREMENTS'} DUE
-                {overdueCount > 0 ? ` (${overdueCount} OVERDUE)` : ''}
+                {overdueCount > 0 ? '■ ' : '▲ '}
+                {dueCount} {dueCount === 1 ? 'measurement' : 'measurements'} due
+                {overdueCount > 0 ? ` (${overdueCount} overdue)` : ''}
               </div>
               {dueLabels.length > 0 && (
                 <div
                   style={{
-                    fontFamily: "'Space Mono', monospace",
-                    fontSize: 7.5,
-                    color: 'rgba(200,228,255,0.6)',
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: 10.5,
+                    color: '#94a3b8',
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    marginTop: 1,
+                    marginTop: 2,
                   }}
+                  title={dueLabels.join(', ')}
                 >
                   {dueLabels.join(' · ')}
                 </div>
@@ -146,36 +162,37 @@ export default function ReadinessStrip({
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
           <button
             type="button"
             onClick={onDownloadJson}
             title="Download full medical report packet (.json)"
             style={{
-              padding: '4px 7px',
-              background: 'rgba(0,180,255,0.1)',
-              border: '1px solid rgba(0,180,255,0.35)',
-              color: '#00b4ff',
-              fontFamily: "'Orbitron', sans-serif",
-              fontSize: 7.5,
-              fontWeight: 700,
-              letterSpacing: '0.08em',
+              padding: '5px 9px',
+              borderRadius: 6,
+              background: 'rgba(56, 189, 248, 0.14)',
+              border: '1px solid rgba(56, 189, 248, 0.38)',
+              color: '#38bdf8',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 11,
+              fontWeight: 600,
               cursor: 'pointer',
             }}
           >
-            ⬇ PACKET
+            ⬇ Packet
           </button>
           <button
             type="button"
             onClick={onDownloadTxt}
             title="Download readable text summary (.txt)"
             style={{
-              padding: '4px 6px',
-              background: 'rgba(0,180,255,0.04)',
-              border: '1px solid rgba(0,180,255,0.22)',
-              color: 'rgba(200,228,255,0.75)',
+              padding: '5px 7px',
+              borderRadius: 6,
+              background: 'rgba(30, 41, 59, 0.7)',
+              border: '1px solid rgba(148, 163, 184, 0.25)',
+              color: '#cbd5e1',
               fontFamily: "'Space Mono', monospace",
-              fontSize: 7.5,
+              fontSize: 10,
               cursor: 'pointer',
             }}
           >

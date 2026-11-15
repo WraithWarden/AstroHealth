@@ -36,21 +36,21 @@ export default function MarsTriageModal({
         onClick={(e) => e.stopPropagation()}
         style={{
           width: '100%',
-          maxWidth: 520,
-          padding: 20,
-          borderColor: 'rgba(255,51,85,0.45)',
-          maxHeight: '88vh',
+          maxWidth: 540,
+          padding: 24,
+          borderColor: 'rgba(244, 63, 94, 0.4)',
+          maxHeight: '90vh',
           overflowY: 'auto',
         }}
       >
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 14 }}>
           <div>
-            <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 8, letterSpacing: '0.16em', color: '#ff3355', fontWeight: 700 }}>
-              ◆ AUTONOMOUS MODE · {delayMin} MIN ONE-WAY DELAY
+            <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#fb7185' }}>
+              ■ Autonomous Mode · {delayMin} min one-way delay
             </div>
-            <h2 id="mars-cmo-title" style={{ margin: '4px 0 0', fontFamily: "'Orbitron', sans-serif", fontSize: 13, letterSpacing: '0.1em', color: '#c8e4ff' }}>
-              CREW MEDICAL OFFICER OFFLINE CHECKLIST
+            <h2 id="mars-cmo-title" style={{ margin: '4px 0 0', fontFamily: "'Inter', sans-serif", fontSize: 17, fontWeight: 700, color: '#f8fafc' }}>
+              Crew Medical Officer Offline Checklist
             </h2>
           </div>
           <button
@@ -58,33 +58,34 @@ export default function MarsTriageModal({
             onClick={onClose}
             aria-label="Close CMO checklist"
             style={{
-              background: 'none',
-              border: '1px solid rgba(0,180,255,0.25)',
-              color: 'rgba(200,228,255,0.7)',
-              fontFamily: "'Space Mono', monospace",
-              fontSize: 10,
-              padding: '4px 8px',
+              background: 'rgba(30, 41, 59, 0.7)',
+              border: '1px solid rgba(148, 163, 184, 0.25)',
+              borderRadius: 6,
+              color: '#cbd5e1',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 12,
+              padding: '5px 10px',
               cursor: 'pointer',
             }}
           >
-            ESC
+            Esc ✕
           </button>
         </div>
 
         {/* Progress */}
-        <div style={{ marginBottom: 14, padding: '8px 10px', background: 'rgba(255,51,85,0.06)', border: '1px solid rgba(255,51,85,0.2)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Space Mono', monospace", fontSize: 9, color: 'rgba(200,228,255,0.75)', marginBottom: 5 }}>
-            <span>EARTH-INDEPENDENT TRIAGE PROTOCOL</span>
-            <span style={{ color: completedCount === 4 ? '#00ff9d' : '#ffc800', fontWeight: 700 }}>
-              {completedCount} / {MARS_CMO_STEPS.length} COMPLETE
+        <div style={{ marginBottom: 16, padding: '10px 12px', borderRadius: 8, background: 'rgba(244, 63, 94, 0.08)', border: '1px solid rgba(244, 63, 94, 0.25)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#e2e8f0', marginBottom: 6 }}>
+            <span style={{ fontWeight: 500 }}>Earth-Independent Triage Protocol</span>
+            <span style={{ fontFamily: "'Space Mono', monospace", color: completedCount === 4 ? '#34d399' : '#fbbf24', fontWeight: 700 }}>
+              {completedCount} / {MARS_CMO_STEPS.length} complete
             </span>
           </div>
-          <div style={{ height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2, overflow: 'hidden' }}>
+          <div style={{ height: 6, background: 'rgba(148, 163, 184, 0.15)', borderRadius: 3, overflow: 'hidden' }}>
             <div
               style={{
                 width: `${(completedCount / MARS_CMO_STEPS.length) * 100}%`,
                 height: '100%',
-                background: completedCount === 4 ? '#00ff9d' : '#ff3355',
+                background: completedCount === 4 ? '#10b981' : '#f43f5e',
                 transition: 'width 0.25s ease',
               }}
             />
@@ -92,7 +93,7 @@ export default function MarsTriageModal({
         </div>
 
         {/* 4 Checklist Steps */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
           {MARS_CMO_STEPS.map((item) => {
             const checked = Boolean(stepsDone[item.id]);
             return (
@@ -102,23 +103,24 @@ export default function MarsTriageModal({
                   display: 'flex',
                   gap: 10,
                   alignItems: 'flex-start',
-                  padding: '9px 10px',
+                  padding: '10px 12px',
+                  borderRadius: 8,
                   cursor: 'pointer',
-                  background: checked ? 'rgba(0,255,157,0.06)' : 'rgba(0,180,255,0.03)',
-                  border: `1px solid ${checked ? 'rgba(0,255,157,0.3)' : 'rgba(0,180,255,0.16)'}`,
+                  background: checked ? 'rgba(16, 185, 129, 0.08)' : 'rgba(15, 23, 42, 0.6)',
+                  border: `1px solid ${checked ? 'rgba(16, 185, 129, 0.35)' : 'rgba(148, 163, 184, 0.16)'}`,
                 }}
               >
                 <input
                   type="checkbox"
                   checked={checked}
                   onChange={() => onToggleStep?.(item.id)}
-                  style={{ accentColor: '#00ff9d', marginTop: 3, flexShrink: 0 }}
+                  style={{ accentColor: '#10b981', marginTop: 3, flexShrink: 0 }}
                 />
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontFamily: "'Orbitron', sans-serif", fontSize: 10, letterSpacing: '0.08em', color: checked ? '#00ff9d' : '#c8e4ff', fontWeight: 700 }}>
-                    STEP {item.step} · {item.title.toUpperCase()}
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 13, color: checked ? '#34d399' : '#f1f5f9', fontWeight: 600 }}>
+                    Step {item.step}: {item.title}
                   </div>
-                  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 11.5, color: checked ? 'rgba(200,228,255,0.5)' : 'rgba(200,228,255,0.75)', marginTop: 3, lineHeight: 1.4 }}>
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#94a3b8', marginTop: 3, lineHeight: 1.45 }}>
                     {item.detail}
                   </div>
                 </div>
@@ -128,28 +130,29 @@ export default function MarsTriageModal({
         </div>
 
         {/* CMO Log Notes */}
-        <div style={{ marginBottom: 14 }}>
+        <div style={{ marginBottom: 16 }}>
           <label
             htmlFor="mars-cmo-notes"
-            style={{ display: 'block', fontFamily: "'Space Mono', monospace", fontSize: 9, color: 'rgba(0,180,255,0.7)', marginBottom: 5, letterSpacing: '0.08em' }}
+            style={{ display: 'block', fontFamily: "'Inter', sans-serif", fontSize: 12, fontWeight: 500, color: '#cbd5e1', marginBottom: 6 }}
           >
-            CMO INTERVENTION LOG (ATTACHED TO REPORT PACKET)
+            CMO Intervention Notes (included in report packet)
           </label>
           <textarea
             id="mars-cmo-notes"
             rows={3}
             value={notes}
             onChange={(e) => onNotesChange?.(e.target.value)}
-            placeholder="Record re-measured vitals, scrubber/shielding status, and actions administered..."
+            placeholder="Record re-measured vitals, cabin CO₂/shielding verification, and countermeasures taken..."
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              background: 'rgba(4,12,24,0.85)',
-              border: '1px solid rgba(0,180,255,0.25)',
-              color: '#c8e4ff',
+              background: '#090e1a',
+              border: '1px solid rgba(148, 163, 184, 0.25)',
+              borderRadius: 7,
+              color: '#f1f5f9',
               fontFamily: "'Inter', sans-serif",
-              fontSize: 12,
-              padding: '8px 10px',
+              fontSize: 12.5,
+              padding: '9px 11px',
               resize: 'vertical',
             }}
           />
@@ -162,51 +165,52 @@ export default function MarsTriageModal({
               type="button"
               onClick={() => onQueueAndDownload?.('json')}
               style={{
-                padding: '8px 12px',
-                background: queuedForGround ? 'rgba(0,255,157,0.14)' : 'rgba(255,51,85,0.14)',
-                border: `1px solid ${queuedForGround ? 'rgba(0,255,157,0.55)' : 'rgba(255,51,85,0.55)'}`,
-                color: queuedForGround ? '#00ff9d' : '#ff8a9e',
-                fontFamily: "'Orbitron', sans-serif",
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: '0.1em',
+                padding: '9px 14px',
+                borderRadius: 7,
+                background: queuedForGround ? 'rgba(16, 185, 129, 0.16)' : 'rgba(244, 63, 94, 0.18)',
+                border: `1px solid ${queuedForGround ? 'rgba(16, 185, 129, 0.45)' : 'rgba(244, 63, 94, 0.5)'}`,
+                color: queuedForGround ? '#34d399' : '#fecdd3',
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 12,
+                fontWeight: 600,
                 cursor: 'pointer',
               }}
             >
-              {queuedForGround ? '✓ QUEUED & DOWNLOADED (.JSON)' : 'QUEUE & DOWNLOAD PACKET (.JSON)'}
+              {queuedForGround ? '✓ Queued & Downloaded (.JSON)' : 'Queue & Download Packet (.JSON)'}
             </button>
             <button
               type="button"
               onClick={() => onDownloadTxt?.()}
               style={{
-                padding: '8px 10px',
-                background: 'rgba(0,180,255,0.08)',
-                border: '1px solid rgba(0,180,255,0.3)',
-                color: '#00b4ff',
-                fontFamily: "'Orbitron', sans-serif",
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: '0.1em',
+                padding: '9px 12px',
+                borderRadius: 7,
+                background: 'rgba(56, 189, 248, 0.12)',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                color: '#38bdf8',
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 12,
+                fontWeight: 600,
                 cursor: 'pointer',
               }}
             >
-              ⬇ .TXT SUMMARY
+              ⬇ .TXT Summary
             </button>
           </div>
           <button
             type="button"
             onClick={onClose}
             style={{
-              padding: '8px 12px',
-              background: 'none',
-              border: '1px solid rgba(200,228,255,0.2)',
-              color: 'rgba(200,228,255,0.7)',
-              fontFamily: "'Orbitron', sans-serif",
-              fontSize: 9,
+              padding: '9px 14px',
+              borderRadius: 7,
+              background: 'rgba(30, 41, 59, 0.7)',
+              border: '1px solid rgba(148, 163, 184, 0.25)',
+              color: '#cbd5e1',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 12,
               cursor: 'pointer',
             }}
           >
-            DONE
+            Done
           </button>
         </div>
       </div>

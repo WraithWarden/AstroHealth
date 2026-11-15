@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-// Scale calibration inside the 400x260 ultrasound viewBox: 100 SVG px = 10 mm => 10 px/mm.
 const PX_PER_MM = 10;
 
 export default function OnsdCaliperModal({ open = false, currentValue = 5.9, onClose, onApply }) {
@@ -42,10 +41,10 @@ export default function OnsdCaliperModal({ open = false, currentValue = 5.9, onC
     measuredMm == null
       ? null
       : measuredMm >= 5.8
-        ? { label: 'RED', color: '#ff3355' }
+        ? { label: 'CRITICAL', color: '#fb7185' }
         : measuredMm >= 5.0
-          ? { label: 'YELLOW', color: '#ffc800' }
-          : { label: 'GREEN', color: '#00ff9d' };
+          ? { label: 'WARNING', color: '#fbbf24' }
+          : { label: 'NOMINAL', color: '#34d399' };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -55,26 +54,36 @@ export default function OnsdCaliperModal({ open = false, currentValue = 5.9, onC
         aria-modal="true"
         aria-labelledby="onsd-caliper-title"
         onClick={(e) => e.stopPropagation()}
-        style={{ width: '100%', maxWidth: 480, padding: 18 }}
+        style={{ width: '100%', maxWidth: 490, padding: 22 }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
           <div>
-            <div className="hud-label">1B-i · SANS / ICP SCREENING TOOL</div>
-            <h3 id="onsd-caliper-title" style={{ margin: '3px 0 0', fontFamily: "'Orbitron', sans-serif", fontSize: 12, color: '#c8e4ff' }}>
-              ONSD TWO-CLICK ULTRASOUND CALIPER
+            <div className="hud-label">1B-i · Ocular Ultrasound Caliper</div>
+            <h3 id="onsd-caliper-title" style={{ margin: '4px 0 0', fontFamily: "'Inter', sans-serif", fontSize: 16, fontWeight: 700, color: '#f8fafc' }}>
+              ONSD Two-Click Measurement
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            style={{ background: 'none', border: '1px solid rgba(0,180,255,0.25)', color: 'rgba(200,228,255,0.7)', fontFamily: "'Space Mono', monospace", fontSize: 10, padding: '3px 8px', cursor: 'pointer' }}
+            aria-label="Close caliper"
+            style={{
+              background: 'rgba(30, 41, 59, 0.7)',
+              border: '1px solid rgba(148, 163, 184, 0.25)',
+              borderRadius: 6,
+              color: '#cbd5e1',
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 12,
+              padding: '4px 9px',
+              cursor: 'pointer',
+            }}
           >
-            ESC
+            Esc ✕
           </button>
         </div>
 
-        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 11.5, color: 'rgba(200,228,255,0.75)', margin: '0 0 10px', lineHeight: 1.45 }}>
-          Click <strong>two points</strong> across the hypoechoic optic nerve sheath 3 mm posterior to the globe. Distance converts from pixels to mm using the <strong>10 mm</strong> scale bar.
+        <p style={{ fontFamily: "'Inter', sans-serif", fontSize: 12.5, color: '#cbd5e1', margin: '0 0 12px', lineHeight: 1.5 }}>
+          Click <strong>two points</strong> across the optic nerve sheath 3 mm posterior to the retina. Pixel distance converts to mm using the calibrated <strong>10 mm</strong> scale bar.
         </p>
 
         {/* Simulated B-mode ocular ultrasound canvas */}
@@ -85,8 +94,9 @@ export default function OnsdCaliperModal({ open = false, currentValue = 5.9, onC
             width: '100%',
             height: 'auto',
             display: 'block',
-            background: '#03080f',
-            border: '1px solid rgba(0,180,255,0.25)',
+            background: '#050911',
+            borderRadius: 8,
+            border: '1px solid rgba(148, 163, 184, 0.24)',
             cursor: 'crosshair',
             userSelect: 'none',
           }}
@@ -106,43 +116,36 @@ export default function OnsdCaliperModal({ open = false, currentValue = 5.9, onC
             </linearGradient>
           </defs>
 
-          {/* Retrobulbar tissue echogenicity */}
           <rect x="0" y="130" width="400" height="130" fill="#102030" opacity="0.65" />
-          {/* Optic nerve + sheath shadow (59 px wide = 5.9 mm visual cue, user measures freely) */}
           <rect x="170.5" y="135" width="59" height="120" fill="url(#sheathGrad)" />
           <rect x="184" y="135" width="32" height="120" fill="#060d16" opacity="0.7" />
 
-          {/* Ocular globe (vitreous chamber) */}
           <ellipse cx="200" cy="82" rx="108" ry="66" fill="url(#globeGrad)" stroke="#5c8ab0" strokeWidth="2.2" />
-          {/* Anterior cornea/lens hint */}
           <path d="M 155 24 Q 200 12 245 24" fill="none" stroke="#85b4d9" strokeWidth="1.5" opacity="0.75" />
 
-          {/* 3 mm posterior measurement guide line (3 * 10px = 30 px below posterior retina y=148 => y=178) */}
-          <line x1="125" y1="178" x2="275" y2="178" stroke="rgba(0,180,255,0.4)" strokeWidth="1" strokeDasharray="4 3" />
-          <text x="128" y="173" fill="rgba(0,180,255,0.7)" style={{ fontFamily: "'Space Mono', monospace", fontSize: 8 }}>
+          <line x1="125" y1="178" x2="275" y2="178" stroke="rgba(56, 189, 248, 0.5)" strokeWidth="1" strokeDasharray="4 3" />
+          <text x="128" y="172" fill="#7dd3fc" style={{ fontFamily: "'Space Mono', monospace", fontSize: 8.5 }}>
             3 mm posterior guide
           </text>
 
-          {/* Calibrated 10 mm Scale Bar (100 px = 10 mm) */}
           <g transform="translate(366, 40)">
-            <line x1="0" y1="0" x2="0" y2="100" stroke="#00ff9d" strokeWidth="2" />
-            <line x1="-5" y1="0" x2="5" y2="0" stroke="#00ff9d" strokeWidth="1.5" />
-            <line x1="-5" y1="50" x2="2" y2="50" stroke="#00ff9d" strokeWidth="1" />
-            <line x1="-5" y1="100" x2="5" y2="100" stroke="#00ff9d" strokeWidth="1.5" />
-            <text x="-8" y="-7" textAnchor="end" fill="#00ff9d" style={{ fontFamily: "'Space Mono', monospace", fontSize: 8.5, fontWeight: 700 }}>
+            <line x1="0" y1="0" x2="0" y2="100" stroke="#34d399" strokeWidth="2" />
+            <line x1="-5" y1="0" x2="5" y2="0" stroke="#34d399" strokeWidth="1.5" />
+            <line x1="-5" y1="50" x2="2" y2="50" stroke="#34d399" strokeWidth="1" />
+            <line x1="-5" y1="100" x2="5" y2="100" stroke="#34d399" strokeWidth="1.5" />
+            <text x="-8" y="-7" textAnchor="end" fill="#34d399" style={{ fontFamily: "'Space Mono', monospace", fontSize: 8.5, fontWeight: 700 }}>
               10 mm scale
             </text>
-            <text x="-8" y="53" textAnchor="end" fill="rgba(0,255,157,0.75)" style={{ fontFamily: "'Space Mono', monospace", fontSize: 7.5 }}>
+            <text x="-8" y="53" textAnchor="end" fill="#6ee7b7" style={{ fontFamily: "'Space Mono', monospace", fontSize: 7.5 }}>
               5 mm
             </text>
           </g>
 
-          {/* Caliper points & connecting line */}
           {points.map((pt, idx) => (
             <g key={idx}>
-              <circle cx={pt.x} cy={pt.y} r="4" fill="#ffc800" stroke="#03080f" strokeWidth="1" />
-              <line x1={pt.x - 7} y1={pt.y} x2={pt.x + 7} y2={pt.y} stroke="#ffc800" strokeWidth="1" />
-              <line x1={pt.x} y1={pt.y - 7} x2={pt.x} y2={pt.y + 7} stroke="#ffc800" strokeWidth="1" />
+              <circle cx={pt.x} cy={pt.y} r="4" fill="#fbbf24" stroke="#03080f" strokeWidth="1" />
+              <line x1={pt.x - 7} y1={pt.y} x2={pt.x + 7} y2={pt.y} stroke="#fbbf24" strokeWidth="1" />
+              <line x1={pt.x} y1={pt.y - 7} x2={pt.x} y2={pt.y + 7} stroke="#fbbf24" strokeWidth="1" />
             </g>
           ))}
           {points.length === 2 && (
@@ -151,42 +154,42 @@ export default function OnsdCaliperModal({ open = false, currentValue = 5.9, onC
               y1={points[0].y}
               x2={points[1].x}
               y2={points[1].y}
-              stroke="#ffc800"
+              stroke="#fbbf24"
               strokeWidth="1.5"
               strokeDasharray="3 2"
             />
           )}
         </svg>
 
-        {/* Readout & Controls */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, gap: 10, flexWrap: 'wrap' }}>
-          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: '#c8e4ff' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 12, color: '#e2e8f0' }}>
             {points.length === 0 && `Current ONSD: ${currentValue} mm · Click point 1 (left margin)`}
-            {points.length === 1 && 'Point 1 placed · Click point 2 (opposite margin)'}
+            {points.length === 1 && 'Point 1 placed · Click point 2 (right margin)'}
             {measuredMm != null && (
               <span>
                 Measured:{' '}
-                <strong style={{ color: previewStatus.color, fontSize: 12 }}>{measuredMm} mm</strong>{' '}
-                <span style={{ color: previewStatus.color }}>[{previewStatus.label}]</span>
+                <strong style={{ fontFamily: "'Space Mono', monospace", color: previewStatus.color, fontSize: 13 }}>{measuredMm} mm</strong>{' '}
+                <span style={{ color: previewStatus.color, fontWeight: 600 }}>({previewStatus.label})</span>
               </span>
             )}
           </div>
 
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
             <button
               type="button"
               onClick={() => setPoints([])}
               style={{
-                padding: '6px 10px',
-                background: 'none',
-                border: '1px solid rgba(0,180,255,0.25)',
-                color: 'rgba(200,228,255,0.7)',
-                fontFamily: "'Orbitron', sans-serif",
-                fontSize: 8.5,
+                padding: '7px 12px',
+                borderRadius: 6,
+                background: 'rgba(30, 41, 59, 0.7)',
+                border: '1px solid rgba(148, 163, 184, 0.25)',
+                color: '#cbd5e1',
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 11.5,
                 cursor: 'pointer',
               }}
             >
-              RESET
+              Reset
             </button>
             {measuredMm != null && onApply && (
               <button
@@ -196,17 +199,18 @@ export default function OnsdCaliperModal({ open = false, currentValue = 5.9, onC
                   onClose?.();
                 }}
                 style={{
-                  padding: '6px 12px',
-                  background: 'rgba(0,255,157,0.14)',
-                  border: '1px solid rgba(0,255,157,0.55)',
-                  color: '#00ff9d',
-                  fontFamily: "'Orbitron', sans-serif",
-                  fontSize: 8.5,
-                  fontWeight: 700,
+                  padding: '7px 14px',
+                  borderRadius: 6,
+                  background: 'rgba(16, 185, 129, 0.16)',
+                  border: '1px solid rgba(16, 185, 129, 0.45)',
+                  color: '#34d399',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: 11.5,
+                  fontWeight: 600,
                   cursor: 'pointer',
                 }}
               >
-                LOG ONSD ({measuredMm} mm)
+                Log ONSD ({measuredMm} mm)
               </button>
             )}
           </div>

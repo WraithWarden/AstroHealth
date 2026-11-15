@@ -1,131 +1,328 @@
 [
   {
     "id": "2A-i",
-    "name": "Cumulative Radiation Dose",
-    "unit": "mSv",
-    "node": "bones",
-    "earth_range": [0, 50],
-    "earth_normal": 2.4,
+    "name": "Daily Radiation Dose Rate",
+    "unit": "mSv/day",
+    "node": "Whole body",
+    "earth_range": {
+      "typical": 0.008,
+      "text": "About 0.008 mSv/day on Earth (3 mSv/yr)"
+    },
     "baseline": {
-      "iss":   { "mean": 100, "sd": 20 },
-      "lunar": { "mean": 200, "sd": 40 },
-      "mars":  { "mean": 300, "sd": 60 }
+      "mean": null,
+      "sd": null,
+      "by_environment": {
+        "ISS": {
+          "mean": 0.48,
+          "sd": 0.05
+        },
+        "LUNAR": {
+          "mean": 0.8,
+          "sd": 0.1
+        },
+        "MARS": {
+          "mean": 1.55,
+          "sd": 0.2
+        }
+      },
+      "text": "ISS 0.48 ± 0.05; Moon 0.80 ± 0.10; Mars transit 1.55 ± 0.20 mSv/day"
     },
-    "direction": "high_bad",
-    "yellow": 300,
-    "red": 500,
-    "limit_msv": 600,
-    "input": "dosimeter_reading",
-    "equipment": "Personal dosimeter (TLD or TEPC)",
-    "steps": [
-      "Read the cumulative dose from the personal dosimeter display.",
-      "Record the value and the date in the check-in form.",
-      "Compare to the 600 mSv career limit: flag if above 50 % (300 mSv)."
+    "direction": "HIGH",
+    "yellow": {
+      "gt": 1.5,
+      "gt_by_environment": {
+        "ISS": 1.5,
+        "LUNAR": 1.5,
+        "MARS": 2.5
+      },
+      "text": "Over 1.5 mSv/day (ISS and Moon) or over 2.5 mSv/day (deep space)"
+    },
+    "red": {
+      "gte": 5,
+      "spike_multiple_of_baseline": 3,
+      "spike_window_hours": 1,
+      "text": "5.0 mSv/day or more, or a rate over 3 times baseline within 1 hour (Solar Particle Event)"
+    },
+    "input": {
+      "type": "number",
+      "min": 0,
+      "max": 50,
+      "step": 0.01,
+      "auto": true,
+      "label": "Dose rate (from the cabin or personal dosimeter)"
+    },
+    "equipment": [
+      "Cabin or personal dosimeter (automatic feed)"
     ],
-    "when": "Once per mission day, same time each day.",
-    "mistakes": "Do not confuse absorbed dose (Gy) with dose equivalent (Sv). Use the Sv reading.",
-    "escalate_if": "Single-day spike above 1 mSv (ISS), 5 mSv (Lunar) or 10 mSv (Mars) — may indicate SPE.",
-    "why": "Ionising radiation damages DNA and raises lifetime cancer risk. Cumulative tracking catches slow overexposure before the career limit is reached.",
-    "benefits": "Early detection of elevated exposure allows mission planners to rotate crew out of high-radiation modules or activities.",
+    "steps": [
+      "Open the radiation panel on the dashboard. No manual measurement is needed.",
+      "Read today's dose rate and compare it with the baseline for your environment.",
+      "If it spikes, check the hourly trend and follow the shelter steps."
+    ],
+    "when": "Continuous. Check at every check-in, and hourly while Yellow.",
+    "mistakes": [
+      "Using ISS numbers on a Moon or Mars mission (baselines differ).",
+      "Ignoring a fast hourly rise because the daily average looks fine.",
+      "Confusing absorbed dose with dose equivalent when reading raw data."
+    ],
+    "escalate_if": [
+      "Any hourly spike over 3 times baseline.",
+      "5.0 mSv/day or more.",
+      "Nausea, vomiting or tiredness after a solar event."
+    ],
+    "why": "Beyond Earth's magnetic shield, cosmic rays and solar storms raise radiation exposure. Daily dose shows whether you are in a normal region or a solar storm, and it feeds your career dose total.",
+    "benefits": [
+      "Early warning of a solar storm.",
+      "Helps plan EVAs and shelter time.",
+      "Keeps total dose as low as reasonably achievable."
+    ],
     "actions": {
-      "yellow": "Review shielding options. Limit EVA time. Notify flight surgeon. Cross-check daily dose against SPE alerts.",
-      "red": "Mandatory ground consult. Restrict EVA. Begin radiation countermeasure protocol per NASA HRP guidelines."
+      "yellow": [
+        "Check the hourly dose each hour.",
+        "Limit EVA and time in low-shielding areas.",
+        "Review the shelter plan."
+      ],
+      "red": [
+        "Abort any EVA now.",
+        "Move everyone to the storm shelter (water-wall or polyethylene-lined quarters).",
+        "Stay there until proton flux drops.",
+        "Tell the Crew Medical Officer and ground (if reachable)."
+      ]
     },
-    "note_environment": "Baselines differ by environment: ISS ~100 mSv/6 mo, Lunar ~200 mSv/6 mo, Mars ~300 mSv/6 mo (transit + surface).",
-    "source_tag": "NASA-HRP-47072 Vol. E; ICRP 60"
+    "source_tag": [
+      "S",
+      "L",
+      "H"
+    ]
   },
   {
     "id": "2A-ii",
-    "name": "Daily Radiation Dose",
-    "unit": "μSv/day",
-    "node": "bones",
-    "earth_range": [0, 10],
-    "earth_normal": 6.6,
+    "name": "Cumulative Career Dose",
+    "unit": "mSv and % of 600 mSv limit",
+    "node": "Whole body",
+    "earth_range": {
+      "text": "Not applicable"
+    },
     "baseline": {
-      "iss":   { "mean": 550,  "sd": 80  },
-      "lunar": { "mean": 1100, "sd": 200 },
-      "mars":  { "mean": 700,  "sd": 150 }
+      "mean": null,
+      "sd": null,
+      "text": "No personal baseline. Compare with the 600 mSv career limit"
     },
-    "direction": "high_bad",
-    "yellow": { "iss": 800, "lunar": 1500, "mars": 1000 },
-    "red":    { "iss": 1200, "lunar": 2500, "mars": 2000 },
-    "input": "dosimeter_daily",
-    "equipment": "TEPC or area dosimeter in crew quarters",
-    "steps": [
-      "Read the 24-hour dose from the area dosimeter at the same time each day.",
-      "If the instrument shows absorbed dose (μGy), note it without converting — keep raw absorbed dose and record unit clearly.",
-      "Enter the value and check for SPE watch/warning bulletins from flight control."
+    "direction": "HIGH",
+    "yellow": {
+      "gte_pct": 50,
+      "projected_gte_pct": 75,
+      "text": "50% of limit (300 mSv) or more, or projected end-of-mission total 75% (450 mSv) or more"
+    },
+    "red": {
+      "gte_pct": 80,
+      "projected_gte_pct": 100,
+      "single_event_gt_msv": 250,
+      "text": "80% (480 mSv) or more, projected 100% (600 mSv), or one event over 250 mSv"
+    },
+    "input": {
+      "type": "number",
+      "min": 0,
+      "max": 2000,
+      "step": 1,
+      "auto": true,
+      "label": "Career dose so far (mSv)",
+      "limit_msv": 600
+    },
+    "equipment": [
+      "Onboard dose-tracking software (automatic)"
     ],
-    "when": "Daily, at start of sleep period.",
-    "mistakes": "Do not convert absorbed dose to dose equivalent without the correct quality factor for the environment.",
-    "escalate_if": "Single-day reading is more than 3× the environment baseline — suspect Solar Particle Event.",
-    "why": "Daily tracking reveals acute spikes (solar particle events) that the cumulative reading can mask.",
-    "benefits": "Allows rapid crew shelter response during SPE before significant acute exposure occurs.",
+    "steps": [
+      "Open the career dose card. The software adds up your exposure automatically.",
+      "Read the total in mSv and the percent of the 600 mSv limit.",
+      "Check the projected end-of-mission total."
+    ],
+    "when": "Continuous. Review at each check-in and when planning EVAs.",
+    "mistakes": [
+      "Forgetting dose from earlier flights.",
+      "Reading only the current total and not the projection.",
+      "Counting medical imaging in the career total (it is tracked separately)."
+    ],
+    "escalate_if": [
+      "Total reaches 50% or the projection reaches 75%.",
+      "A single event delivers over 250 mSv."
+    ],
+    "why": "NASA sets a career limit of 600 mSv for all astronauts to keep cancer risk below an agreed level. Tracking the running total and the projection lets the crew change plans before the limit is at risk.",
+    "benefits": [
+      "Keeps exposure within the standard.",
+      "Supports EVA and shielding decisions.",
+      "Shows if the mission plan needs to change."
+    ],
     "actions": {
-      "yellow": "Increase monitoring frequency. Alert flight surgeon. Cross-check with SPE forecast.",
-      "red": "Execute storm shelter procedure immediately. Report to mission control."
+      "yellow": [
+        "Re-plan EVAs and shielding use.",
+        "Review the end-of-mission projection with the flight surgeon."
+      ],
+      "red": [
+        "Re-plan EVAs and shielding immediately.",
+        "Limit time outside shelter.",
+        "Tell the Crew Medical Officer and mission control."
+      ]
     },
-    "note_environment": "ISS RadLab / OSDR data used for ISS baseline. If in absorbed dose only, do not convert — state so in README and use demo values for preset.",
-    "source_tag": "NASA OSDR RadLab; NASA-STD-3001 Vol.1 §4.8"
+    "source_tag": [
+      "S",
+      "H"
+    ]
   },
   {
     "id": "2B-i",
-    "name": "Blood Glucose — Fasting",
-    "unit": "mmol/L",
-    "node": "whole",
-    "earth_range": [3.9, 5.6],
-    "earth_normal": 5.0,
-    "baseline": { "mean": 5.2, "sd": 0.4 },
-    "direction": "both",
-    "yellow": { "low": 3.9, "high": 6.1 },
-    "red":    { "low": 3.3, "high": 7.0 },
-    "input": "glucose_fasting_mmol",
-    "equipment": "Glucometer with lancet strips (stored at 15–30 °C)",
-    "steps": [
-      "Fast for at least 8 hours before measuring (water is allowed).",
-      "Clean fingertip with alcohol swab; allow to air-dry. Prick the side of the fingertip.",
-      "Apply the first drop of blood to the glucometer strip; record the reading after the beep."
-    ],
-    "when": "Before the first meal of the day, after at least 8 h of fasting.",
-    "mistakes": "Measuring too soon after eating gives a falsely high reading. Cold extremities give falsely low readings — warm hands first.",
-    "escalate_if": "Reading below 2.8 mmol/L (severe hypoglycaemia) or above 11.1 mmol/L (hyperglycaemia crisis) — act immediately.",
-    "why": "Microgravity and stress alter glucose regulation. Hypoglycaemia impairs cognition and motor performance; hyperglycaemia increases infection risk.",
-    "benefits": "Daily tracking catches metabolic shifts early, allowing diet or activity adjustments before clinical illness.",
-    "actions": {
-      "yellow_low":  "Consume 15 g fast-acting carbohydrate (glucose gel). Re-test in 15 min. Report to flight surgeon.",
-      "yellow_high": "Review recent diet. Increase activity. Report to flight surgeon if reading persists.",
-      "red_low":     "Administer IV/IM glucose per emergency protocol. Contact mission control immediately.",
-      "red_high":    "Contact flight surgeon immediately. Begin medical assessment protocol."
+    "name": "White Blood Cell Count (WBC)",
+    "unit": "×10⁹/L",
+    "node": "Whole body",
+    "earth_range": {
+      "min": 4.5,
+      "max": 11,
+      "text": "4.5–11.0 ×10⁹/L"
     },
-    "source_tag": "NASA-STD-3001 Vol.1 §4.9; WHO glucose reference ranges"
+    "baseline": {
+      "mean": 6.5,
+      "sd": 1,
+      "text": "6.5 ± 1.0 ×10⁹/L (typical 4.2–9.5)"
+    },
+    "direction": "BOTH",
+    "yellow": {
+      "lte": 4.1,
+      "gte": 9.6,
+      "lt": null,
+      "gt": null,
+      "lower_bound": 3.5,
+      "upper_bound": 11,
+      "text": "3.5–4.1 or 9.6–11.0 ×10⁹/L"
+    },
+    "red": {
+      "lt": 3.5,
+      "gt": 11,
+      "text": "Under 3.5 (low white cells) or over 11.0 (high white cells)"
+    },
+    "input": {
+      "type": "number",
+      "min": 0.5,
+      "max": 30,
+      "step": 0.1,
+      "auto": false,
+      "label": "WBC count"
+    },
+    "equipment": [
+      "Point-of-care hematology analyzer",
+      "Finger-prick lancet and test cartridge"
+    ],
+    "steps": [
+      "Wash and dry your hands, then prick the side of a fingertip.",
+      "Load the drop into the cartridge and place it in the analyzer.",
+      "Wait for the result and record the WBC number."
+    ],
+    "when": "Weekly. Repeat right after any solar particle event or any fever of 38.0 °C or more.",
+    "mistakes": [
+      "Squeezing the finger hard, which dilutes the sample.",
+      "Using too little blood.",
+      "Skipping the repeat after a solar event or fever."
+    ],
+    "escalate_if": [
+      "Under 3.5 or over 11.0.",
+      "Fever of 38.0 °C or more together with a low or high count."
+    ],
+    "why": "Radiation and stress weaken the immune system in space. A low count can mean bone-marrow suppression, and a high count can mean infection or inflammation. Dormant viruses such as shingles can also wake up.",
+    "benefits": [
+      "Early sign of radiation effects.",
+      "Early sign of infection.",
+      "Works with temperature and skin checks."
+    ],
+    "actions": {
+      "yellow": [
+        "Repeat the test after a solar event or fever.",
+        "Check temperature (2B-ii) and skin (4B-ii).",
+        "Watch for infection symptoms."
+      ],
+      "red": [
+        "Repeat the test to confirm.",
+        "Check temperature and skin for shingles-type rash.",
+        "Wear a mask and limit close contact in the cabin.",
+        "Ask the Crew Medical Officer about antiviral or antibiotic treatment per the crew medical checklist."
+      ]
+    },
+    "source_tag": [
+      "C",
+      "H"
+    ]
   },
   {
     "id": "2B-ii",
-    "name": "Blood Glucose — Post-meal",
-    "unit": "mmol/L",
-    "node": "whole",
-    "earth_range": [3.9, 7.8],
-    "earth_normal": 6.5,
-    "baseline": { "mean": 6.6, "sd": 0.6 },
-    "direction": "both",
-    "yellow": { "low": 3.9, "high": 8.5 },
-    "red":    { "low": 3.3, "high": 11.1 },
-    "input": "glucose_postmeal_mmol",
-    "equipment": "Glucometer with lancet strips",
-    "steps": [
-      "Measure exactly 2 hours after the start of a main meal.",
-      "Record the meal type (normal, high-carb, emergency ration).",
-      "Apply blood to strip and record the reading."
-    ],
-    "when": "2 hours after main meal, at least twice per week.",
-    "mistakes": "Starting the timer at the end of the meal, not the start, inflates the result.",
-    "escalate_if": "Reading above 11.1 mmol/L at 2 h post-meal on two consecutive days.",
-    "why": "Post-meal spikes predict impaired glucose tolerance and long-term metabolic risk during extended missions.",
-    "benefits": "Allows mission dietitians to adjust meal carbohydrate composition and timing to keep glucose within safe bounds.",
-    "actions": {
-      "yellow": "Flag to flight surgeon. Review meal composition. Increase post-meal activity (10-min walk equivalent).",
-      "red":    "Ground consult required. Begin enhanced metabolic monitoring protocol."
+    "name": "Body Temperature",
+    "unit": "°C",
+    "node": "Whole body",
+    "earth_range": {
+      "min": 36.1,
+      "max": 37.2,
+      "text": "36.1–37.2 °C"
     },
-    "source_tag": "NASA-STD-3001 Vol.1 §4.9; ADA Standards of Medical Care 2024"
+    "baseline": {
+      "mean": 37.1,
+      "sd": 0.2,
+      "text": "37.1 ± 0.2 °C (typical 36.8–37.5; it runs a little higher in space)"
+    },
+    "direction": "HIGH",
+    "yellow": {
+      "gte": 37.6,
+      "lte": 37.9,
+      "text": "37.6–37.9 °C"
+    },
+    "red": {
+      "gte": 38,
+      "text": "38.0 °C or more (fever)"
+    },
+    "input": {
+      "type": "number",
+      "min": 34,
+      "max": 42,
+      "step": 0.1,
+      "auto": false,
+      "label": "Body temperature"
+    },
+    "equipment": [
+      "Oral or temporal (forehead) thermometer"
+    ],
+    "steps": [
+      "Wait 15 minutes after eating, drinking or exercise.",
+      "Place the thermometer correctly (under the tongue, or on the temple) and hold still.",
+      "Wait for the beep and record the temperature."
+    ],
+    "when": "Daily. Twice a day while Yellow or unwell, and recheck in 1 hour if Red.",
+    "mistakes": [
+      "Measuring right after a hot drink or exercise.",
+      "Poor probe placement.",
+      "Using the Earth range: your space baseline is slightly higher."
+    ],
+    "escalate_if": [
+      "38.0 °C or more.",
+      "Fever with a rash, cough or low white cell count."
+    ],
+    "why": "In space, body heat is not carried away as easily and sleep cycles shift, so normal temperature runs a little higher. A real fever can point to infection, which is more likely when immunity is lowered.",
+    "benefits": [
+      "Early sign of infection.",
+      "Supports the WBC and skin checks.",
+      "Quick and cheap."
+    ],
+    "actions": {
+      "yellow": [
+        "Measure twice a day.",
+        "Rest and drink fluids.",
+        "Check WBC (2B-i) and skin (4B-ii)."
+      ],
+      "red": [
+        "Recheck in 1 hour.",
+        "Check WBC and skin (for shingles-type rash).",
+        "Wear a mask and limit close contact.",
+        "Tell the Crew Medical Officer; follow the crew medical checklist for treatment."
+      ]
+    },
+    "source_tag": [
+      "C",
+      "H"
+    ]
   }
 ]

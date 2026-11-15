@@ -3,21 +3,29 @@ import CheckInModal from './CheckInModal.jsx';
 import PvtTest from './PvtTest.jsx';
 import { submitCheckIn, normalizePreset } from '../flow/submitCheckIn.js';
 
-// Wires the whole check-in flow. Drop it into the left column next to the preset buttons.
-//
-// <CheckInHost
-//   preset="MARS"                       // 'ISS' | 'LUNAR' | 'MARS'
-//   state={engineState}                 // current state used by addReading()
-//   addReading={addReading}  evaluate={evaluate}     // from src/engine
-//   onUpdate={(newState, output) => { setEngineState(newState); setOutput(output); }}
-//   auto={{ radiation: 0.48, co2: 2.3 }}             // optional, read-only values for the form
-// />
-// onUpdate must replace the dashboard's state and engine output so the gauge, nodes and chart refresh.
+const PRIMARY_BTN = {
+  padding: '9px 14px',
+  borderRadius: 7,
+  background: 'linear-gradient(180deg, rgba(56, 189, 248, 0.22) 0%, rgba(14, 165, 233, 0.14) 100%)',
+  border: '1px solid rgba(56, 189, 248, 0.45)',
+  color: '#f0f9ff',
+  cursor: 'pointer',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 12,
+  fontWeight: 600,
+  letterSpacing: '0.02em',
+};
 
-const HUD_BTN = {
-  padding: '8px 12px', background: 'rgba(0,180,255,0.08)', border: '1px solid rgba(0,180,255,0.35)',
-  color: '#00b4ff', cursor: 'pointer', fontFamily: "'Orbitron', sans-serif", fontSize: 10,
-  fontWeight: 700, letterSpacing: '0.12em',
+const SECONDARY_BTN = {
+  padding: '9px 12px',
+  borderRadius: 7,
+  background: 'rgba(30, 41, 59, 0.7)',
+  border: '1px solid rgba(148, 163, 184, 0.24)',
+  color: '#cbd5e1',
+  cursor: 'pointer',
+  fontFamily: "'Inter', sans-serif",
+  fontSize: 12,
+  fontWeight: 500,
 };
 
 export function useCheckIn({ preset, state, addReading, evaluate, onUpdate }) {
@@ -26,7 +34,6 @@ export function useCheckIn({ preset, state, addReading, evaluate, onUpdate }) {
   const count = useRef(0);
   const presetKey = normalizePreset(preset);
 
-  // New preset = new mission: reset the counter and the last message.
   useEffect(() => {
     count.current = 0;
     setLogged(null);
@@ -50,16 +57,41 @@ export function useCheckIn({ preset, state, addReading, evaluate, onUpdate }) {
 export function RedFlagBanner({ result, onDismiss }) {
   if (!result?.redFlag) return null;
   return (
-    <div role="alert" style={{ padding: '10px 12px', border: '1px solid #ff5c5c', background: 'rgba(255,92,92,0.12)', color: '#ffd0d0', fontFamily: "'Inter', sans-serif", fontSize: 12, lineHeight: 1.5 }}>
-      <strong>⚠ Red flag: contact the Crew Medical Officer / ground now.</strong>
+    <div
+      role="alert"
+      style={{
+        padding: '10px 12px',
+        borderRadius: 8,
+        border: '1px solid rgba(244, 63, 94, 0.45)',
+        background: 'rgba(244, 63, 94, 0.12)',
+        color: '#fecdd3',
+        fontFamily: "'Inter', sans-serif",
+        fontSize: 12,
+        lineHeight: 1.5,
+      }}
+    >
+      <strong style={{ color: '#fb7185' }}>■ Red Flag: Contact the Crew Medical Officer / ground now.</strong>
       <div style={{ marginTop: 4 }}>Reported: {result.symptoms.join(', ')}.</div>
       {result.selfHarm && (
-        <div style={{ marginTop: 4 }}>
+        <div style={{ marginTop: 4, fontWeight: 500 }}>
           If you are thinking about harming yourself, tell a crewmate or the Crew Medical Officer right now.
         </div>
       )}
       {onDismiss && (
-        <button type="button" onClick={onDismiss} style={{ marginTop: 8, background: 'none', border: '1px solid rgba(255,92,92,0.6)', color: '#ffd0d0', cursor: 'pointer', fontSize: 11, padding: '3px 8px' }}>
+        <button
+          type="button"
+          onClick={onDismiss}
+          style={{
+            marginTop: 8,
+            borderRadius: 5,
+            background: 'rgba(244, 63, 94, 0.15)',
+            border: '1px solid rgba(244, 63, 94, 0.4)',
+            color: '#fecdd3',
+            cursor: 'pointer',
+            fontSize: 11,
+            padding: '3px 9px',
+          }}
+        >
           Dismiss
         </button>
       )}
@@ -75,20 +107,41 @@ export default function CheckInHost({ preset, state, addReading, evaluate, onUpd
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div style={{ display: 'flex', gap: 8 }}>
-        <button type="button" style={{ ...HUD_BTN, flex: 1 }} onClick={() => setFormOpen(true)}>+ LOG CHECK-IN</button>
-        <button type="button" style={HUD_BTN} onClick={() => setPvtOpen(true)}>REACTION TEST</button>
+        <button type="button" style={{ ...PRIMARY_BTN, flex: 1 }} onClick={() => setFormOpen(true)}>
+          + Log Check-In
+        </button>
+        <button type="button" style={SECONDARY_BTN} onClick={() => setPvtOpen(true)}>
+          Reaction Test
+        </button>
       </div>
 
       {pvt && !formOpen && (
-        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: 'rgba(200,228,255,0.7)' }}>
-          Reaction test ready: {pvt.median_ms} ms, {pvt.lapses} {pvt.lapses === 1 ? 'lapse' : 'lapses'}. It is added to your next check-in.
+        <div style={{
+          padding: '7px 10px',
+          borderRadius: 6,
+          background: 'rgba(56, 189, 248, 0.08)',
+          border: '1px solid rgba(56, 189, 248, 0.25)',
+          fontFamily: "'Inter', sans-serif",
+          fontSize: 11.5,
+          color: '#bae6fd',
+        }}>
+          ◆ PVT ready: <strong>{pvt.median_ms} ms</strong> ({pvt.lapses} {pvt.lapses === 1 ? 'lapse' : 'lapses'}) — queued for next check-in.
         </div>
       )}
 
       <div aria-live="polite">
         {logged && !logged.redFlag && (
-          <div style={{ color: '#00ff9d', fontFamily: "'Orbitron', sans-serif", fontSize: 10, letterSpacing: '0.12em' }}>
-            ◆ {logged.dayLabel.toUpperCase()}
+          <div style={{
+            padding: '6px 10px',
+            borderRadius: 6,
+            background: 'rgba(16, 185, 129, 0.1)',
+            border: '1px solid rgba(16, 185, 129, 0.3)',
+            color: '#34d399',
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11.5,
+            fontWeight: 600,
+          }}>
+            ◆ {logged.dayLabel}
           </div>
         )}
       </div>
@@ -96,12 +149,20 @@ export default function CheckInHost({ preset, state, addReading, evaluate, onUpd
 
       {pvtOpen && (
         <div className="modal-overlay" onClick={() => setPvtOpen(false)}>
-          <div className="hud-panel fade-in" role="dialog" aria-modal="true" aria-label="Reaction test"
-            onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 360, padding: 20 }}>
+          <div
+            className="hud-panel fade-in"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Reaction test"
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: '100%', maxWidth: 380, padding: 22 }}
+          >
             <PvtTest
-              onComplete={(r) => setPvt({ median_ms: r.median_ms, lapses: r.lapses })}
+              onComplete={(r) => {
+                setPvt(r);
+                setPvtOpen(false);
+              }}
               onCancel={() => setPvtOpen(false)}
-              onClose={() => setPvtOpen(false)}
             />
           </div>
         </div>
@@ -110,10 +171,12 @@ export default function CheckInHost({ preset, state, addReading, evaluate, onUpd
       <CheckInModal
         open={formOpen}
         onClose={() => setFormOpen(false)}
-        onSubmit={submit}
         auto={auto}
         pvt={pvt}
-        loggedLabel={logged?.dayLabel}
+        onSubmit={(reading, meta) => {
+          submit(reading, meta);
+          setFormOpen(false);
+        }}
       />
     </div>
   );

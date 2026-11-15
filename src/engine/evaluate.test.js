@@ -11,11 +11,15 @@ import {
   generateHistory,
 } from './index.js';
 import { resolveAutonomyLevel, formatCommDelay } from '../components/AutonomyChip.jsx';
-import { actionsFor } from '../components/GuidancePanel.jsx';
+import { actionsFor, meaningSentence } from '../components/GuidancePanel.jsx';
 import { computeActionProgress, buildReportPacket, formatReportText } from '../utils/reportPacket.js';
+import { submitCheckIn } from '../flow/submitCheckIn.js';
 import indicators from '../data/indicators.json';
 import presets from '../data/presets.json';
 import hazard1 from '../data/hazard1.json';
+import hazard2 from '../data/hazard2.json';
+import hazard3 from '../data/hazard3.json';
+import hazard4 from '../data/hazard4.json';
 import hazard5 from '../data/hazard5.json';
 
 describe('Phase 1: History Generator', () => {
@@ -339,5 +343,43 @@ describe('Phase 3: Cadence Due-Now, Streak & Action Ring, and Mars Report Packet
     const res = evaluateCadence(indicators, { '1B-i': { lastMeasuredDaysAgo: 3 } });
     expect(res.byMeasurement['1B-i'].cadenceStatus).toBe('DUE_NOW');
     expect(res.summary.dueIds).toContain('1B-i');
+  });
+
+  it('validates all 18 hazard1..5 records for GuidancePanel and InstructionDrawer without crashes', () => {
+    const allRecords = [...hazard1, ...hazard2, ...hazard3, ...hazard4, ...hazard5];
+    expect(allRecords.length).toBe(18);
+    const mars = evaluate('mars');
+
+    for (const rec of allRecords) {
+      expect(indicators[rec.id]).toBeDefined();
+      expect(Array.isArray(rec.equipment)).toBe(true);
+      expect(Array.isArray(rec.steps)).toBe(true);
+      expect(Array.isArray(rec.mistakes)).toBe(true);
+      expect(Array.isArray(rec.escalate_if)).toBe(true);
+      expect(Array.isArray(rec.benefits)).toBe(true);
+
+      const m = mars.measurements[rec.id];
+      for (const st of ['green', 'yellow', 'red']) {
+        const acts = actionsFor(rec, st, m.value);
+        expect(Array.isArray(acts)).toBe(true);
+        const sentence = meaningSentence(rec, st, m.value);
+        expect(typeof sentence).toBe('string');
+      }
+    }
+  });
+
+  it('propagates red-flag symptoms through submitCheckIn into addReading and evaluate', () => {
+    const res = submitCheckIn({
+      state: 'iss',
+      preset: 'ISS',
+      reading: { '1A-i': { sbp: 115, dbp: 72 }, '1A-ii': 64 },
+      meta: { symptoms: ['chest_pain'], redFlag: true },
+      addReading,
+      evaluate,
+    });
+    expect(res.redFlag).toBe(true);
+    expect(res.dayLabel).toBe('Day 15 logged');
+    expect(res.output.badge).toBe('CRITICAL');
+    expect(res.output.nodes.heart).toBe('RED');
   });
 });

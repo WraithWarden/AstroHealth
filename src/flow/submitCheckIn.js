@@ -42,10 +42,11 @@ export function submitCheckIn({ state, reading, meta = {}, preset, addReading, e
     throw new Error('submitCheckIn: addReading and evaluate are required');
   }
 
-  const newState = addReading(state, reading);
+  const symptomKeys = meta.symptoms ?? [];
+  const payload = symptomKeys.length > 0 ? { ...reading, symptoms: symptomKeys } : reading;
+  const newState = addReading(state, payload);
   const output = evaluate(newState, preset);
 
-  const symptomKeys = meta.symptoms ?? [];
   const redFlag = Boolean(meta.redFlag) || symptomKeys.length > 0;
   const day = missionDay(newState, preset, sessionCount);
 

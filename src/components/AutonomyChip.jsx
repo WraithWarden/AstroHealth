@@ -3,25 +3,25 @@ const AUTONOMY_CFG = {
     code: 'A0',
     label: 'Real-time',
     icon: '◆',
-    color: '#00ff9d',
-    bg: 'rgba(0,255,157,0.08)',
-    border: 'rgba(0,255,157,0.3)',
+    color: '#34d399',
+    bg: 'rgba(16, 185, 129, 0.12)',
+    border: 'rgba(16, 185, 129, 0.32)',
   },
   A1: {
     code: 'A1',
     label: 'Delayed',
     icon: '▲',
-    color: '#ffc800',
-    bg: 'rgba(255,200,0,0.08)',
-    border: 'rgba(255,200,0,0.3)',
+    color: '#fbbf24',
+    bg: 'rgba(245, 158, 11, 0.12)',
+    border: 'rgba(245, 158, 11, 0.35)',
   },
   A2: {
     code: 'A2',
     label: 'Autonomous',
     icon: '■',
-    color: '#ff3355',
-    bg: 'rgba(255,51,85,0.08)',
-    border: 'rgba(255,51,85,0.3)',
+    color: '#fb7185',
+    bg: 'rgba(244, 63, 94, 0.14)',
+    border: 'rgba(244, 63, 94, 0.38)',
   },
 };
 
@@ -47,10 +47,6 @@ export function formatCommDelay(delaySeconds) {
   return `${Number.isInteger(mins) ? mins : Number(mins.toFixed(1))} min`;
 }
 
-/**
- * Displays mission communication autonomy tier (A0/A1/A2) and one-way delay.
- * Thresholds: < 5s = A0 Real-time, 5s to 5 min = A1 Delayed, > 5 min = A2 Autonomous.
- */
 export default function AutonomyChip({ autonomy, delaySeconds }) {
   const level = resolveAutonomyLevel(autonomy, delaySeconds);
   const cfg = AUTONOMY_CFG[level];
@@ -65,23 +61,24 @@ export default function AutonomyChip({ autonomy, delaySeconds }) {
         display:       'inline-flex',
         alignItems:    'center',
         gap:           6,
-        fontFamily:    "'Orbitron', sans-serif",
-        fontSize:      9,
-        fontWeight:    700,
-        letterSpacing: '0.12em',
-        textTransform: 'uppercase',
+        fontFamily:    "'Inter', sans-serif",
+        fontSize:      11,
+        fontWeight:    600,
+        letterSpacing: '0.04em',
         color:         cfg.color,
         background:    cfg.bg,
         border:        `1px solid ${cfg.border}`,
-        padding:       '2px 10px',
+        borderRadius:  6,
+        padding:       '4px 10px',
       }}
     >
-      <span aria-hidden="true" style={{ fontSize: 7 }}>{cfg.icon}</span>
+      <span aria-hidden="true" style={{ fontSize: 8 }}>{cfg.icon}</span>
       <span>{cfg.code} · {cfg.label}</span>
       {delayText && (
         <span style={{
           fontFamily: "'Space Mono', monospace",
-          opacity:    0.9,
+          fontSize:   10.5,
+          opacity:    0.92,
           borderLeft: `1px solid ${cfg.border}`,
           paddingLeft: 6,
         }}>
