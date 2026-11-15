@@ -22,7 +22,7 @@ const SOURCE_META = {
     href: "https://medlineplus.gov/vitalsigns.html",
   },
   H: {
-    title: "Operational Triage Heuristic (illustrative, not a NASA limit)",
+    title: "Operational Triage Heuristic",
     subtitle: "nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs",
     href: "https://www.nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs/",
   },
