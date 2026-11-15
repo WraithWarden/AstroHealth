@@ -846,9 +846,9 @@ export default function App() {
             ⬇ Report Packet
           </button>
           {[
-            { label: 'NASA-STD-3001 ↗', href: 'https://www.nasa.gov/ochmo/hsa-standards/' },
+            { label: 'NASA-STD-3001 ↗', href: 'https://www.nasa.gov/ochmo/human-spaceflight-and-aviation-standards/' },
             { label: 'NASA HRP Hazards ↗', href: 'https://www.nasa.gov/hrp/hazards/' },
-            { label: 'NASA OSDR ↗', href: 'https://osdr.nasa.gov/bio/repo/' },
+            { label: 'NASA OSDR ↗', href: 'https://visualization.osdr.nasa.gov/' },
           ].map((link) => (
             <a
               key={link.label}

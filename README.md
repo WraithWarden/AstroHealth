@@ -180,9 +180,9 @@ All numeric cutoffs, baselines, and clinical protocol records are **bundled offl
 
 | Tag | Standard / Source | Used For |
 |-----|-------------------|----------|
-| `[S]` | [NASA-STD-3001 — Spaceflight Human-System Standard](https://www.nasa.gov/ochmo/hsa-standards/) | Cabin ppCO₂, SpO₂, radiation career limits, sleep/circadian norms, Levels of Care |
+| `[S]` | [NASA-STD-3001 — Spaceflight Human-System Standard](https://www.nasa.gov/ochmo/human-spaceflight-and-aviation-standards/) ([Vol. 1: Crew Health](https://www.nasa.gov/reference/nasa-std-3001v1/) · [Vol. 2: Environmental Health](https://www.nasa.gov/reference/nasa-std-3001v2/)) | Cabin ppCO₂, SpO₂, radiation career limits, sleep/circadian norms, Levels of Care |
 | `[L]` | [NASA HRP — Human Research Program Risks](https://www.nasa.gov/hrp/risks/) | SANS/ONSD, bone mineral density, neuro-behavioural risks, isolation/confinement |
-| `[C]` | [NIH MedlinePlus — Vital Signs Reference](https://medlineplus.gov/vitalsigns.html) | Terrestrial clinical cutoffs: BP, HR, Body Temp, SpO₂ |
+| `[C]` | [NIH MedlinePlus — Vital Signs Reference](https://medlineplus.gov/vitalsigns.html) ([Blood Glucose](https://medlineplus.gov/bloodglucose.html)) | Terrestrial clinical cutoffs: BP, HR, Body Temp, SpO₂, Fasting Glucose |
 | `[H]` | [NASA OCHMO Technical Briefs](https://www.nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs/) | Operational triage heuristics, composite scoring rules, autonomy penalties |
 | `HRP` | [NASA HRP — 5 Hazards of Human Spaceflight](https://www.nasa.gov/hrp/hazards/) | General spaceflight hazard reference (drawer fallback + footer) |
 
@@ -190,8 +190,9 @@ All numeric cutoffs, baselines, and clinical protocol records are **bundled offl
 
 | Source | URL | What It Provides |
 |--------|-----|-----------------|
-| **NASA OSDR Repository** | [osdr.nasa.gov/bio/repo](https://osdr.nasa.gov/bio/repo/) | Full ISS radiation telemetry dataset repository (TEPC, DosTel instruments) |
-| **NASA OSDR RadLab Portal** | [visualization.osdr.nasa.gov/radlab](https://visualization.osdr.nasa.gov/radlab/gui/overview/) | Interactive ISS dosimetry explorer — used to export `export.csv` |
+| **NASA OSDR Visualization Portal (RadLab / EDA)** | [visualization.osdr.nasa.gov](https://visualization.osdr.nasa.gov/) | Interactive ISS radiation & environmental telemetry portal (hosts RadLab and EDA for TEPC, DosTel instruments) |
+| **NASA OSDR RadLab Portal & API Guide** | [osdr-tutorials.readthedocs.io/.../radlab_portal.html](https://osdr-tutorials.readthedocs.io/en/latest/pages/guides/radlab_portal.html) | Documentation and query workflow for the RadLab dosimetry explorer used to export `export.csv` |
+| **NASA OSDR Biological Data Repository** | [osdr.nasa.gov/bio/repo](https://osdr.nasa.gov/bio/repo/) | Space biology & radiation-related open science study repository |
 
 **Sampled dataset:** ISS *Destiny* US Lab, instrument `TEPC-SMP327-pre`, Sep 2014 – May 2016 (325 rows, `export.csv`).
 

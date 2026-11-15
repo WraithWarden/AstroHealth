@@ -8,8 +8,8 @@ const TABS = [
 const SOURCE_META = {
   S: {
     title: "NASA-STD-3001 Spaceflight Human-System Standard",
-    subtitle: "nasa.gov/ochmo/hsa-standards",
-    href: "https://www.nasa.gov/ochmo/hsa-standards/",
+    subtitle: "nasa.gov/ochmo/human-spaceflight-and-aviation-standards",
+    href: "https://www.nasa.gov/ochmo/human-spaceflight-and-aviation-standards/",
   },
   L: {
     title: "NASA HRP / ISS Flight Medical Literature",
@@ -26,6 +26,81 @@ const SOURCE_META = {
     subtitle: "nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs",
     href: "https://www.nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs/",
   },
+};
+
+const RECORD_LINK_OVERRIDES = {
+  "1B-i": {
+    L: {
+      subtitle: "nasa.gov/reference/risk-of-spaceflight-associated-neuro-ocular-syndrome-sans",
+      href: "https://www.nasa.gov/reference/risk-of-spaceflight-associated-neuro-ocular-syndrome-sans/",
+    },
+  },
+  "1B-ii": {
+    L: {
+      subtitle: "nasa.gov/reference/risk-of-spaceflight-induced-bone-changes",
+      href: "https://www.nasa.gov/reference/risk-of-spaceflight-induced-bone-changes/",
+    },
+  },
+  "2A-i": {
+    S: {
+      subtitle: "nasa.gov/reference/nasa-std-3001v1",
+      href: "https://www.nasa.gov/reference/nasa-std-3001v1/",
+    },
+    L: {
+      subtitle: "nasa.gov/reference/risk-of-radiation-induced-cancers",
+      href: "https://www.nasa.gov/reference/risk-of-radiation-induced-cancers/",
+    },
+  },
+  "2A-ii": {
+    S: {
+      subtitle: "nasa.gov/reference/nasa-std-3001v1",
+      href: "https://www.nasa.gov/reference/nasa-std-3001v1/",
+    },
+  },
+  "3A-i": {
+    L: {
+      subtitle: "nasa.gov/reference/risk-from-inadequate-sleep-and-irregular-schedules",
+      href: "https://www.nasa.gov/reference/risk-from-inadequate-sleep-and-irregular-schedules/",
+    },
+  },
+  "3A-ii": {
+    L: {
+      subtitle: "nasa.gov/reference/risk-from-inadequate-sleep-and-irregular-schedules",
+      href: "https://www.nasa.gov/reference/risk-from-inadequate-sleep-and-irregular-schedules/",
+    },
+  },
+  "3B-i": {
+    L: {
+      subtitle: "nasa.gov/reference/risk-of-behavioral-changes-and-psychiatric-disorders",
+      href: "https://www.nasa.gov/reference/risk-of-behavioral-changes-and-psychiatric-disorders/",
+    },
+  },
+  "4A-ii": {
+    S: {
+      subtitle: "nasa.gov/reference/nasa-std-3001v2",
+      href: "https://www.nasa.gov/reference/nasa-std-3001v2/",
+    },
+  },
+  "4B-i": {
+    C: {
+      subtitle: "medlineplus.gov/bloodglucose",
+      href: "https://medlineplus.gov/bloodglucose.html",
+    },
+  },
+  "5A": {
+    S: {
+      subtitle: "nasa.gov/reference/nasa-std-3001v1",
+      href: "https://www.nasa.gov/reference/nasa-std-3001v1/",
+    },
+  },
+};
+
+const HAZARD_LINK_BY_PREFIX = {
+  "1": { subtitle: "nasa.gov/hrp/hazard-gravity-fields", href: "https://www.nasa.gov/hrp/hazard-gravity-fields/" },
+  "2": { subtitle: "nasa.gov/hrp/hazard-space-radiation", href: "https://www.nasa.gov/hrp/hazard-space-radiation/" },
+  "3": { subtitle: "nasa.gov/hrp/hazard-isolation-and-confinement", href: "https://www.nasa.gov/hrp/hazard-isolation-and-confinement/" },
+  "4": { subtitle: "nasa.gov/hrp/hazard-hostile-closed-environments", href: "https://www.nasa.gov/hrp/hazard-hostile-closed-environments/" },
+  "5": { subtitle: "nasa.gov/hrp/hazard-distance-from-earth", href: "https://www.nasa.gov/hrp/hazard-distance-from-earth/" },
 };
 
 const FOCUSABLE =
@@ -116,26 +191,28 @@ export default function InstructionDrawer({ record, open, onClose, sideBySide = 
 
   const titleId = `${uid}-title`;
   const sourceTags = toArr(record.source_tag);
+  const recordOverrides = RECORD_LINK_OVERRIDES[record.id] || {};
   const referenceLinks = sourceTags.map((t) => ({
     code: t,
-    title: SOURCE_META[t]?.title || t,
-    subtitle: SOURCE_META[t]?.subtitle || "nasa.gov",
-    href: SOURCE_META[t]?.href || "https://www.nasa.gov/hrp/hazards/",
+    title: recordOverrides[t]?.title || SOURCE_META[t]?.title || t,
+    subtitle: recordOverrides[t]?.subtitle || SOURCE_META[t]?.subtitle || "nasa.gov",
+    href: recordOverrides[t]?.href || SOURCE_META[t]?.href || "https://www.nasa.gov/hrp/hazards/",
   }));
 
   if (record.id?.startsWith("2A")) {
     referenceLinks.push({
       code: "OSDR",
-      title: "NASA Open Science Data Repository (Radiation & Space Biology)",
-      subtitle: "osdr.nasa.gov/bio/repo",
-      href: "https://osdr.nasa.gov/bio/repo/",
+      title: "NASA OSDR Visualization Portal (RadLab / EDA Radiation Telemetry)",
+      subtitle: "visualization.osdr.nasa.gov",
+      href: "https://visualization.osdr.nasa.gov/",
     });
   } else if (!sourceTags.includes("S") && !sourceTags.includes("L")) {
+    const hazardLink = HAZARD_LINK_BY_PREFIX[record.id?.[0]];
     referenceLinks.push({
       code: "HRP",
       title: "NASA 5 Hazards of Human Spaceflight",
-      subtitle: "nasa.gov/hrp/hazards",
-      href: "https://www.nasa.gov/hrp/hazards/",
+      subtitle: hazardLink?.subtitle || "nasa.gov/hrp/hazards",
+      href: hazardLink?.href || "https://www.nasa.gov/hrp/hazards/",
     });
   }
 
