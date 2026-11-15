@@ -44,7 +44,7 @@ The protocol assistant uses Gemini on the server side. In local development, the
 2. Restart `npm run dev`, then use **Ask AstroHealth AI** in the guidance panel.
 3. Before deploying to Vercel, add `GEMINI_API_KEY` in the project's Environment Variables and redeploy. `GEMINI_MODEL` is optional and defaults to `gemini-3.5-flash-lite`.
 
-The question is sent to Google Gemini together with matching protocol records. The app does not automatically send astronaut profiles, check-in readings, or dashboard state. Do not enter real names or personal/crew health information in questions. AI responses are educational demo guidance, not diagnosis or medical advice; verify sources in the protocol guide.
+The current question, up to four recent conversation turns, and matching protocol records are sent to Google Gemini. The app does not automatically send astronaut profiles, check-in readings, or dashboard state. Do not enter real names or personal/crew health information in questions. AI responses are educational demo guidance, not diagnosis or medical advice; verify sources in the protocol guide.
 
 ---
 

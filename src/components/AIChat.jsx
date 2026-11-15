@@ -29,7 +29,14 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
       const response = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text, recordId: record?.id ?? null }),
+        body: JSON.stringify({
+          question: text,
+          recordId: record?.id ?? null,
+          history: turns.slice(-4).flatMap((turn) => [
+            { role: 'user', text: turn.question },
+            { role: 'assistant', text: turn.answer },
+          ]),
+        }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || `The request failed (HTTP ${response.status}).`);
@@ -57,9 +64,9 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
         <div>
-          <div className="hud-label">Gemini Protocol Assistant</div>
+          <div className="hud-label">AstroHealth AI</div>
           <h3 id="astro-ai-title" style={{ margin: '3px 0 0', color: '#f1f5f9', fontSize: 13.5, fontWeight: 600 }}>
-            Ask a specific question
+            Ask about spaceflight health protocols
           </h3>
         </div>
         <button type="button" onClick={onClose} style={{ ...buttonStyle, flexShrink: 0 }}>
@@ -68,7 +75,7 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
       </div>
 
       <p style={{ margin: '7px 0 9px', padding: '7px 8px', borderRadius: 6, background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.22)', color: '#fcd34d', fontSize: 9.5, lineHeight: 1.4 }}>
-        Questions and matching protocol text are sent to Google Gemini. Do not enter real names or personal/crew health information. Dashboard readings are not sent automatically.
+        Your question, recent chat turns, and matching protocol text are sent to Google Gemini. Do not enter real names or personal/crew health information. Dashboard readings are not sent automatically.
       </p>
 
       <div aria-live="polite" style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 9, padding: '2px 2px 8px' }}>
