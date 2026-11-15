@@ -75,7 +75,7 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
       </div>
 
       <p style={{ margin: '7px 0 9px', padding: '7px 8px', borderRadius: 6, background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.22)', color: '#fcd34d', fontSize: 9.5, lineHeight: 1.4 }}>
-        Your question, recent chat turns, and matching protocol text are sent to Google Gemini. Do not enter real names or personal/crew health information. Dashboard readings are not sent automatically.
+        Your question, recent chat turns, and matching protocol text are sent to an external AI service. Do not enter real names or personal/crew health information. Dashboard readings are not sent automatically.
       </p>
 
       <div aria-live="polite" style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 9, padding: '2px 2px 8px' }}>
@@ -116,13 +116,13 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
             </div>
           </article>
         ))}
-        {loading && <div role="status" style={{ color: '#7dd3fc', fontSize: 10.5 }}>Checking the protocol and asking Gemini…</div>}
+        {loading && <div role="status" style={{ color: '#7dd3fc', fontSize: 10.5 }}>Thinking…</div>}
         {error && <div role="alert" style={{ color: '#fda4af', fontSize: 10.5, lineHeight: 1.45 }}>{error}</div>}
       </div>
 
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 8, borderTop: '1px solid rgba(148, 163, 184, 0.12)' }}>
         <textarea
-          aria-label="Ask Gemini a protocol question"
+          aria-label="Message AstroHealth AI"
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
           maxLength={600}
@@ -131,7 +131,7 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
           style={{ resize: 'vertical', minHeight: 48, maxHeight: 88, borderRadius: 6, border: '1px solid rgba(148, 163, 184, 0.24)', background: 'rgba(8, 15, 27, 0.8)', color: '#e2e8f0', padding: '7px 9px', fontFamily: "'Inter', sans-serif", fontSize: 10.5 }}
         />
         <button type="submit" disabled={!question.trim() || loading} style={{ ...buttonStyle, width: '100%', opacity: question.trim() && !loading ? 1 : 0.55 }}>
-          {loading ? 'Asking Gemini…' : 'Ask AstroHealth AI'}
+          {loading ? 'Thinking…' : 'Send message'}
         </button>
       </form>
 
