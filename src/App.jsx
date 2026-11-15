@@ -234,13 +234,15 @@ function MeasurementRow({ label, value, secondaryValue, unit, status, zScore, ca
   );
 }
 
+const INITIAL_PRESET = 'iss';
+
 export default function App() {
-  const [activePreset, setActivePreset] = useState('mars');
+  const [activePreset, setActivePreset] = useState(INITIAL_PRESET);
   const [showDrawer, setShowDrawer]     = useState(false);
   const [drawerRecord, setDrawerRecord] = useState(hazard3[0]);
 
-  const [liveState, setLiveState]           = useState(() => loadState('mars'));
-  const [checkInHistory, setCheckInHistory] = useState(() => loadHistory('mars'));
+  const [liveState, setLiveState]           = useState(() => loadState(INITIAL_PRESET));
+  const [checkInHistory, setCheckInHistory] = useState(() => loadHistory(INITIAL_PRESET));
 
   // Remember each simulation's last selected node & measurement (first visit defaults to 'eyes')
   const [selectionByPreset, setSelectionByPreset] = useState({
