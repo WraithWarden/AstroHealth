@@ -17,7 +17,6 @@
 4. [Clinical Rules Engine](#4-clinical-rules-engine)
 5. [Data Sources & Standards](#5-data-sources--standards)
 6. [Limitations & Medical Disclaimer](#6-limitations--medical-disclaimer)
-7. [Team & Module Ownership](#7-team--module-ownership)
 
 ---
 
@@ -225,20 +224,3 @@ All numeric cutoffs, baselines, and clinical protocol records are **bundled offl
 
 ---
 
-## 7. Team & Module Ownership
-
-| Person | Role | Owns |
-|--------|------|------|
-| **Person 1** | Clinical Rules Engine & Autonomous Operations | `src/engine/` · `addReading()` · `AutonomyChip` · `cadence.js` · `MarsTriageModal.jsx` · `reportPacket.js` · `OnsdCaliperModal.jsx` · `docs/CONTRACT.md` |
-| **Person 2** | Mission Control Dashboard & Visual Analytics | `src/App.jsx` (layout) · `<Gauge />` · `<BodyMap />` · `<Chart />` · `<HazardBars />` · localStorage persistence |
-| **Person 3** | Check-In Flow, Clinical Content & Guidance | `src/data/hazard1..5.json` · `<CheckInHost />` · `<CheckInModal />` · `<GuidancePanel />` · `<InstructionDrawer />` · `src/flow/submitCheckIn.js` · NASA OSDR RadLab telemetry (`export.csv`) |
-
----
-
-<div align="center">
-
-Built with [NASA-STD-3001](https://www.nasa.gov/ochmo/hsa-standards/) · [NASA HRP](https://www.nasa.gov/hrp/risks/) · [NASA OSDR](https://osdr.nasa.gov/bio/repo/) data
-
-*For educational and demonstration purposes only.*
-
-</div>
