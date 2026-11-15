@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 68 54" width="68" height="54" fill="none">
+  <circle cx="29" cy="30" r="15" fill="#10253f" stroke="#2dd4bf" stroke-width="2.6" />
+  <path
+    d="M18.5 30 H22.8 L26 20 L31.6 40 L34.8 30 H39.5"
+    stroke="#2dd4bf"
+    stroke-width="2.6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <ellipse
+    cx="29"
+    cy="30"
+    rx="24.5"
+    ry="9"
+    transform="rotate(-22 29 30)"
+    stroke="#7dd3fc"
+    stroke-width="2.2"
+  />
+  <circle cx="39.3" cy="17.9" r="3.4" fill="#7dd3fc" />
+  <path
+    d="M56 3 L58.1 9.4 L64.5 11.5 L58.1 13.6 L56 20 L53.9 13.6 L47.5 11.5 L53.9 9.4 Z"
+    fill="#7dd3fc"
+  />
+</svg>

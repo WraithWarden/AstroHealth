@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import AIChat from './AIChat.jsx';
+import astroAiLogo from '../assets/astro-ai-logo.svg';
 
 const STATUS = {
   green:  { label: 'NOMINAL',  icon: '◆', color: '#34d399', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.35)', text: 'within your normal range' },
@@ -203,7 +204,7 @@ export default function GuidancePanel({ record, records = [], status = 'green', 
           style={{
             marginTop: onOpenInstructions ? 6 : 9,
             width: '100%',
-            padding: '7px 10px',
+            padding: '6px 10px',
             borderRadius: 7,
             background: 'rgba(20, 184, 166, 0.09)',
             border: '1px solid rgba(45, 212, 191, 0.28)',
@@ -213,9 +214,19 @@ export default function GuidancePanel({ record, records = [], status = 'green', 
             fontSize: 11,
             fontWeight: 600,
             flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 7,
           }}
         >
-          Ask AstroHealth AI →
+          <img
+            src={astroAiLogo}
+            alt=""
+            aria-hidden="true"
+            style={{ height: 18, width: 'auto', display: 'block', flexShrink: 0 }}
+          />
+          <span>Ask AstroHealth AI →</span>
         </button>
       )}
     </section>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import astroAiLogo from '../assets/astro-ai-logo.svg';
 
 const buttonStyle = {
   borderRadius: 6,
@@ -64,7 +65,15 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
         <div>
-          <div className="hud-label">AstroHealth AI</div>
+          <div className="hud-label">
+            <img
+              src={astroAiLogo}
+              alt=""
+              aria-hidden="true"
+              style={{ height: 15, width: 'auto', display: 'block', flexShrink: 0 }}
+            />
+            <span>AstroHealth AI</span>
+          </div>
           <h3 id="astro-ai-title" style={{ margin: '3px 0 0', color: '#f1f5f9', fontSize: 13.5, fontWeight: 600 }}>
             Ask about spaceflight health protocols
           </h3>
