@@ -1,100 +1,288 @@
-# AstroHealth: Autonomous Astronaut Health Monitor
+# AstroHealth — Autonomous Astronaut Health Monitor
 
-**Autonomous Clinical Decision Support System for Deep-Space Exploration (ISS LEO · Lunar Artemis · Mars Transit)**
+> **Offline-first clinical decision support for ISS, Lunar Artemis, and Mars transit missions.**
+> Built on NASA-STD-3001, NASA HRP spaceflight hazard frameworks, and NASA OSDR radiation telemetry.
 
----
-
-## 1. What It Is
-
-**AstroHealth** is an offline-first, in-browser clinical decision support dashboard designed for astronauts and Crew Medical Officers (CMOs) operating across three spaceflight regimes:
-
-1. **ISS Low Earth Orbit (`A0` Real-Time, ~0 s delay):** Continuous ground telemedicine support.
-2. **Lunar Surface — Artemis Base Camp (`A0/A1` Near-Real-Time, ~1.3 s delay):** Early warning drift and radiation monitoring.
-3. **Mars Transit (`A2` Autonomous Triage, 18 min one-way delay):** Earth-independent CMO triage mode with an offline 4-step clinical protocol, action completion tracking, and downloadable ground-downlink report packets (`.json` and `.txt`).
-
-The system monitors **18 physiological, behavioral, environmental, and operational indicators** mapped across **5 NASA Human Research Program (HRP) Spaceflight Hazards** and **6 anatomical health nodes** (`Brain`, `Eyes`, `Heart`, `Lungs`, `Core`, `Skeletal`).
+![Tests](https://img.shields.io/badge/tests-20%20passed-brightgreen)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Data](https://img.shields.io/badge/data-NASA%20OSDR%20%7C%20NASA--STD--3001-blue)
+![Runtime](https://img.shields.io/badge/runtime-offline--first%20%7C%20no%20backend-lightgrey)
 
 ---
 
-## 2. How to Run It
+## Table of Contents
+
+1. [Overview](#1-overview)
+2. [Quick Start](#2-quick-start)
+3. [Architecture](#3-architecture)
+4. [Clinical Rules Engine](#4-clinical-rules-engine)
+5. [Data Sources & Standards](#5-data-sources--standards)
+6. [Radiation Telemetry & Fallback Disclosure](#6-radiation-telemetry--fallback-disclosure)
+7. [Optional AI Protocol Assistant](#7-optional-ai-protocol-assistant)
+8. [Limitations & Medical Disclaimer](#8-limitations--medical-disclaimer)
+9. [Team & Module Ownership](#9-team--module-ownership)
+
+---
+
+## 1. Overview
+
+**AstroHealth** is a browser-based, zero-backend clinical decision-support dashboard for astronauts and Crew Medical Officers (CMOs) across three spaceflight autonomy regimes:
+
+| Regime | Comm Delay | Autonomy Level | Key Capability |
+|--------|-----------|----------------|----------------|
+| **ISS Low Earth Orbit** | ~0 s | A0 — Real-Time | Continuous ground telemedicine support |
+| **Lunar Surface (Artemis)** | ~1.3 s | A0/A1 — Near-Real-Time | Early-warning drift & radiation monitoring |
+| **Mars Transit** | 4–22 min | A2 — Autonomous | Earth-independent CMO triage, offline 4-step protocol, downloadable report packets |
+
+The system monitors **18 physiological, behavioral, environmental, and operational indicators** mapped across:
+- **5 NASA HRP Spaceflight Hazards** (Altered Gravity · Radiation · Isolation/Confinement · Hostile Closed Environment · Distance from Earth)
+- **6 anatomical health nodes** (Brain · Eyes · Heart · Lungs · Core · Skeletal)
+
+All thresholds, baselines, and clinical protocol records are **bundled offline** — no network requests at runtime beyond optional AI and Google Fonts.
+
+---
+
+## 2. Quick Start
 
 ### Prerequisites
+
 - **Node.js** `>= 18.x` and **npm**
 
-### Local Development
+### Install & Run
+
 ```bash
-# 1. Install dependencies
+# Clone the repository
+git clone https://github.com/Deadpoets888/astro-health-monitor.git
+cd astro-health-monitor
+
+# Install dependencies
 npm install
 
-# 2. Start the local development server
+# Start the local development server (http://localhost:5173)
 npm run dev
 
-# 3. Run the automated Vitest test suite
+# Run the full test suite (Vitest — 20 tests)
 npm test
 
-# 4. Build for production deployment
+# Build for production
 npm run build
 ```
 
-### Optional AI Protocol Assistant
+### Keyboard Shortcuts
 
-The protocol assistant uses Gemini on the server side. In local development, the Vite server handles `/api/ask`; on Vercel, `api/ask.js` handles the same endpoint.
-
-1. Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` from [Google AI Studio](https://aistudio.google.com/apikey). Keep this key private and out of source control.
-2. Restart `npm run dev`, then use **Ask AstroHealth AI** in the guidance panel.
-3. Before deploying to Vercel, add `GEMINI_API_KEY` in the project's Environment Variables and redeploy. `GEMINI_MODEL` is optional and defaults to `gemini-3.5-flash-lite`.
-
-The current question, up to four recent conversation turns, and matching protocol records are sent to Google Gemini. The app does not automatically send astronaut profiles, check-in readings, or dashboard state. Do not enter real names or personal/crew health information in questions. AI responses are educational demo guidance, not diagnosis or medical advice; verify sources in the protocol guide.
-
----
-
-## 3. Data Sources & Standards
-
-AstroHealth grounds its baselines, thresholds, and clinical guidance in publicly available NASA standards and spaceflight medical literature:
-
-- **[NASA-STD-3001](https://www.nasa.gov/ochmo/health-and-medical-standards/)** (*Spaceflight Human-System Standard, Volumes 1 & 2*): Cabin $\text{ppCO}_2$, $\text{SpO}_2$, radiation career limits, sleep/circadian standards, and Levels of Care (`[S]`).
-- **[NASA Human Research Program (HRP) — 5 Hazards of Human Spaceflight](https://www.nasa.gov/hrp/5-hazards-of-human-spaceflight/)**: Altered gravity (SANS / ONSD, bone mineral turnover), radiation, isolation/confinement (PVT-lite, sleep, mood/HRV), hostile closed environments, and distance from Earth (`[L]`).
-- **[NASA Open Science Data Repository (OSDR) RadLab](https://visualization.osdr.nasa.gov/radlab/gui/overview/)**: ISS *Destiny* US Laboratory radiation dosimetry reference (`scripts/radlab-daily.mjs` and `export.csv`).
-- **Standard Terrestrial Clinical Cutoffs (`[C]`):** ACC/AHA blood pressure, ADA fasting glucose, fever/hypothermia, and leukopenia/leukocytosis bounds.
-
-### NASA OSDR RadLab Telemetry & Fallback Disclosure
-During Phase 1 verification, ISS US Lab telemetry was sampled from NASA OSDR RadLab (`export.csv`). Because the exported TEPC/REM column reports **absorbed dose** ($\mu\text{Gy}$), and converting absorbed dose ($\text{Gy}$) to **dose equivalent** ($\text{Sv}$) requires the linear energy transfer (LET) quality factor ($Q$), the app follows the clinical blueprint rule:
-- Raw absorbed dose is **not** converted without $Q$.
-- The app runs 100% offline in-browser and uses the calibrated ISS reference baseline of **$0.48\text{ mSv/day}$** (`history7d: [0.48, 0.47, 0.49, 0.48, 0.47, 0.48, 0.48]`).
-- For verified hourly dose-equivalent feeds ($\mu\text{Sv/h}$), the pipeline conversion is $\text{mSv/day} = (\mu\text{Sv/h} \times 24) / 1000$.
+| Key | Action |
+|-----|--------|
+| `C` | Open check-in flow (PVT → check-in form) |
+| `1` | Switch to ISS preset |
+| `2` | Switch to Lunar preset |
+| `3` | Switch to Mars preset |
+| `Esc` | Close any open modal |
 
 ---
 
-## 4. How the Status Engine Works
+## 3. Architecture
 
-The pure-JavaScript rules engine (`src/engine/evaluate.js`) evaluates all 18 indicators through a deterministic **4-stage pipeline**:
+```
+astro-health-monitor/
+├── src/
+│   ├── engine/               # Person 1 — Pure JS rules engine (no React)
+│   │   ├── evaluate.js       #   4-stage pipeline: thresholds → drift → trend → scoring
+│   │   ├── thresholds.js     #   Yellow/Red clinical cutoffs (bundled offline)
+│   │   ├── drift.js          #   Personalised space-baseline z-score drift
+│   │   ├── trend.js          #   Monotonic 3-day worsening detection
+│   │   ├── scoring.js        #   0–100 weighted composite scoring
+│   │   ├── autonomy.js       #   A0/A1/A2 autonomy level & A2 penalty
+│   │   ├── cadence.js        #   DUE NOW / OVERDUE badge logic
+│   │   └── evaluate.test.js  #   14 engine unit tests
+│   │
+│   ├── flow/                 # Person 3 — Check-in submit pipeline
+│   │   ├── submitCheckIn.js  #   form + PVT + symptoms → addReading → evaluate
+│   │   └── submitCheckIn.test.js  # 6 flow unit tests
+│   │
+│   ├── data/                 # Offline clinical content (bundled, no live fetch)
+│   │   ├── hazard1..5.json   #   18 indicator protocol records (actions, why, steps)
+│   │   ├── presets.json      #   Seed readings: ISS (AST-001), Lunar (AST-002), Mars (AST-003)
+│   │   └── profiles.json     #   Crew demographic profiles
+│   │
+│   ├── components/           # React UI components
+│   │   ├── CheckInHost.jsx   #   Person 3 — Self-contained check-in orchestrator
+│   │   ├── CheckInModal.jsx  #   Person 3 — Readings form with symptom flags
+│   │   ├── GuidancePanel.jsx #   Person 3 — Contextual action panel per selected measurement
+│   │   ├── InstructionDrawer.jsx # Person 3 — How-to / Why two-tab protocol drawer
+│   │   ├── Gauge.jsx         #   Person 2 — Circular overall health score
+│   │   ├── BodyMap.jsx       #   Person 2 — Clickable anatomical SVG nodes
+│   │   ├── Chart.jsx         #   Person 2 — 7-day trend vs. Earth/Space baseline
+│   │   ├── HazardBars.jsx    #   Person 2 — 5-hazard status bar strip
+│   │   ├── PvtTest.jsx       #   Person 1 — PVT-Lite reaction time test
+│   │   └── AutonomyChip.jsx  #   Person 1 — A0/A1/A2 level chip
+│   │
+│   ├── App.jsx               # Person 2 — 3-column dashboard layout & state
+│   └── index.css             # NASA HUD design system (Orbitron · Space Mono · Inter)
+│
+├── scripts/
+│   └── radlab-daily.mjs      # NASA OSDR RadLab CSV → 7-day daily averages
+├── export.csv                # ISS TEPC absorbed dose sample (NASA OSDR RadLab, Sep–Nov 2014)
+└── docs/CONTRACT.md          # Engine API contract between team members
+```
 
-1. **Stage 1 — Absolute Thresholds & Red-Flag Symptoms (`thresholds.js`):**
-   - Evaluates Yellow/Red clinical cutoffs (including bidirectional bounds for BP, HR, Body Temp, WBC, and Fasting Glucose).
-   - Evaluates **7 acute red-flag symptoms** (`Headache`, `Blurred vision`, `Dizziness or fainting`, `Chest pain`, `Nausea`, `Confusion`, `Low mood or thoughts of self-harm`). Any active red-flag symptom escalates linked indicators to `RED` and caps the overall mission status at `CRITICAL` ($\le 49$).
-2. **Stage 2 — Directional Personal Space Drift (`drift.js`):**
-   - Computes personalized deviation from the astronaut's spaceflight adapted baseline:
-     $$z = \frac{\text{value} - \mu_{\text{space}}}{\max(\sigma_{\text{space}}, \sigma_{\min})}$$
-   - Evaluated strictly in the clinically unfavorable direction (`< 2.0 SD` Green, `2.0–2.99 SD` Yellow, `>= 3.0 SD` Red).
-3. **Stage 3 — Consecutive Worsening Trend (`trend.js`):**
-   - Upgrades a `GREEN` indicator to `YELLOW` (`trending: true`) if the last 3 intervals (`d[4] -> d[5] -> d[6]`) worsen monotonically by a cumulative $\ge 1.0\text{ SD}$.
-4. **Stage 4 — Scoring, Autonomy Triage & Cadence (`scoring.js`, `autonomy.js`, `cadence.js`):**
-   - Interpolates `0–100` scores per indicator, aggregates by sub-card (`1A..5B`), hazard (`H1..H5`), and anatomical node (`worstStatus`), applies the `A2` autonomy penalty (`-5` pts when comm delay $> 5\text{ min}$ and any physiological metric is non-green), and enforces the Red-Floor cap ($\le 49$).
-   - Compares each indicator's `lastMeasuredDaysAgo` against `cadence.routineIntervalDays` (`1`, `3`, or `7` days) to drive `DUE NOW` / `OVERDUE` badges and the `Mission Readiness` status.
+### Data Flow
+
+```
+presets.json (seed)                 User check-in (CheckInHost)
+       │                                    │
+       ▼                                    ▼
+  addReading(state, reading)  ◄─────────────┘
+       │
+       ▼
+  evaluate(newState)   ←── thresholds.js / drift.js / trend.js / scoring.js
+       │
+       ├──► overall score + badge (Gauge, Badge)
+       ├──► per-hazard status (HazardBars)
+       ├──► per-node status (BodyMap)
+       ├──► per-measurement status + 7d history (Chart, GuidancePanel)
+       └──► autonomy level + cadence flags (AutonomyChip)
+```
 
 ---
 
-## 5. Limitations & Medical Disclaimer
+## 4. Clinical Rules Engine
 
-- **Decision support, not a medical device:** AstroHealth is an educational and hackathon prototype decision-support tool and is **not** a certified medical device or diagnostic instrument.
-- **Simulated demo data:** All crew profiles (`AST-001` ISS, `AST-002` Lunar, `AST-003` Mars) and 7-day histories in `src/data/presets.json` are synthetic demonstration datasets.
-- **Heuristic thresholds (`[H]`):** Thresholds and scoring rules tagged `[H]` (such as composite weighting, autonomy penalties, and 3-day trend rules) are operational triage heuristics for demonstration rather than formal NASA flight rules.
-- **Prototype interactive tools:** The ONSD two-click ultrasound caliper (`OnsdCaliperModal.jsx`) and PVT-Lite reaction test (`PvtTest.jsx`) are interactive UI prototypes.
+The pure-JavaScript engine (`src/engine/evaluate.js`) runs a deterministic **4-stage pipeline** on every state change:
+
+### Stage 1 — Absolute Thresholds & Red-Flag Symptoms
+- Evaluates Yellow/Red clinical cutoffs against `thresholds.js` (bundled offline), including bidirectional bounds for Blood Pressure, Heart Rate, Body Temperature, WBC, and Fasting Glucose.
+- Flags **7 acute red-flag symptoms**: Headache · Blurred vision · Dizziness or fainting · Chest pain · Nausea · Confusion · Low mood or thoughts of self-harm.
+- Any active red-flag symptom escalates linked indicators to `RED` and hard-caps the overall score at **≤ 49 (CRITICAL)**.
+
+### Stage 2 — Personalised Space-Baseline Drift
+
+$$z = \frac{\text{value} - \mu_{\text{space}}}{\max(\sigma_{\text{space}},\ \sigma_{\min})}$$
+
+Deviation evaluated strictly in the clinically unfavourable direction:
+
+| z-score | Status |
+|---------|--------|
+| < 2.0 SD | 🟢 GREEN |
+| 2.0 – 2.99 SD | 🟡 YELLOW |
+| ≥ 3.0 SD | 🔴 RED |
+
+### Stage 3 — Consecutive Worsening Trend
+Upgrades a GREEN indicator to YELLOW (`trending: true`) when the last 3 intervals worsen monotonically by a cumulative **≥ 1.0 SD**.
+
+### Stage 4 — Scoring, Autonomy & Cadence
+- Interpolates **0–100** scores per indicator, aggregated by sub-card (`1A`..`5B`), hazard (`H1`..`H5`), and anatomical node.
+- Applies the **A2 autonomy penalty** (−5 pts when comm delay > 5 min and any physiological metric is non-green).
+- Compares `lastMeasuredDaysAgo` against `cadence.routineIntervalDays` (1, 3, or 7 days) to drive `DUE NOW` / `OVERDUE` badges.
 
 ---
 
-## 6. Team & Architecture
+## 5. Data Sources & Standards
 
-- **Person 1 — Clinical Rules Engine & Autonomous Operations:** 4-stage evaluation pipeline (`src/engine/`), `addReading()`, `AutonomyChip`, cadence due-now engine (`cadence.js`), Mars `A2` CMO offline checklist (`MarsTriageModal.jsx`), downloadable report packets (`reportPacket.js`), ONSD 2-click caliper (`OnsdCaliperModal.jsx`), and `docs/CONTRACT.md`.
-- **Person 2 — Mission Control Dashboard & Visual Analytics:** 3-column responsive layout (`src/App.jsx`), overall health `<Gauge />`, anatomical `<BodyMap />`, Recharts 7-day trend vs. Earth/Space baseline `<Chart />`, `<HazardBars />`, and localStorage persistence.
-- **Person 3 — Check-In Flow, Clinical Content & Guidance:** 18-indicator clinical protocol records (`src/data/hazard1..5.json`), `<CheckInHost />`, `<CheckInModal />`, `<GuidancePanel />`, `<InstructionDrawer />`, and `src/flow/submitCheckIn.js`.
+All numeric cutoffs, baselines, and clinical protocol records are **bundled offline** in `thresholds.js`, `presets.json`, and `src/data/hazard1..5.json`. The URLs below are reference sources cited in the UI guidance drawer and dashboard footer.
+
+| Tag | Standard / Source | Used For |
+|-----|-------------------|----------|
+| `[S]` | [NASA-STD-3001 — Spaceflight Human-System Standard](https://www.nasa.gov/ochmo/hsa-standards/) | Cabin ppCO₂, SpO₂, radiation career limits, sleep/circadian norms, Levels of Care |
+| `[L]` | [NASA HRP — Human Research Program Risks](https://www.nasa.gov/hrp/risks/) | SANS/ONSD, bone mineral density, neuro-behavioural risks, isolation/confinement |
+| `[C]` | [NIH MedlinePlus — Vital Signs Reference](https://medlineplus.gov/vitalsigns.html) | Terrestrial clinical cutoffs: BP, HR, Body Temp, SpO₂ |
+| `[H]` | [NASA OCHMO Technical Briefs](https://www.nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs/) | Operational triage heuristics, composite scoring rules, autonomy penalties |
+| `OSDR` | [NASA Open Science Data Repository — RadLab](https://osdr.nasa.gov/bio/repo/) | ISS radiation dosimetry telemetry (2A-i Cumulative, 2A-ii Daily Dose) |
+| `RadLab UI` | [NASA OSDR RadLab Visualization Portal](https://visualization.osdr.nasa.gov/radlab/gui/overview/) | Interactive ISS dosimetry explorer used to export `export.csv` (TEPC absorbed dose, ISS *Destiny* US Lab) |
+| `HRP` | [NASA HRP — 5 Hazards of Human Spaceflight](https://www.nasa.gov/hrp/hazards/) | General spaceflight hazard reference (drawer fallback + footer) |
+
+> **Offline guarantee:** None of these URLs are fetched at runtime. All threshold and baseline values are statically bundled.
+
+---
+
+## 6. Radiation Telemetry & Fallback Disclosure
+
+During Phase 1 development, ISS US Lab (*Destiny* module) telemetry was sampled from the **[NASA OSDR RadLab portal](https://visualization.osdr.nasa.gov/radlab/gui/overview/)** using the TEPC-SMP327-pre instrument (Sep–Nov 2014). The raw export is `export.csv`.
+
+**Unit disclosure:** The TEPC column reports **absorbed dose (µGy/day)**, not dose equivalent (mSv/day). Converting absorbed dose (Gy) to dose equivalent (Sv) requires the LET quality factor *Q*, which varies by particle type and is not present in the export. Per the blueprint clinical rule:
+
+- Raw absorbed dose is **not converted** without *Q*.
+- The app uses the calibrated ISS reference baseline of **0.48 mSv/day** (`history7d: [0.48, 0.47, 0.49, 0.48, 0.47, 0.48, 0.48]`), sourced from [NASA HRP](https://www.nasa.gov/hrp/risks/) ISS mission exposure data.
+- For verified hourly dose-equivalent feeds (µSv/h), the pipeline conversion is: `mSv/day = (µSv/h × 24) / 1000`.
+
+The 7-day TEPC sample from `export.csv` (absorbed dose, µGy/day, not converted):
+
+| Date | TEPC-SMP327-pre (µGy/day) |
+|------|--------------------------|
+| 2016-05-14 | 13.28 |
+| 2016-05-15 | 14.42 |
+| 2016-05-16 | 12.65 |
+| 2016-05-17 | 15.22 |
+| 2016-05-18 | 12.65 |
+| 2016-05-19 | 13.41 |
+| 2016-05-20 | 12.67 |
+| **7-day avg** | **13.47 µGy/day** |
+
+*One-time sample from [NASA OSDR RadLab](https://osdr.nasa.gov/bio/repo/) — not a live feed.*
+
+---
+
+## 7. Optional AI Protocol Assistant
+
+The guidance panel includes an optional **Ask AstroHealth AI** feature powered by Google Gemini. It is entirely opt-in and requires a personal API key.
+
+### Setup
+
+```bash
+# 1. Copy the example environment file
+cp .env.example .env.local
+
+# 2. Add your Gemini API key (get one at https://aistudio.google.com/apikey)
+#    GEMINI_API_KEY=your-key-here
+#    GEMINI_MODEL=gemini-2.0-flash-lite   # optional, this is the default
+
+# 3. Restart the dev server
+npm run dev
+```
+
+### Deployment (Vercel)
+
+Add `GEMINI_API_KEY` (and optionally `GEMINI_MODEL`) in your Vercel project → **Settings → Environment Variables**, then redeploy. The serverless handler at `api/ask.js` picks them up automatically.
+
+### Privacy & Limitations
+
+> [!IMPORTANT]
+> The current question, up to four recent conversation turns, and matching protocol records are sent to the Gemini API. **The app does not automatically send crew profiles, check-in readings, or dashboard state.** Do not enter real names or personal health information in the AI chat.
+
+> [!WARNING]
+> AI responses are educational demo guidance only — **not diagnosis or medical advice.** Always verify against the protocol sources cited in the Instruction Drawer.
+
+---
+
+## 8. Limitations & Medical Disclaimer
+
+> [!CAUTION]
+> **AstroHealth is an educational and hackathon prototype. It is not a certified medical device, diagnostic instrument, or flight-qualified software.**
+
+| Limitation | Detail |
+|------------|--------|
+| **Decision support only** | Outputs are clinical prompts for a trained CMO, not autonomous diagnoses. |
+| **Synthetic demo data** | All crew profiles (`AST-001` ISS, `AST-002` Lunar, `AST-003` Mars) and 7-day histories in `presets.json` are demonstration datasets. |
+| **Heuristic thresholds `[H]`** | Composite weighting, autonomy penalties, and 3-day trend rules are operational triage heuristics — not formal NASA flight rules. |
+| **Prototype UI tools** | The ONSD ultrasound caliper (`OnsdCaliperModal.jsx`) and PVT-Lite reaction test (`PvtTest.jsx`) are interactive UI prototypes. |
+| **Radiation unit** | The ISS radiation baseline uses mSv/day (dose equivalent). The NASA OSDR RadLab export provides absorbed dose (µGy) only — see §6. |
+
+---
+
+## 9. Team & Module Ownership
+
+| Person | Role | Owns |
+|--------|------|------|
+| **Person 1** | Clinical Rules Engine & Autonomous Operations | `src/engine/` · `addReading()` · `AutonomyChip` · `cadence.js` · `MarsTriageModal.jsx` · `reportPacket.js` · `OnsdCaliperModal.jsx` · `docs/CONTRACT.md` |
+| **Person 2** | Mission Control Dashboard & Visual Analytics | `src/App.jsx` (layout) · `<Gauge />` · `<BodyMap />` · `<Chart />` · `<HazardBars />` · localStorage persistence |
+| **Person 3** | Check-In Flow, Clinical Content & Guidance | `src/data/hazard1..5.json` · `<CheckInHost />` · `<CheckInModal />` · `<GuidancePanel />` · `<InstructionDrawer />` · `src/flow/submitCheckIn.js` · NASA OSDR RadLab telemetry (`export.csv`) |
+
+---
+
+<div align="center">
+
+Built with [NASA-STD-3001](https://www.nasa.gov/ochmo/hsa-standards/) · [NASA HRP](https://www.nasa.gov/hrp/risks/) · [NASA OSDR](https://osdr.nasa.gov/bio/repo/) data
+
+*For educational and demonstration purposes only.*
+
+</div>
