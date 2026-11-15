@@ -36,6 +36,16 @@ npm test
 npm run build
 ```
 
+### Optional AI Protocol Assistant
+
+The protocol assistant uses Gemini on the server side. In local development, the Vite server handles `/api/ask`; on Vercel, `api/ask.js` handles the same endpoint.
+
+1. Copy `.env.example` to `.env.local` and set `GEMINI_API_KEY` from [Google AI Studio](https://aistudio.google.com/apikey). Keep this key private and out of source control.
+2. Restart `npm run dev`, then use **Ask AstroHealth AI** in the guidance panel.
+3. Before deploying to Vercel, add `GEMINI_API_KEY` in the project's Environment Variables and redeploy. `GEMINI_MODEL` is optional and defaults to `gemini-3.5-flash-lite`.
+
+The question is sent to Google Gemini together with matching protocol records. The app does not automatically send astronaut profiles, check-in readings, or dashboard state. Do not enter real names or personal/crew health information in questions. AI responses are educational demo guidance, not diagnosis or medical advice; verify sources in the protocol guide.
+
 ---
 
 ## 3. Data Sources & Standards

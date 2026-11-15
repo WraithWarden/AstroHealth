@@ -773,13 +773,14 @@ export default function App() {
           <Panel style={{ padding: 0, flex: 1, minHeight: 0, overflow: 'hidden' }}>
             <GuidancePanel
               record={guidanceRecord}
+              records={ALL_RECORDS}
               status={guidanceMeasStatus}
               value={guidanceMeasValue}
               onProgress={({ id, completed }) => {
                 setGuidanceDoneById((prev) => (prev[id] === completed ? prev : { ...prev, [id]: completed }));
               }}
-              onOpenInstructions={guidanceRecord ? () => {
-                setDrawerRecord(guidanceRecord);
+              onOpenInstructions={guidanceRecord ? (record = guidanceRecord) => {
+                setDrawerRecord(record);
                 setShowDrawer(true);
               } : undefined}
             />

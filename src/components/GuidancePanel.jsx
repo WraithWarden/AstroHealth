@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AIChat from './AIChat.jsx';
 
 const STATUS = {
   green:  { label: 'NOMINAL',  icon: '◆', color: '#34d399', bg: 'rgba(16, 185, 129, 0.12)', border: 'rgba(16, 185, 129, 0.35)', text: 'within your normal range' },
@@ -47,9 +48,10 @@ export function actionsFor(record, status, value) {
   return [];
 }
 
-export default function GuidancePanel({ record, status = 'green', value, onProgress, onOpenInstructions }) {
+export default function GuidancePanel({ record, records = [], status = 'green', value, onProgress, onOpenInstructions }) {
   const st = norm(status);
   const [done, setDone] = useState({});
+  const [aiOpen, setAiOpen] = useState(false);
 
   const actions = record ? actionsFor(record, st, value) : [];
   const keyOf = (i) => `${record.id}|${st}|${i}`;
@@ -59,6 +61,17 @@ export default function GuidancePanel({ record, status = 'green', value, onProgr
     if (record) onProgress?.({ id: record.id, completed, total: actions.length });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [record?.id, st, completed, actions.length]);
+
+  if (aiOpen) {
+    return (
+      <AIChat
+        record={record}
+        records={records}
+        onClose={() => setAiOpen(false)}
+        onOpenProtocol={onOpenInstructions}
+      />
+    );
+  }
 
   if (!record) {
     return (
@@ -181,6 +194,28 @@ export default function GuidancePanel({ record, status = 'green', value, onProgr
           }}
         >
           How to Measure & Protocol Guide →
+        </button>
+      )}
+      {records.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setAiOpen(true)}
+          style={{
+            marginTop: onOpenInstructions ? 6 : 9,
+            width: '100%',
+            padding: '7px 10px',
+            borderRadius: 7,
+            background: 'rgba(20, 184, 166, 0.09)',
+            border: '1px solid rgba(45, 212, 191, 0.28)',
+            color: '#5eead4',
+            cursor: 'pointer',
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11,
+            fontWeight: 600,
+            flexShrink: 0,
+          }}
+        >
+          Ask AstroHealth AI →
         </button>
       )}
     </section>
