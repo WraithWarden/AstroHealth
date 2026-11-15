@@ -1,118 +1,282 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import bodySvg from '../assets/body-silhouette.svg';
+import Astronaut3D from './Astronaut3D.jsx';
 
 const STATUS = {
-  GREEN:  { dot: '#10b981', glow: 'rgba(16, 185, 129, 0.48)', ring: '#6ee7b7', icon: '◆', label: 'Nominal'  },
-  YELLOW: { dot: '#f59e0b', glow: 'rgba(245, 158, 11, 0.48)', ring: '#fcd34d', icon: '▲', label: 'Warning'  },
-  RED:    { dot: '#f43f5e', glow: 'rgba(244, 63, 94, 0.55)',  ring: '#fda4af', icon: '■', label: 'Critical' },
+  GREEN: { dot: '#10b981', glow: 'rgba(16, 185, 129, 0.50)', ring: '#6ee7b7', icon: '◆', label: 'Nominal' },
+  YELLOW: { dot: '#f59e0b', glow: 'rgba(245, 158, 11, 0.55)', ring: '#fcd34d', icon: '▲', label: 'Warning' },
+  RED: { dot: '#f43f5e', glow: 'rgba(244, 63, 94, 0.60)', ring: '#fda4af', icon: '■', label: 'Critical' },
 };
 
-// Coordinates calibrated to viewBox 250x410 in src/assets/body-silhouette.svg
-// Front-facing anatomical orientation: patient's left (heart) sits on viewer's right
+// Telemetry callouts arranged neatly on left/right margins so large circles never obscure the helmet/visor
 const NODES = [
-  { id: 'brain', label: 'Brain',    px: 50,   py: 6.2  },
-  { id: 'eyes',  label: 'Eyes',     px: 50,   py: 12.8 },
-  { id: 'lungs', label: 'Lungs',    px: 42.5, py: 29.5 },
-  { id: 'heart', label: 'Heart',    px: 57.5, py: 29.5 },
-  { id: 'whole', label: 'Core',     px: 50,   py: 47.0 },
-  { id: 'bones', label: 'Skeletal', px: 38.5, py: 70.5 },
+  { id: 'brain', label: 'Brain', side: 'left', pillTop: 12, px: 47, py: 12 },
+  { id: 'eyes', label: 'Eyes', side: 'right', pillTop: 22, px: 54, py: 20 },
+  { id: 'lungs', label: 'Lungs', side: 'left', pillTop: 37, px: 44, py: 35 },
+  { id: 'heart', label: 'Heart', side: 'right', pillTop: 42, px: 56, py: 35 },
+  { id: 'whole', label: 'Core', side: 'right', pillTop: 59, px: 52, py: 48 },
+  { id: 'bones', label: 'Skeletal', side: 'left', pillTop: 71, px: 44, py: 68 },
 ];
 
 export default function BodyMap({ nodes = {}, selectedNode, onSelectNode, indicatorCounts = {} }) {
+  const [use3D, setUse3D] = useState(true);
+  const [hoveredNode, setHoveredNode] = useState(null);
+
+  const stageRef = useRef(null);
+  const pipRefs = useRef({});
+  const pillRefs = useRef({});
+  const lineRefs = useRef({});
+  const pillAnchorsRef = useRef({});
+  const lastProjectedRef = useRef(
+    Object.fromEntries(NODES.map((n) => [n.id, { px: n.px, py: n.py, front: true }])),
+  );
+
+  const applyPositions = useCallback((projected) => {
+    for (let i = 0; i < NODES.length; i++) {
+      const n = NODES[i];
+      const p = projected[n.id];
+      if (!p) continue;
+
+      const pipEl = pipRefs.current[n.id];
+      if (pipEl) {
+        pipEl.style.left = `${p.px.toFixed(2)}%`;
+        pipEl.style.top = `${p.py.toFixed(2)}%`;
+        pipEl.style.opacity = p.front ? '1' : '0.40';
+      }
+
+      const lineEl = lineRefs.current[n.id];
+      const anchor = pillAnchorsRef.current[n.id];
+      if (lineEl && anchor) {
+        const elbowX = anchor.ax + (p.px - anchor.ax) * 0.35;
+        lineEl.setAttribute(
+          'points',
+          `${p.px.toFixed(2)},${p.py.toFixed(2)} ${elbowX.toFixed(2)},${anchor.ay.toFixed(2)} ${anchor.ax.toFixed(2)},${anchor.ay.toFixed(2)}`,
+        );
+        lineEl.style.opacity = p.front ? '1' : '0.35';
+      }
+    }
+  }, []);
+
+  const measurePills = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const sr = stage.getBoundingClientRect();
+    if (!sr.width || !sr.height) return;
+
+    for (let i = 0; i < NODES.length; i++) {
+      const n = NODES[i];
+      const pill = pillRefs.current[n.id];
+      if (!pill) continue;
+      const pr = pill.getBoundingClientRect();
+      const edgeX = n.side === 'left' ? pr.right - sr.left : pr.left - sr.left;
+      const centerY = pr.top + pr.height * 0.5 - sr.top;
+      pillAnchorsRef.current[n.id] = {
+        ax: (edgeX / sr.width) * 100,
+        ay: (centerY / sr.height) * 100,
+      };
+    }
+
+    applyPositions(lastProjectedRef.current);
+  }, [applyPositions]);
+
+  useEffect(() => {
+    measurePills();
+    const stage = stageRef.current;
+    if (!stage || typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(measurePills);
+    ro.observe(stage);
+    return () => ro.disconnect();
+  }, [measurePills, use3D, selectedNode]);
+
+  // Update 3D reticle pips & leader lines smoothly at 60fps without triggering React re-renders
+  const handleProjectNodes = useCallback((projected) => {
+    lastProjectedRef.current = projected;
+    applyPositions(projected);
+  }, [applyPositions]);
+
+  const handleFallback = useCallback(() => setUse3D(false), []);
+
   return (
     <div className="astro-body-stage">
-      {/* Spacesuit Silhouette scaled proportionally to fill the triage stage */}
-      <div className="astro-suit-frame">
-        <img
-          src={bodySvg}
-          alt="Astronaut spacesuit silhouette"
-          style={{ width: '100%', height: '100%', display: 'block', userSelect: 'none', pointerEvents: 'none' }}
-          draggable={false}
-        />
+      <div ref={stageRef} className="astro-suit-frame">
+        {use3D ? (
+          <Astronaut3D
+            onProjectNodes={handleProjectNodes}
+            onFallback={handleFallback}
+          />
+        ) : (
+          <img
+            src={bodySvg}
+            alt="Astronaut spacesuit silhouette"
+            style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', userSelect: 'none', pointerEvents: 'none' }}
+            draggable={false}
+          />
+        )}
 
-        {/* Clickable nodes */}
+        {/* Telemetry SVG leader lines connecting 3D anatomical pips to side callout pills */}
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: 6,
+            overflow: 'visible',
+          }}
+        >
+          {NODES.map((n) => {
+            const status = nodes[n.id] ?? 'GREEN';
+            const c = STATUS[status] ?? STATUS.GREEN;
+            const emphasized = selectedNode === n.id || hoveredNode === n.id;
+            const defaultEdgeX = n.side === 'left' ? 19 : 81;
+            const elbowX = defaultEdgeX + (n.px - defaultEdgeX) * 0.35;
+            return (
+              <polyline
+                key={`line-${n.id}`}
+                ref={(el) => { lineRefs.current[n.id] = el; }}
+                fill="none"
+                points={`${n.px},${n.py} ${elbowX.toFixed(2)},${n.pillTop} ${defaultEdgeX},${n.pillTop}`}
+                stroke={emphasized ? c.ring : c.dot}
+                strokeWidth={emphasized ? 2.4 : 1.5}
+                strokeOpacity={emphasized ? 0.96 : 0.62}
+                vectorEffect="non-scaling-stroke"
+              />
+            );
+          })}
+        </svg>
+
+        {/* Subtle precision target pips on the 3D astronaut (never block the helmet/visor) */}
         {NODES.map((n) => {
-          const status   = nodes[n.id] ?? 'GREEN';
-          const c        = STATUS[status] ?? STATUS.GREEN;
+          const status = nodes[n.id] ?? 'GREEN';
+          const c = STATUS[status] ?? STATUS.GREEN;
           const isActive = selectedNode === n.id;
-          const pulse    = status === 'YELLOW' || status === 'RED';
-          const size     = isActive ? 22 : 17;
+          const isHovered = hoveredNode === n.id;
+          const emphasized = isActive || isHovered;
+          const pipSize = emphasized ? 12 : 9;
+          const pulse = status === 'YELLOW' || status === 'RED';
 
           return (
             <button
-              key={n.id}
+              key={`pip-${n.id}`}
+              ref={(el) => { pipRefs.current[n.id] = el; }}
               type="button"
+              tabIndex={-1}
+              aria-hidden="true"
+              onPointerDown={(e) => e.stopPropagation()}
+              onMouseEnter={() => setHoveredNode(n.id)}
+              onMouseLeave={() => setHoveredNode((prev) => (prev === n.id ? null : prev))}
               onClick={() => onSelectNode(n.id)}
-              aria-label={`${n.label}: ${c.label}`}
-              aria-pressed={isActive}
-              title={`${n.label} · ${c.label}`}
               className={pulse && !isActive ? 'node-pulse' : ''}
               style={{
-                position:       'absolute',
-                left:           `${n.px}%`,
-                top:            `${n.py}%`,
-                transform:      'translate(-50%, -50%)',
-                width:          size,
-                height:         size,
-                borderRadius:   '50%',
-                border:         `2px solid ${isActive ? '#ffffff' : c.ring}`,
-                background:     c.dot,
-                boxShadow:      `0 0 ${isActive ? 16 : 8}px ${c.glow}`,
-                cursor:         'pointer',
-                padding:        0,
-                transition:     'all 0.18s ease',
-                zIndex:         isActive ? 10 : 5,
-                display:        'flex',
-                alignItems:     'center',
+                position: 'absolute',
+                left: `${n.px}%`,
+                top: `${n.py}%`,
+                transform: 'translate(-50%, -50%)',
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                padding: 0,
+                zIndex: emphasized ? 14 : 7,
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
-                color:          '#080c14',
-                fontSize:       7,
-                fontWeight:     900,
               }}
             >
-              <span aria-hidden="true">{c.icon}</span>
+              <span
+                style={{
+                  width: pipSize,
+                  height: pipSize,
+                  borderRadius: '50%',
+                  background: emphasized ? '#ffffff' : c.dot,
+                  border: `1.5px solid ${emphasized ? c.dot : 'rgba(8, 12, 20, 0.9)'}`,
+                  boxShadow: emphasized
+                    ? `0 0 0 3px ${c.glow}, 0 0 12px ${c.glow}`
+                    : `0 0 0 1.5px rgba(8, 12, 20, 0.8), 0 0 7px ${c.glow}`,
+                  transition: 'width 0.14s ease, height 0.14s ease, box-shadow 0.14s ease',
+                }}
+              />
             </button>
           );
         })}
 
-        {/* Floating callout for active node */}
+        {/* Ergonomic left/right HUD telemetry callout pills (primary easy-click targets) */}
         {NODES.map((n) => {
-          if (selectedNode !== n.id) return null;
           const status = nodes[n.id] ?? 'GREEN';
-          const c      = STATUS[status] ?? STATUS.GREEN;
-          const count  = indicatorCounts[n.id];
-          const goLeft = n.px <= 50;
+          const c = STATUS[status] ?? STATUS.GREEN;
+          const isActive = selectedNode === n.id;
+          const isHovered = hoveredNode === n.id;
+          const emphasized = isActive || isHovered;
+          const pulse = status === 'YELLOW' || status === 'RED';
+          const count = indicatorCounts[n.id];
+
           return (
-            <div
-              key={`lbl-${n.id}`}
+            <button
+              key={n.id}
+              ref={(el) => { pillRefs.current[n.id] = el; }}
+              type="button"
+              onPointerDown={(e) => e.stopPropagation()}
+              onMouseEnter={() => setHoveredNode(n.id)}
+              onMouseLeave={() => setHoveredNode((prev) => (prev === n.id ? null : prev))}
+              onClick={() => onSelectNode(n.id)}
+              aria-label={`${n.label}: ${c.label}`}
+              aria-pressed={isActive}
+              title={`${n.label} · ${c.label}${count != null ? ` (${count})` : ''}`}
               style={{
-                position:     'absolute',
-                left:         `${n.px}%`,
-                top:          `${n.py}%`,
-                transform:    goLeft
-                  ? 'translate(calc(-100% - 14px), -50%)'
-                  : 'translate(14px, -50%)',
-                fontFamily:   "'Inter', sans-serif",
-                color:        '#f8fafc',
-                background:   'rgba(15, 23, 42, 0.96)',
-                border:       `1px solid ${c.dot}`,
-                borderRadius: 7,
-                padding:      '5px 9px',
-                whiteSpace:   'nowrap',
-                pointerEvents:'none',
-                zIndex:       20,
-                boxShadow:    '0 8px 20px rgba(0,0,0,0.5)',
+                position: 'absolute',
+                [n.side]: 'clamp(2px, 1cqw, 8px)',
+                top: `${n.pillTop}%`,
+                transform: 'translateY(-50%)',
+                zIndex: emphasized ? 16 : 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 7,
+                minWidth: 'clamp(92px, 22cqw, 120px)',
+                padding: 'clamp(6px, 1.4cqw, 8px) clamp(9px, 2.1cqw, 14px)',
+                borderRadius: 9,
+                background: isActive ? 'rgba(15, 23, 42, 0.96)' : 'rgba(10, 16, 28, 0.86)',
+                backdropFilter: 'blur(6px)',
+                border: `${isActive ? 1.5 : 1}px solid ${isActive ? c.dot : isHovered ? c.ring : pulse ? c.dot : 'rgba(148, 163, 184, 0.32)'}`,
+                boxShadow: isActive
+                  ? `0 0 16px ${c.glow}, inset 0 0 0 1px rgba(255,255,255,0.08)`
+                  : pulse
+                    ? `0 0 12px ${c.glow}`
+                    : '0 4px 12px rgba(0, 0, 0, 0.4)',
+                color: isActive ? '#f8fafc' : '#e2e8f0',
+                fontFamily: "'Inter', sans-serif",
+                fontSize: 'clamp(11.5px, 2.5cqw, 13.5px)',
+                fontWeight: isActive ? 700 : 600,
+                lineHeight: 1.1,
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+                transition: 'border-color 0.14s ease, box-shadow 0.14s ease, background 0.14s ease',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 700 }}>
-                <span style={{ color: c.dot, fontSize: 8.5 }}>{c.icon}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className={pulse && !isActive ? 'crit-blink' : ''} style={{ color: c.dot, fontSize: 'clamp(9.5px, 2cqw, 11.5px)', flexShrink: 0 }}>{c.icon}</span>
                 <span>{n.label}</span>
-              </div>
+              </span>
               {count != null && (
-                <div style={{ fontSize: 9.5, color: '#94a3b8', marginTop: 1 }}>
-                  {count} {count === 1 ? 'indicator' : 'indicators'}
-                </div>
+                <span
+                  style={{
+                    fontSize: 'clamp(10.5px, 2.2cqw, 12px)',
+                    fontWeight: 600,
+                    color: isActive ? '#e2e8f0' : '#94a3b8',
+                    paddingLeft: 6,
+                    borderLeft: '1px solid rgba(148, 163, 184, 0.24)',
+                  }}
+                >
+                  {count}
+                </span>
               )}
-            </div>
+            </button>
           );
         })}
       </div>

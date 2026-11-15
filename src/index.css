@@ -164,6 +164,7 @@
 }
 
 .astro-body-stage {
+  position: relative;
   flex: 1;
   min-height: 360px;
   width: 100%;
@@ -175,17 +176,17 @@
 
 .astro-suit-frame {
   position: relative;
-  height: min(96cqh, calc(96cqw * 410 / 250));
-  width: min(96cqw, calc(96cqh * 250 / 410));
+  width: min(100%, 500px);
+  height: 100%;
 }
 
 .astro-suit-frame::before {
   content: '';
   position: absolute;
-  inset: 3% -24%;
+  inset: 6% 16%;
   z-index: 0;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 43%, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.08) 42%, transparent 72%);
+  background: radial-gradient(ellipse at 50% 44%, rgba(56, 189, 248, 0.24), rgba(56, 189, 248, 0.08) 42%, transparent 72%);
   filter: blur(15px);
   animation: suitGlow 5s ease-in-out infinite;
 }
