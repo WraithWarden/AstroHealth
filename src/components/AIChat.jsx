@@ -13,6 +13,19 @@ const buttonStyle = {
   fontWeight: 600,
 };
 
+function friendlyAiError(status, message) {
+  if (status === 503 || /GEMINI_API_KEY|not configured/i.test(message || '')) {
+    return 'AstroHealth AI is offline — add GEMINI_API_KEY (in .env.local locally or Vercel env settings) to enable AI replies, or view steps in the Protocol Guide.';
+  }
+  if (status === 429) {
+    return 'AstroHealth AI is temporarily busy (rate limit reached). Please wait a moment and try again.';
+  }
+  if (status >= 500 || /API key|provider/i.test(message || '')) {
+    return 'AstroHealth AI could not reach the assistant service right now. Please try again shortly.';
+  }
+  return message || 'Could not reach AstroHealth AI. Check your connection and try again.';
+}
+
 export default function AIChat({ record, records, onClose, onOpenProtocol }) {
   const [question, setQuestion] = useState('');
   const [turns, setTurns] = useState([]);
@@ -20,7 +33,7 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
   const [error, setError] = useState('');
 
   async function submit(event) {
-    event.preventDefault();
+    event?.preventDefault?.();
     const text = question.trim();
     if (!text || loading) return;
 
@@ -39,8 +52,8 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
           ]),
         }),
       });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || `The request failed (HTTP ${response.status}).`);
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(friendlyAiError(response.status, result.error));
       if (typeof result.answer !== 'string' || !result.answer.trim()) {
         throw new Error('The AI service returned an empty answer. Please try again.');
       }
@@ -52,7 +65,11 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
       }]);
       setQuestion('');
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'The AI request failed. Please try again.');
+      setError(
+        requestError instanceof Error && requestError.message && !/failed to fetch/i.test(requestError.message)
+          ? requestError.message
+          : 'Unable to reach AstroHealth AI. Check your connection and try again.',
+      );
     } finally {
       setLoading(false);
     }
@@ -126,7 +143,23 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
           </article>
         ))}
         {loading && <div role="status" style={{ color: '#7dd3fc', fontSize: 10.5 }}>Thinking…</div>}
-        {error && <div role="alert" style={{ color: '#fda4af', fontSize: 10.5, lineHeight: 1.45 }}>{error}</div>}
+        {error && (
+          <div
+            role="alert"
+            style={{
+              padding: '8px 10px',
+              borderRadius: 7,
+              background: 'rgba(244, 63, 94, 0.1)',
+              border: '1px solid rgba(244, 63, 94, 0.32)',
+              color: '#fecdd3',
+              fontSize: 10.5,
+              lineHeight: 1.45,
+            }}
+          >
+            <strong style={{ color: '#fb7185' }}>■ </strong>
+            {error}
+          </div>
+        )}
       </div>
 
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingTop: 8, borderTop: '1px solid rgba(148, 163, 184, 0.12)' }}>
@@ -134,9 +167,15 @@ export default function AIChat({ record, records, onClose, onOpenProtocol }) {
           aria-label="Message AstroHealth AI"
           value={question}
           onChange={(event) => setQuestion(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+              event.preventDefault();
+              if (question.trim() && !loading) submit(event);
+            }
+          }}
           maxLength={600}
           rows={2}
-          placeholder="e.g. Why is ONSD monitored in microgravity?"
+          placeholder="e.g. Why is ONSD monitored in microgravity? (Enter to send)"
           style={{ resize: 'vertical', minHeight: 48, maxHeight: 88, borderRadius: 6, border: '1px solid rgba(148, 163, 184, 0.24)', background: 'rgba(8, 15, 27, 0.8)', color: '#e2e8f0', padding: '7px 9px', fontFamily: "'Inter', sans-serif", fontSize: 10.5 }}
         />
         <button type="submit" disabled={!question.trim() || loading} style={{ ...buttonStyle, width: '100%', opacity: question.trim() && !loading ? 1 : 0.55 }}>

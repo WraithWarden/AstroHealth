@@ -3,11 +3,9 @@
 > **Offline-first clinical decision support for ISS, Lunar Artemis, and Mars transit missions.**
 > Built on NASA-STD-3001, NASA HRP spaceflight hazard frameworks, and NASA OSDR radiation telemetry.
 
-![Tests](https://img.shields.io/badge/tests-20%20passed-brightgreen)
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
+
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Data](https://img.shields.io/badge/data-NASA%20OSDR%20%7C%20NASA--STD--3001-blue)
-![Runtime](https://img.shields.io/badge/runtime-offline--first%20%7C%20no%20backend-lightgrey)
 
 ---
 
@@ -18,9 +16,8 @@
 3. [Architecture](#3-architecture)
 4. [Clinical Rules Engine](#4-clinical-rules-engine)
 5. [Data Sources & Standards](#5-data-sources--standards)
-6. [Radiation Telemetry & Fallback Disclosure](#6-radiation-telemetry--fallback-disclosure)
-7. [Limitations & Medical Disclaimer](#7-limitations--medical-disclaimer)
-8. [Team & Module Ownership](#8-team--module-ownership)
+6. [Limitations & Medical Disclaimer](#6-limitations--medical-disclaimer)
+7. [Team & Module Ownership](#7-team--module-ownership)
 
 ---
 
@@ -213,34 +210,7 @@ All numeric cutoffs, baselines, and clinical protocol records are **bundled offl
 
 ---
 
-## 6. Radiation Telemetry & Fallback Disclosure
-
-During Phase 1 development, ISS US Lab (*Destiny* module) telemetry was sampled from the **[NASA OSDR RadLab portal](https://visualization.osdr.nasa.gov/radlab/gui/overview/)** using the TEPC-SMP327-pre instrument (Sep–Nov 2014). The raw export is `export.csv`.
-
-**Unit disclosure:** The TEPC column reports **absorbed dose (µGy/day)**, not dose equivalent (mSv/day). Converting absorbed dose (Gy) to dose equivalent (Sv) requires the LET quality factor *Q*, which varies by particle type and is not present in the export. Per the blueprint clinical rule:
-
-- Raw absorbed dose is **not converted** without *Q*.
-- The app uses the calibrated ISS reference baseline of **0.48 mSv/day** (`history7d: [0.48, 0.47, 0.49, 0.48, 0.47, 0.48, 0.48]`), sourced from [NASA HRP](https://www.nasa.gov/hrp/risks/) ISS mission exposure data.
-- For verified hourly dose-equivalent feeds (µSv/h), the pipeline conversion is: `mSv/day = (µSv/h × 24) / 1000`.
-
-The 7-day TEPC sample from `export.csv` (absorbed dose, µGy/day, not converted):
-
-| Date | TEPC-SMP327-pre (µGy/day) |
-|------|--------------------------|
-| 2016-05-14 | 13.28 |
-| 2016-05-15 | 14.42 |
-| 2016-05-16 | 12.65 |
-| 2016-05-17 | 15.22 |
-| 2016-05-18 | 12.65 |
-| 2016-05-19 | 13.41 |
-| 2016-05-20 | 12.67 |
-| **7-day avg** | **13.47 µGy/day** |
-
-*One-time sample from [NASA OSDR RadLab](https://osdr.nasa.gov/bio/repo/) — not a live feed.*
-
----
-
-## 7. Limitations & Medical Disclaimer
+## 6. Limitations & Medical Disclaimer
 
 > [!CAUTION]
 > **AstroHealth is an educational and hackathon prototype. It is not a certified medical device, diagnostic instrument, or flight-qualified software.**
@@ -251,11 +221,11 @@ The 7-day TEPC sample from `export.csv` (absorbed dose, µGy/day, not converted)
 | **Synthetic demo data** | All crew profiles (`AST-001` ISS, `AST-002` Lunar, `AST-003` Mars) and 7-day histories in `presets.json` are demonstration datasets. |
 | **Heuristic thresholds `[H]`** | Composite weighting, autonomy penalties, and 3-day trend rules are operational triage heuristics — not formal NASA flight rules. |
 | **Prototype UI tools** | The ONSD ultrasound caliper (`OnsdCaliperModal.jsx`) and PVT-Lite reaction test (`PvtTest.jsx`) are interactive UI prototypes. |
-| **Radiation unit** | The ISS radiation baseline uses mSv/day (dose equivalent). The NASA OSDR RadLab export provides absorbed dose (µGy) only — see §6. |
+| **Radiation unit** | The ISS radiation baseline uses mSv/day (dose equivalent). The NASA OSDR RadLab export provides absorbed dose (µGy) only — see §5. |
 
 ---
 
-## 8. Team & Module Ownership
+## 7. Team & Module Ownership
 
 | Person | Role | Owns |
 |--------|------|------|
