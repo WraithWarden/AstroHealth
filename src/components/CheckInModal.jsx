@@ -74,14 +74,47 @@ function buildReading(values, pvt, auto) {
   };
 }
 
-function Field({ id, label, unit, error, onBlur, ...props }) {
+function HowButton({ label, active, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`How to measure ${label}`}
+      aria-pressed={active || undefined}
+      title={`How to measure ${label}`}
+      style={{
+        background: active ? 'rgba(56, 189, 248, 0.22)' : 'rgba(56, 189, 248, 0.08)',
+        border: `1px solid ${active ? '#38bdf8' : 'rgba(56, 189, 248, 0.24)'}`,
+        borderRadius: 4,
+        color: active ? '#e0f2fe' : '#38bdf8',
+        fontFamily: "'Inter', sans-serif",
+        fontSize: 10,
+        fontWeight: 600,
+        lineHeight: 1.2,
+        padding: '2px 6px',
+        cursor: 'pointer',
+        flexShrink: 0,
+        transition: 'background 0.14s ease, border-color 0.14s ease',
+      }}
+    >
+      ? How
+    </button>
+  );
+}
+
+function Field({ id, label, unit, error, onBlur, onInspectHow, howActive, ...props }) {
   const [focused, setFocused] = useState(false);
   const errId = `${id}-err`;
   return (
     <div>
-      <label htmlFor={id} style={LABEL_STYLE}>
-        {label} {unit && <span style={{ color: '#64748b', fontWeight: 400 }}>({unit})</span>}
-      </label>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 5 }}>
+        <label htmlFor={id} style={{ ...LABEL_STYLE, marginBottom: 0 }}>
+          {label} {unit && <span style={{ color: '#64748b', fontWeight: 400 }}>({unit})</span>}
+        </label>
+        {onInspectHow && (
+          <HowButton label={label} active={howActive} onClick={onInspectHow} />
+        )}
+      </div>
       <input
         id={id}
         {...props}
@@ -106,7 +139,18 @@ function Field({ id, label, unit, error, onBlur, ...props }) {
   );
 }
 
-export default function CheckInModal({ open = true, onClose, onSubmit, defaults, auto, pvt }) {
+export default function CheckInModal({
+  open = true,
+  onClose,
+  onSubmit,
+  defaults,
+  auto,
+  pvt,
+  onInspectHow,
+  activeGuideId,
+  guideOpen = false,
+  onCloseGuide,
+}) {
   const [values, setValues] = useState(() => initialValues(defaults));
   const [errors, setErrors] = useState({});
   const [symptoms, setSymptoms] = useState([]);
@@ -123,13 +167,13 @@ export default function CheckInModal({ open = true, onClose, onSubmit, defaults,
   }, [open]);
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (!open || guideOpen) return undefined;
     const onKey = (e) => {
       if (e.key === 'Escape') onClose?.();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
+  }, [open, guideOpen, onClose]);
 
   if (!open) return null;
 
@@ -157,7 +201,10 @@ export default function CheckInModal({ open = true, onClose, onSubmit, defaults,
   const titleId = `${uid}-title`;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div
+      className={`modal-overlay${guideOpen ? ' check-in-with-guide' : ''}`}
+      onClick={() => (guideOpen ? onCloseGuide?.() : onClose?.())}
+    >
       <div
         className="hud-panel fade-in"
         role="dialog"
@@ -248,6 +295,8 @@ export default function CheckInModal({ open = true, onClose, onSubmit, defaults,
                     error={errors[f.key]}
                     onChange={(e) => set(f.key, e.target.value)}
                     onBlur={() => checkOne(f)}
+                    onInspectHow={onInspectHow ? () => onInspectHow(f.id) : undefined}
+                    howActive={guideOpen && activeGuideId === f.id}
                     {...(i === 0 ? { autoFocus: true } : {})}
                   />
                 ))}
@@ -266,8 +315,17 @@ export default function CheckInModal({ open = true, onClose, onSubmit, defaults,
               background: 'rgba(15, 23, 42, 0.6)',
             }}>
               <div>
-                <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10.5, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 4 }}>
-                  Reaction Test (PVT-Lite)
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 4 }}>
+                  <div style={{ fontFamily: "'Inter', sans-serif", fontSize: 10.5, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase' }}>
+                    Reaction Test (PVT-Lite)
+                  </div>
+                  {onInspectHow && (
+                    <HowButton
+                      label="Reaction Test (PVT-Lite)"
+                      active={guideOpen && activeGuideId === '3A-ii'}
+                      onClick={() => onInspectHow('3A-ii')}
+                    />
+                  )}
                 </div>
                 <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11.5, color: '#e2e8f0' }}>
                   {pvt

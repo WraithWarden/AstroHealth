@@ -25,8 +25,32 @@
 
 /* ── Keyframes ── */
 @keyframes nodePulse {
+  0%, 100% { opacity: 0.78; transform: translate(-50%, -50%) scale(1);    }
+  50%       { opacity: 1;    transform: translate(-50%, -50%) scale(1.24); }
+}
+@keyframes nodePulseCrit {
   0%, 100% { opacity: 0.72; transform: translate(-50%, -50%) scale(1);    }
-  50%       { opacity: 1;    transform: translate(-50%, -50%) scale(1.22); }
+  50%       { opacity: 1;    transform: translate(-50%, -50%) scale(1.45); }
+}
+@keyframes pillPulseWarn {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.24);
+  }
+  50% {
+    transform: translateY(-50%) scale(1.035);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.58), 0 0 0 1.5px rgba(245, 158, 11, 0.35);
+  }
+}
+@keyframes pillPulseCrit {
+  0%, 100% {
+    transform: translateY(-50%) scale(1);
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);
+  }
+  50% {
+    transform: translateY(-50%) scale(1.075);
+    box-shadow: 0 0 28px rgba(244, 63, 94, 0.88), 0 0 0 2.5px rgba(244, 63, 94, 0.45);
+  }
 }
 @keyframes critBlink {
   0%, 100% { opacity: 1;    }
@@ -116,9 +140,12 @@
 .font-display { font-family: 'Orbitron', sans-serif; }
 .font-mono    { font-family: 'Space Mono', monospace; }
 
-.node-pulse { animation: nodePulse 1.8s ease-in-out infinite; }
-.crit-blink { animation: critBlink 1.4s ease-in-out infinite; }
-.fade-in    { animation: fadeIn 0.22s ease both; }
+.node-pulse      { animation: nodePulse 1.9s ease-in-out infinite; }
+.node-pulse-crit { animation: nodePulseCrit 1.05s ease-in-out infinite; }
+.pill-pulse-warn { animation: pillPulseWarn 2.1s ease-in-out infinite; }
+.pill-pulse-crit { animation: pillPulseCrit 1.05s ease-in-out infinite; }
+.crit-blink      { animation: critBlink 1.4s ease-in-out infinite; }
+.fade-in         { animation: fadeIn 0.22s ease both; }
 
 /* ── Modal overlay ── */
 .modal-overlay {
@@ -131,6 +158,13 @@
   align-items: center;
   justify-content: center;
   padding: 1.25rem;
+  transition: padding-right 0.2s ease;
+}
+
+@media (min-width: 1080px) {
+  .modal-overlay.check-in-with-guide {
+    padding-right: 468px;
+  }
 }
 
 /* ── Responsive Layout Grids ── */
@@ -211,7 +245,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .astro-suit-frame::before { animation: none; }
+  .astro-suit-frame::before,
+  .node-pulse,
+  .node-pulse-crit,
+  .pill-pulse-warn,
+  .pill-pulse-crit {
+    animation: none;
+  }
 }
 
 @media (min-width: 1181px) {

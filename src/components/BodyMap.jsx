@@ -157,7 +157,11 @@ export default function BodyMap({ nodes = {}, selectedNode, onSelectNode, indica
           const isHovered = hoveredNode === n.id;
           const emphasized = isActive || isHovered;
           const pipSize = emphasized ? 12 : 9;
-          const pulse = status === 'YELLOW' || status === 'RED';
+          const pipPulseClass = status === 'RED'
+            ? 'node-pulse-crit'
+            : status === 'YELLOW'
+              ? 'node-pulse'
+              : '';
 
           return (
             <button
@@ -170,7 +174,7 @@ export default function BodyMap({ nodes = {}, selectedNode, onSelectNode, indica
               onMouseEnter={() => setHoveredNode(n.id)}
               onMouseLeave={() => setHoveredNode((prev) => (prev === n.id ? null : prev))}
               onClick={() => onSelectNode(n.id)}
-              className={pulse && !isActive ? 'node-pulse' : ''}
+              className={pipPulseClass}
               style={{
                 position: 'absolute',
                 left: `${n.px}%`,
@@ -214,6 +218,11 @@ export default function BodyMap({ nodes = {}, selectedNode, onSelectNode, indica
           const isHovered = hoveredNode === n.id;
           const emphasized = isActive || isHovered;
           const pulse = status === 'YELLOW' || status === 'RED';
+          const pillPulseClass = status === 'RED'
+            ? 'pill-pulse-crit'
+            : status === 'YELLOW'
+              ? 'pill-pulse-warn'
+              : '';
           const count = indicatorCounts[n.id];
 
           return (
@@ -228,6 +237,7 @@ export default function BodyMap({ nodes = {}, selectedNode, onSelectNode, indica
               aria-label={`${n.label}: ${c.label}`}
               aria-pressed={isActive}
               title={`${n.label} · ${c.label}${count != null ? ` (${count})` : ''}`}
+              className={pillPulseClass}
               style={{
                 position: 'absolute',
                 [n.side]: 'clamp(2px, 1cqw, 8px)',
@@ -243,12 +253,12 @@ export default function BodyMap({ nodes = {}, selectedNode, onSelectNode, indica
                 borderRadius: 9,
                 background: isActive ? 'rgba(15, 23, 42, 0.96)' : 'rgba(10, 16, 28, 0.86)',
                 backdropFilter: 'blur(6px)',
-                border: `${isActive ? 1.5 : 1}px solid ${isActive ? c.dot : isHovered ? c.ring : pulse ? c.dot : 'rgba(148, 163, 184, 0.32)'}`,
-                boxShadow: isActive
-                  ? `0 0 16px ${c.glow}, inset 0 0 0 1px rgba(255,255,255,0.08)`
-                  : pulse
-                    ? `0 0 12px ${c.glow}`
+                border: `${isActive ? 1.5 : 1}px solid ${isActive ? (pulse ? c.ring : c.dot) : isHovered ? c.ring : pulse ? c.dot : 'rgba(148, 163, 184, 0.32)'}`,
+                ...(pulse ? {} : {
+                  boxShadow: isActive
+                    ? `0 0 16px ${c.glow}, inset 0 0 0 1px rgba(255,255,255,0.08)`
                     : '0 4px 12px rgba(0, 0, 0, 0.4)',
+                }),
                 color: isActive ? '#f8fafc' : '#e2e8f0',
                 fontFamily: "'Inter', sans-serif",
                 fontSize: 'clamp(11.5px, 2.5cqw, 13.5px)',
