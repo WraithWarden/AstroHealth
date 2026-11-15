@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const TRIALS    = 3;
+const TRIALS    = 5;
 const MIN_DELAY = 1500;
 const MAX_DELAY = 4500;
 const LAPSE_MS  = 500;

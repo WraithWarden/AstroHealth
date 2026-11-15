@@ -2,14 +2,30 @@ import { useEffect, useId, useRef, useState } from "react";
 
 const TABS = [
   { id: "how", label: "How to Measure" },
-  { id: "why", label: "Why & Citations" },
+  { id: "why", label: "Why" },
 ];
 
-const SOURCE_LABELS = {
-  S: "NASA-STD-3001 Spaceflight Human-System Standard",
-  L: "NASA HRP / ISS Flight Medical Literature",
-  C: "Standard Terrestrial Clinical Threshold",
-  H: "Operational Triage Heuristic (illustrative, not a NASA limit)",
+const SOURCE_META = {
+  S: {
+    title: "NASA-STD-3001 Spaceflight Human-System Standard",
+    subtitle: "nasa.gov/ochmo/hsa-standards",
+    href: "https://www.nasa.gov/ochmo/hsa-standards/",
+  },
+  L: {
+    title: "NASA HRP / ISS Flight Medical Literature",
+    subtitle: "nasa.gov/hrp/risks",
+    href: "https://www.nasa.gov/hrp/risks/",
+  },
+  C: {
+    title: "Standard Terrestrial Clinical Threshold",
+    subtitle: "medlineplus.gov/vitalsigns",
+    href: "https://medlineplus.gov/vitalsigns.html",
+  },
+  H: {
+    title: "Operational Triage Heuristic (illustrative, not a NASA limit)",
+    subtitle: "nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs",
+    href: "https://www.nasa.gov/ochmo/hsa-standards/ochmo-technical-briefs/",
+  },
 };
 
 const FOCUSABLE =
@@ -96,6 +112,28 @@ export default function InstructionDrawer({ record, open, onClose }) {
 
   const titleId = `${uid}-title`;
   const sourceTags = toArr(record.source_tag);
+  const referenceLinks = sourceTags.map((t) => ({
+    code: t,
+    title: SOURCE_META[t]?.title || t,
+    subtitle: SOURCE_META[t]?.subtitle || "nasa.gov",
+    href: SOURCE_META[t]?.href || "https://www.nasa.gov/hrp/hazards/",
+  }));
+
+  if (record.id?.startsWith("2A")) {
+    referenceLinks.push({
+      code: "OSDR",
+      title: "NASA Open Science Data Repository (Radiation & Space Biology)",
+      subtitle: "osdr.nasa.gov/bio/repo",
+      href: "https://osdr.nasa.gov/bio/repo/",
+    });
+  } else if (!sourceTags.includes("S") && !sourceTags.includes("L")) {
+    referenceLinks.push({
+      code: "HRP",
+      title: "NASA 5 Hazards of Human Spaceflight",
+      subtitle: "nasa.gov/hrp/hazards",
+      href: "https://www.nasa.gov/hrp/hazards/",
+    });
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -214,12 +252,34 @@ export default function InstructionDrawer({ record, open, onClose }) {
               <Section title="Clinical Benefits">
                 <List items={record.benefits} />
               </Section>
-              <Section title="Standards & Evidence Sources">
+              <Section title="Standards &amp; Evidence Sources">
                 <ul className="space-y-2 text-xs text-slate-300">
-                  {sourceTags.map((t) => (
-                    <li key={t} className="rounded border border-slate-800 bg-slate-900/50 p-2.5">
-                      <span className="font-mono font-bold text-sky-400">[{t}]</span>{" "}
-                      {SOURCE_LABELS[t] || t}
+                  {referenceLinks.map((ref) => (
+                    <li key={`${ref.code}-${ref.href}`}>
+                      <a
+                        href={ref.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group flex items-start justify-between gap-3 rounded-lg border border-slate-800 bg-slate-900/50 p-2.5 transition-colors hover:border-sky-500/50 hover:bg-slate-900/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                      >
+                        <div className="min-w-0">
+                          <div className="leading-snug text-slate-200 group-hover:text-white">
+                            <span className="mr-1.5 font-mono font-bold text-sky-400">
+                              [{ref.code}]
+                            </span>
+                            {ref.title}
+                          </div>
+                          <div className="mt-0.5 truncate font-mono text-[11px] text-slate-400 group-hover:text-sky-300">
+                            {ref.subtitle}
+                          </div>
+                        </div>
+                        <span
+                          aria-hidden="true"
+                          className="shrink-0 font-mono text-xs text-slate-500 transition-transform group-hover:translate-x-0.5 group-hover:text-sky-400"
+                        >
+                          ↗
+                        </span>
+                      </a>
                     </li>
                   ))}
                 </ul>

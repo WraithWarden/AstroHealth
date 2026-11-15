@@ -131,7 +131,7 @@
     ],
     "steps": [
       "Sit still in a quiet place with one finger ready on the screen or mouse.",
-      "Press Start. In each of 3 trials, wait for the circle to turn green, then tap it as fast as you can.",
+      "Press Start. In each of 5 trials, wait for the circle to turn green, then tap it as fast as you can.",
       "Read the median time and the lapse count. They are sent to the check-in automatically."
     ],
     "when": "Every day at the check-in, and again right before safety-critical tasks (docking, robotics, EVA).",
