@@ -36,6 +36,10 @@
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0);   }
 }
+@keyframes suitGlow {
+  0%, 100% { opacity: 0.58; transform: scale(0.96); }
+  50%       { opacity: 0.9;  transform: scale(1.04); }
+}
 
 /* ── Base ── */
 @layer base {
@@ -173,6 +177,40 @@
   position: relative;
   height: min(96cqh, calc(96cqw * 410 / 250));
   width: min(96cqw, calc(96cqh * 250 / 410));
+}
+
+.astro-suit-frame::before {
+  content: '';
+  position: absolute;
+  inset: 3% -24%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 43%, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.08) 42%, transparent 72%);
+  filter: blur(15px);
+  animation: suitGlow 5s ease-in-out infinite;
+}
+
+.astro-suit-frame::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: 18%;
+  right: 18%;
+  bottom: 1%;
+  height: 3%;
+  pointer-events: none;
+  background: radial-gradient(ellipse, rgba(56, 189, 248, 0.2), transparent 70%);
+  filter: blur(5px);
+}
+
+.astro-suit-frame > img {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.22)) drop-shadow(0 10px 12px rgba(0, 0, 0, 0.42));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .astro-suit-frame::before { animation: none; }
 }
 
 @media (min-width: 1181px) {
