@@ -22,7 +22,7 @@
 
 ## 1. Overview
 
-**AstroHealth** is a browser-based, zero-backend clinical decision-support dashboard for astronauts and Crew Medical Officers (CMOs) across three spaceflight autonomy regimes:
+**AstroHealth** is a browser-based, backend clinical decision-support dashboard for astronauts and Crew Medical Officers (CMOs) across three spaceflight autonomy regimes:
 
 | Regime | Comm Delay | Autonomy Level | Key Capability |
 |--------|-----------|----------------|----------------|
