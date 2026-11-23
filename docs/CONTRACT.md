@@ -2,6 +2,12 @@
 
 All UI components in `src/components` consume **only** the plain-JavaScript output of `evaluate(input)` from `src/engine`. No React code or raw clinical threshold logic belongs inside UI components.
 
+This document is the existing-engine contract. The planned Supabase/Vercel HTTP and database contract is defined separately in [`docs/API_CONTRACT.md`](./API_CONTRACT.md).
+
+## Implementation Status
+
+The browser engine, check-in flow, report packet, localStorage state, and `/api/ask` handler described below are implemented. Supabase auth, the Postgres mission tables, the catch-all API router, RLS policies, ground-control routes, and the administration routes are the future backend plan and are contractually specified in [`docs/API_CONTRACT.md`](./API_CONTRACT.md).
+
 ---
 
 ## Architecture & Enums Summary
@@ -10,7 +16,7 @@ All UI components in `src/components` consume **only** the plain-JavaScript outp
   - `"NOMINAL"` (Green, score `80–100`)
   - `"WARNING"` (Yellow, score `50–79`)
   - `"CRITICAL"` (Red, score `0–49`)
-- **Autonomy Level (`autonomy.level`):**
+- **Autonomy Level (`autonomyDetails.level` and top-level `autonomy`):**
   - `"A0"`: Real-Time Telemedicine (`commDelaySec < 5`, ~0 s)
   - `"A1"`: Delayed Operations (`5 <= commDelaySec <= 300`, e.g., Lunar ~1.3 s to 5 min)
   - `"A2"`: Earth-Independent Autonomous Triage / Level of Care V (`commDelaySec > 300`, Mars ~18 min one-way)
@@ -30,7 +36,7 @@ All UI components in `src/components` consume **only** the plain-JavaScript outp
    - 7 Acute Red-Flag Symptoms: `blurredVision`, `persistentHeadache`, `dizzinessSyncope`, `chestPain`, `confusion`, `nausea`, `selfHarmIdeation`.
    - Any active red-flag symptom escalates linked indicators and caps overall status at `"CRITICAL"` (`score <= 49`).
    - Special rules:
-     - `1A-ii` (Resting HR): Red if `> 100 bpm` sustained across 2 readings 10 min apart, `< 40 bpm`, or symptomatic.
+     - `1A-ii` (Resting HR): Red if `> 100 bpm` with `sustainedHighReadings >= 2`, `< 40 bpm`, or symptomatic.
      - `3A-i` (Sleep): Red if `< 4.5 h` for `>= 2` consecutive nights or `z <= -3.0`.
      - `4B-i` (Fasting Glucose): Splits Red into `"HYPERGLYCEMIC"` (`>= 126 mg/dL`) vs. `"HYPOGLYCEMIC"` (`< 70 mg/dL`).
 
@@ -43,13 +49,13 @@ All UI components in `src/components` consume **only** the plain-JavaScript outp
      - `BOTH`: Yellow if $|z| \ge 2.0$, Red if $|z| \ge 3.0$.
 
 3. **Stage 3: Consecutive Worsening Trend Rule**
-   - Applies to indicators remaining `"NOMINAL"` (Green) after Stages 1 & 2.
+   - Applies to indicators remaining `"GREEN"` after Stages 1 & 2.
    - If the last 3 day-over-day intervals ($t_{-3} \to t_{-2} \to t_{-1} \to t_0$) moved monotonically in the unfavorable direction AND net excursion $\ge 1.0 \times \sigma_{\text{space}}$, status elevates to `"WARNING"` with `trending: true`.
 
 4. **Stage 4: Linear Score Interpolation, Red-Floor Capping & Autonomy Penalty**
    - **Band mapping:** Green $|z| \in [0, 2) \to 100..80$, Yellow $|z| \in [2, 3) \to 79..50$, Red $|z| \in [3, 5] \to 49..0$. (Takes lower of threshold vs drift score).
    - **Card Score:** $\min(\text{constituent measurement scores})$.
-   - **Hazard Score ($H_1..H_4$):** $\text{mean}(\text{card}_1, \text{card}_2)$.
+   - **Hazard Score ($H_1..H_4$):** $\text{mean}(\text{card}_1, \text{card}_2)$. `H5` is context-only and is not included in hazard or overall aggregation.
      - *Red-Floor Capping Rule:* If either card in a hazard is Red, parent hazard score is capped at $\le 49$ (`cappedByRedFloor: true`).
    - **Overall Score:**
      $$\text{Overall Score} = \text{clamp}_{[0, 100]}\left(\frac{H_1 + H_2 + H_3 + H_4}{4} - \text{AutonomyPenalty}\right)$$
@@ -118,6 +124,8 @@ All UI components in `src/components` consume **only** the plain-JavaScript outp
 
 `evaluate(input)` returns a single deterministic object containing:
 
+The `measurements` dictionary contains canonical IDs for all 18 indicators. It also exposes friendly-name aliases such as `BloodPressure`, `ONSD`, `Sleep`, and `SpO2`, where each alias points to the same measurement object.
+
 ```json
 {
   "profile": {
@@ -152,40 +160,48 @@ All UI components in `src/components` consume **only** the plain-JavaScript outp
   },
   "hazards": [
     {
-      "id": "H1",
+      "id": 1,
+      "hazardId": "H1",
       "number": 1,
       "name": "Altered Gravity Fields",
       "score": 49,
+      "rawAverage": 49,
       "status": "RED",
       "triageStatus": "CRITICAL",
       "cappedByRedFloor": true,
       "cards": ["1A", "1B"]
     },
     {
-      "id": "H2",
+      "id": 2,
+      "hazardId": "H2",
       "number": 2,
       "name": "Space Radiation & Immune",
       "score": 35,
+      "rawAverage": 35,
       "status": "RED",
       "triageStatus": "CRITICAL",
       "cappedByRedFloor": true,
       "cards": ["2A", "2B"]
     },
     {
-      "id": "H3",
+      "id": 3,
+      "hazardId": "H3",
       "number": 3,
       "name": "Isolation & Confinement",
       "score": 68,
+      "rawAverage": 68,
       "status": "YELLOW",
       "triageStatus": "WARNING",
       "cappedByRedFloor": false,
       "cards": ["3A", "3B"]
     },
     {
-      "id": "H4",
+      "id": 4,
+      "hazardId": "H4",
       "number": 4,
       "name": "Hostile Closed Environment",
       "score": 92,
+      "rawAverage": 92,
       "status": "GREEN",
       "triageStatus": "NOMINAL",
       "cappedByRedFloor": false,
@@ -215,11 +231,7 @@ All UI components in `src/components` consume **only** the plain-JavaScript outp
       "title": "Neuro-Ocular (SANS) & Skeletal Calcium",
       "score": 16,
       "status": "RED",
-      "measurementIds": ["1B-i", "1B-ii"],
-      "summary": "ONSD reached 5.90 mm (z=+4.33, Red) and 24-h urine calcium elevated at 285 mg/day (z=+2.75, Yellow).",
-      "actions": [
-        { "id": "act-1b-1", "label": "Don Lower Body Negative Pressure (LBNP) suit for 45 min per CMO checklist", "checked": false }
-      ]
+      "measurementIds": ["1B-i", "1B-ii"]
     }
   ],
   "measurements": {
@@ -269,7 +281,7 @@ To support existing UI components without regressions:
 - `data.badge`: String `"NOMINAL" | "WARNING" | "CRITICAL"` consumed by `<Badge status={badge} />` and `<Gauge status={badge} />`.
 - `data.autonomy`: String `"A0" | "A1" | "A2"` consumed by `<HazardBars autonomy={autonomy} delaySeconds={data.delay_seconds} />` and `<AutonomyChip />`.
 - `data.delay_seconds`: Numeric one-way comm delay in seconds (`< 5` = `A0 Real-time`, `5..300` = `A1 Delayed`, `> 300` = `A2 Autonomous`).
-- `data.hazards`: Array of hazard objects `{ id, name, score, status }` consumed by `<HazardBars hazards={hazards} />`.
+- `data.hazards`: Array of scored hazards H1-H4. Each object includes numeric `id`, string `hazardId`, `number`, `name`, `score`, `rawAverage`, `status`, `triageStatus`, `cappedByRedFloor`, and `cards`; `<HazardBars hazards={hazards} />` currently consumes the visible score/status fields.
 - `data.nodes`: Object with keys `brain`, `eyes`, `heart`, `lungs`, `bones`, `whole` mapping to `"GREEN" | "YELLOW" | "RED"`.
 - `data.measurements`: Dictionary of measurements containing `value`, `unit`, `status`, `node`, `history`, `baseline`, `earth_normal`, `cadenceStatus` (`"CURRENT" | "DUE_NOW" | "OVERDUE"`), `cadenceIntervalDays`, and `lastMeasuredDaysAgo` consumed by `<Chart />`, measurement badges, and the Guidance Drawer.
 - `data.dueSummary`: `{ dueCount, overdueCount, dueIds, overdueIds, allLogged }` driving the Readiness strip due banner and "Mission Readiness" badge.
@@ -285,13 +297,30 @@ import { evaluate, addReading } from '../engine/index.js';
 // 1. Evaluate a built-in mission preset ('iss' | 'lunar' | 'mars')
 const marsResult = evaluate('mars');
 
-// 2. Log a daily check-in (advances missionDay and streakDays by +1, keeps last 7 days)
-//    Accepts indicator IDs ('4A-i', '1B-i', ...) or form keys (sleep, hr, spo2, onsd, mood, glucose)
+// 2. Log a daily check-in (advances missionDay and streakDays by +1, keeps last 7 days).
+//    Accepts indicator IDs ('4A-i', '1B-i', ...), friendly names, or form aliases
+//    (sleep, hr, spo2, onsd, mood, glucose). The reading may also use { readings, symptoms }.
 const nextState = addReading('iss', {
-  '4A-i': 90,          // or { spo2: 90, sleep: 5.2 }
-  symptoms: { blurredVision: false },
+  readings: {
+    '4A-i': 90,
+    sleep: 5.2,
+  },
+  symptoms: ['blurred'],
 });
 
 // 3. Re-evaluate the updated mission state to refresh all UI components
 const updatedResult = evaluate(nextState);
 ```
+
+`addReading(state, reading)` returns:
+
+```javascript
+{
+  missionDay,
+  profile,
+  symptoms,
+  readings
+}
+```
+
+Missing readings retain their previous values and histories. Routine check-ins advance mission cadence for manual readings but leave passive telemetry synchronized unless a new value is supplied. Symptom keys are normalized for both canonical names and the form aliases listed in `evaluate.js`.
