@@ -1,4 +1,4 @@
-# AstroHealth — Autonomous Astronaut Health Monitor
+# AstroHealth — Web based Autonomous Astronaut Health Monitor
 
 > **Offline-first clinical decision support for ISS, Lunar Artemis, and Mars transit missions.**
 > Built on NASA-STD-3001, NASA HRP spaceflight hazard frameworks, and NASA OSDR radiation telemetry.
