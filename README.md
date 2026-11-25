@@ -1,10 +1,9 @@
-# AstroHealth — Web based Autonomous Astronaut Health Monitor
+# AstroHealth — Web-Based Autonomous Astronaut Health Monitor
 
 > **Offline-first clinical decision support for ISS, Lunar Artemis, and Mars transit missions.**
 > Built on NASA-STD-3001, NASA HRP spaceflight hazard frameworks, and NASA OSDR radiation telemetry.
 
 
-![License](https://img.shields.io/badge/license-MIT-blue)
 ![Data](https://img.shields.io/badge/data-NASA%20OSDR%20%7C%20NASA--STD--3001-blue)
 
 ---
@@ -22,7 +21,7 @@
 
 ## 1. Overview
 
-**AstroHealth** is a browser-based, backend clinical decision-support dashboard for astronauts and Crew Medical Officers (CMOs) across three spaceflight autonomy regimes:
+**AstroHealth** is a browser-based clinical decision-support dashboard for astronauts and Crew Medical Officers (CMOs) across three spaceflight autonomy regimes:
 
 | Regime | Comm Delay | Autonomy Level | Key Capability |
 |--------|-----------|----------------|----------------|
@@ -34,7 +33,7 @@ The system monitors **18 physiological, behavioral, environmental, and operation
 - **5 NASA HRP Spaceflight Hazards** (Altered Gravity · Radiation · Isolation/Confinement · Hostile Closed Environment · Distance from Earth)
 - **6 anatomical health nodes** (Brain · Eyes · Heart · Lungs · Core · Skeletal)
 
-All thresholds, baselines, and clinical protocol records are **bundled offline** — no network requests at runtime beyond optional AI and Google Fonts.
+All thresholds, baselines, and clinical protocol records are **bundled offline** — core monitoring does not require live data fetches. Optional services include Supabase authentication and the Gemini AI assistant.
 
 ---
 
@@ -54,15 +53,33 @@ cd astro-health-monitor
 # Install dependencies
 npm install
 
+# Configure the app (optional Gemini AI, required for Supabase login)
+copy .env.example .env.local
+
 # Start the local development server (http://localhost:5173)
 npm run dev
 
-# Run the full test suite (Vitest — 20 tests)
+# Run the full test suite (Vitest — 33 tests)
 npm test
 
 # Build for production
 npm run build
 ```
+
+For local use, configure the variables in `.env.local`:
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_SUPABASE_URL` | Supabase project URL (required for the login UI) |
+| `VITE_SUPABASE_ANON_KEY` | Supabase public anonymous key (required for the login UI) |
+| `GEMINI_API_KEY` | Optional server-side Gemini API key for AI chat |
+| `GEMINI_MODEL` | Optional Gemini model override |
+
+Do not prefix secret keys with `VITE_`.
+
+### Email Confirmation
+
+Email confirmation is controlled by the Supabase project settings and has not been marked as enabled or disabled here until signup is tested. If a new account logs in immediately, confirmation is off; if it requires an email link and displays a "check your email" message, confirmation is on.
 
 ### Keyboard Shortcuts
 
@@ -167,7 +184,7 @@ Upgrades a GREEN indicator to YELLOW (`trending: true`) when the last 3 interval
 
 ### Stage 4 — Scoring, Autonomy & Cadence
 - Interpolates **0–100** scores per indicator, aggregated by sub-card (`1A`..`5B`), hazard (`H1`..`H5`), and anatomical node.
-- Applies the **A2 autonomy penalty** (−5 pts when comm delay > 5 min and any physiological metric is non-green).
+- Applies the **A2 autonomy penalty** (−10 pts when communication delay exceeds 5 minutes and at least one physiological indicator is red).
 - Compares `lastMeasuredDaysAgo` against `cadence.routineIntervalDays` (1, 3, or 7 days) to drive `DUE NOW` / `OVERDUE` badges.
 
 ---
